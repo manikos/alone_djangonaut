@@ -44,7 +44,7 @@ a namespaced package and second, this article assumes a regular package (the one
 
 The following (super simple) project setup is assumed throughout this article:
 
-```
+```bash
 tmp/
   my_package/
     __init__.py
@@ -639,7 +639,9 @@ get [executed](https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstr
 Have you noticed the *secret sauce* when you import a package or module? It's [this line exactly](https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L678) 
 (inside the `exec_module` method of the `_LoaderBasics` class, where the [`SourceFileLoader`](https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L836) inherits from):
 
-    _bootstrap._call_with_frames_removed(exec, code, module.__dict__)
+```bash
+_bootstrap._call_with_frames_removed(exec, code, module.__dict__)
+```
 
 The module (the python file) gets executed using the (sometimes evil one) [`exec`](https://docs.python.org/3/library/functions.html#exec) builtin function. 
 Since, the code is executed, you then have all your python definitions at your feet to work with. 

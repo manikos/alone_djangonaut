@@ -97,6 +97,6 @@ In this section we will see which template file is actually called under a parti
 <br>
 
 <figure>
-<img id="dj-admin-diagram" alt="Django admin template inheritance diagram" src="/images/admin_template_inheritance.jpg">
+<img id="dj-admin-diagram" alt="Django admin template inheritance diagram" src="/images/django_admin_template_structure/admin_template_inheritance.jpg">
 <figcaption>Django admin template inheritance diagram</figcaption>
 </figure>

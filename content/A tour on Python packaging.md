@@ -118,7 +118,7 @@ that enters the warehouse, picks the appropriate container, unpacks it and deliv
 
 <br><figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
   <a name="warehouse_img"></a>
-	<img id="pypi-warehouse" src="/images/pypi_warehouse.jpg" alt="Python Package Index Warehouse representation">
+	<img id="pypi-warehouse" src="/images/a_tour_on_python_packaging/pypi_warehouse.jpg" alt="Python Package Index Warehouse representation">
 	<figcaption>Representation of the PyPI and the relevant tools (image source: <a href="https://www.crown.com/en-us/warehouse-solutions-products.html">www.crown.com</a>)</figcaption>
 </figure><br>
 
@@ -707,7 +707,7 @@ It can also be seen from the image below:
 
 <br><figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
   <a name="packaging_formats_img"></a>
-	<img id="packaging-formats" src="/images/packaging_whl_tar.png" alt="Python Packaging Formats (sdist and wheel)">
+	<img id="packaging-formats" src="/images/a_tour_on_python_packaging/packaging_whl_tar.png" alt="Python Packaging Formats (sdist and wheel)">
 	<figcaption>Python packaging formats: built distribution and source (wheel and sdist, respectively)</figcaption>
 </figure><br>
 
@@ -1012,7 +1012,7 @@ Since, an image worth a thousand words, here you are:
 
 <br><figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
   <a name="packaging_upload_img"></a>
-	<img id="packaging-upload" src="/images/packaging_upload_twine.png" alt="Python Packaging upload on PyPI via twine">
+	<img id="packaging-upload" src="/images/a_tour_on_python_packaging/packaging_upload_twine.png" alt="Python Packaging upload on PyPI via twine">
 	<figcaption>Python packaging upload on PyPI via twine</figcaption>
 </figure><br>
 
