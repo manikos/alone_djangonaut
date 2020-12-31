@@ -1,0 +1,77 @@
+aside {
+	width: 20%;
+}
+
+main {
+    width: 80%;
+    left: 20%;
+}
+
+.portfolio-wrapper {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+	grid-gap: 50px;
+}
+
+main article blockquote {
+    margin: 0;
+}
+
+@media (max-width: 1100px) {
+	main {
+		width: auto;
+		left: unset;
+		position: relative;
+	}
+	aside {
+		position: relative;
+		width: 100%;
+		height: 100px;
+	}
+	aside > div {
+		display: grid;
+		grid-template-columns: 60px auto 2fr repeat(2, minmax(150px, 1fr));
+		grid-column-gap: 1em;
+		align-items: center;
+		padding: 15px;
+	}
+	aside > div > a {
+		grid-column: 1 / 2;
+	}
+	aside > div img {
+		width: 60px;
+	}
+	aside div h1 {
+		grid-column: 2 / 3;
+		grid-row: 1;
+		font-size: 1.5em;
+		margin: 0;
+	}
+	aside > div h1 + p {
+		display: none;
+	}
+	aside nav {
+		grid-column: 4 / 5;
+	}
+	aside nav > ul {
+		display: flex;
+		justify-content: space-between;
+	}
+	aside > div ul.social {
+		display: flex;
+		justify-content: space-evenly;
+		padding: 0;
+	}
+}
+
+@media (max-width: 640px) {
+	aside > div h1 {
+		display: none;
+	}
+	aside nav {
+		grid-column: unset;
+	}
+	aside > div ul.social {
+		grid-column: 4 / 5;
+	}
+}
