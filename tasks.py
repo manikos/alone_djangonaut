@@ -126,3 +126,10 @@ def gh_pages(c):
 def pelican_run(cmd):
     cmd += ' ' + program.core.remainder  # allows to pass-through args to pelican
     pelican_main(shlex.split(cmd))
+    
+
+@task
+def push(c):
+    """Push project to Github"""
+    c.run('git add . && git commit -m "Update project" && git push origin master')
+
