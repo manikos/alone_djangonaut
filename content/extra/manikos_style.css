@@ -30,7 +30,7 @@ main article blockquote {
 	}
 	aside > div {
 		display: grid;
-		grid-template-columns: 60px auto 2fr repeat(2, minmax(150px, 1fr));
+		grid-template-columns: 60px auto 0.5fr repeat(2, minmax(250px, 1fr));
 		grid-column-gap: 1em;
 		align-items: center;
 		padding: 15px;
@@ -64,14 +64,20 @@ main article blockquote {
 	}
 }
 
-@media (max-width: 640px) {
-	aside > div h1 {
-		display: none;
+@media (max-width: 750px) {
+	aside > div {grid-template-columns: 40px auto 250px;}
+	aside > div > a > img {width: 40px;}
+	aside nav {grid-column: 2 / 3;}
+	aside > div > h1 {display: none;}
+	ul.social a {
+		width: 25px;
+		height: 25px;
+		font-size: .6em;
+		line-height: 26px;
 	}
-	aside nav {
-		grid-column: unset;
-	}
-	aside > div ul.social {
-		grid-column: 4 / 5;
-	}
+}
+
+@media (max-width: 540px) {
+	aside nav {grid-column: 2 / 4;}
+	aside > div ul.social {display: none;}
 }

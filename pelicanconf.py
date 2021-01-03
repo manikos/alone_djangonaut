@@ -69,11 +69,19 @@ SITETITLE = "Alone Djangonaut"
 SITESUBTITLE = "living in the pale blue dot"
 SITEDESCRIPTION = "Portfolio page of Nick Mavrakis that will keep record of web development related posts and ideas."
 DISABLE_URL_HASH = True
+THEME_COLOR = "dark"
+THEME_COLOR_AUTO_DETECT_BROWSER_PREFERENCE = True
+THEME_COLOR_ENABLE_USER_OVERRIDE = True
 # BROWSER_COLOR = '#101010'
 COPYRIGHT_NAME = "Nick Mavrakis"
 COPYRIGHT_YEAR = datetime.now().year
-HOME_HIDE_TAGS = False
-MAIN_MENU = False
+# HOME_HIDE_TAGS = False
+MAIN_MENU = True
+MENUITEMS = (
+    ("Archives", "/archives.html"),
+    ("Categories", "/categories.html"),
+    ("Tags", "/tags.html"),
+)
 # available social names: email, facebook, github, google, instagram,
 # linkedin, medium, pinterest, reddit, rss, soundcloud stack-overflow,
 # tumblr, twitter, youtube, gitlab, xing, bitbucket
