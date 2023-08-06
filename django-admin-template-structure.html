@@ -1,0 +1,335 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://alone-djangonaut.com/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/solid.css">
+
+    <link href="https://alone-djangonaut.com/extra/manikos_style.css" rel="stylesheet">
+
+    <link href="https://alone-djangonaut.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alone Djangonaut Atom">
+
+
+    <link rel="shortcut icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+
+  
+
+
+<meta name="author" content="Nick Mavrakis" />
+<meta name="description" content="Today we will see how template inheritance works inside the Django admin contribution package" />
+<meta name="keywords" content="python, django-admin, django-admin templates">
+
+
+<meta property="og:site_name" content="Alone Djangonaut"/>
+<meta property="og:title" content="Django admin template structure"/>
+<meta property="og:description" content="Today we will see how template inheritance works inside the Django admin contribution package"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://alone-djangonaut.com/django-admin-template-structure"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-10-16 00:00:00+03:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="https://alone-djangonaut.com/author/nick-mavrakis.html">
+<meta property="article:section" content="Django"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="django-admin"/>
+<meta property="article:tag" content="django-admin templates"/>
+<meta property="og:image" content="https://alone-djangonaut.com/images/logo/logo_3.png">
+
+  <title>Alone Djangonaut &ndash; Django admin template structure</title>
+
+</head>
+<body >
+  <aside>
+    <div>
+      <a href="https://alone-djangonaut.com">
+        <img src="https://alone-djangonaut.com/images/logo/logo_3.png" alt="Alone Djangonaut" title="Alone Djangonaut">
+      </a>
+
+      <h1>
+        <a href="https://alone-djangonaut.com">Alone Djangonaut</a>
+      </h1>
+
+<p>living in the pale blue dot</p>
+
+      <nav>
+        <ul class="list">
+
+
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/portfolio/">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/about/">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/contact/">
+                  Contact
+                </a>
+              </li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/manikosN" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-github" href="https://github.com/manikos" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-stack-overflow" href="https://stackoverflow.com/users/2231182/nik-m" target="_blank">
+              <i class="fab fa-stack-overflow"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-rss" href="feeds/all.atom.xml" target="_blank">
+              <i class="fas fa-rss"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://alone-djangonaut.com">Home</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+      <a href="https://alone-djangonaut.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="django-admin-template-structure">Django admin template structure</h1>
+    <p>
+      Posted on Sun 16 October 2016 in <a href="https://alone-djangonaut.com/category/django.html">Django</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>As you all (probably) know, <a href="https://www.djangoproject.com/">Django</a> is a magnificent Web framework to build the website of your dreams. There is a plethora of tutorials, how-to's, getting-started, django-for-dummies out there in the internet-wild. I am not going to show you the <code>Django</code> basics (<a href="https://docs.djangoproject.com/en/dev/topics/db/models/"><code>models</code></a>, <a href="https://docs.djangoproject.com/en/dev/topics/http/views/"><code>views</code></a>, <a href="https://docs.djangoproject.com/en/dev/ref/templates/"><code>templates</code></a> or <a href="https://docs.djangoproject.com/en/dev/ref/forms/"><code>forms</code></a> to name a few). I just want to share with you the template inheritance of the incredible <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/">Django admin contribution package</a>.</p>
+<p>At this time of writing, I am dreaming of a much more appealing admin interface which is based on the super-fancy <a href="https://almsaeedstudio.com/">AdminLTE</a> template (there is a free version you can download, under the MIT License -- more about licences <a href="http://choosealicense.com/">here</a>). But in order to adopt the new-dreamed template in my own project I must understand the template inheritance workflow of the built-in <code>Django</code> admin app.</p>
+<p>I know there is a package, already out there (<a href="https://github.com/StephenPCG/django-adminlte-templates">django-adminlte-templates</a>), that offer you the capability of using this admin template but I wanted to deeply understand how the <code>Django</code> admin template system is assembled and working so flawlessly. Lets get to work:</p>
+<h1 id="the-core-ones">The core ones</h1>
+<p>In this section we will describe briefly, the core HTML templates where the rest inherit from. If you do not have <code>Django</code> installed (!) or you're bored enough right now to navigate to the actual path where these templates are stored in your machine, here is <code>Django</code>'s admin <a href="https://github.com/django/django/tree/master/django/contrib/admin/templates">github source for the templates</a> (you're one click away!).</p>
+<p>As you can see there are two folders <code>admin</code> and <code>registration</code>. In the rest of this article we will assume that we are working under the <code>admin</code> directory, unless stated otherwise where we will be under the <code>registration</code> directory.</p>
+<h2 id="basehtml">base.html</h2>
+<p>As <a href="http://anebrun.com/">Ane Brun</a> says in her song <a href="https://www.youtube.com/watch?v=qMCQgb1YxI8">One</a>:</p>
+<blockquote>
+<p>It all starts somewhere, it all starts with one</p>
+</blockquote>
+<p>The root of the <code>Django</code> admin templates is <strong>this file</strong> and is located inside the <code>Django</code> folder that you installed via your <a href="https://docs.djangoproject.com/en/dev/intro/install/#install-django">preferred method</a>.
+Assuming that:</p>
+<ul>
+<li>you <strong>are using</strong> <code>virtualenv</code></li>
+<li>you <strong>are using</strong> Linux and</li>
+<li>your <code>.virtualenvs</code> folder is inside your <code>$HOME</code> directory (note the <code>.</code> dot in front - indicates a hidden file. Press <code>Ctrl+H</code> to view hidden files)</li>
+</ul>
+<p>then you will find this file following this path: <code>$HOME/.virtualenvs/&lt;your_virtual_env_name&gt;/lib/python&lt;your_version_of_python&gt;/site-packages/django/contrib/admin/templates/admin</code>
+Easy eh?</p>
+<p>Inside the <code>admin</code> folder you will find all the templates <code>Django</code> admin uses, to present itself. Nothing inherits directly from this file (in other words, there is no template which has this line at the top: <code>{% extends "admin/base.html" %}</code>) except from the <code>base_site.html</code> file.</p>
+<h2 id="base_sitehtml">base_site.html</h2>
+<p>This is the only file that <a href="https://docs.djangoproject.com/en/dev/ref/templates/builtins/#extends">extends</a> the <em>one</em> file (the root, the <code>base.html</code> file). I believe, until now you are following along.
+Every other template file extends this one (see the graph <a href="#dj-admin-diagram">below</a> for a better understanding). What? An exception? Oh, yes! Let me rephrase it:
+Every other template file extends this one except from the <code>app_index.html</code> file which extends <code>index.html</code> which in turn extends <code>base_site.html</code> which (finally) extends <code>base.html</code>. This would be the longest <em>chain of extends</em> you will find in the <code>Django</code> admin templates.</p>
+<h2 id="indexhtml">index.html</h2>
+<p>This file is just used as a base template for the <code>app_index.html</code> file. No other file extends <code>index.html</code>. Only the <code>app_index.html</code> extends <code>index.html</code>.</p>
+<h1 id="rest-of-the-templates">Rest of the templates</h1>
+<p>Every other single template (apart from the ones mentioned above) either extends the <code>base_site.html</code> or act as standalone ready to be <a href="https://docs.djangoproject.com/en/dev/ref/templates/builtins/#std:templatetag-include"><em>included</em></a> somewhere (for example <code>actions.html</code>).</p>
+<h1 id="url-template-file-relationship">URL-Template file relationship</h1>
+<p>In this section we will see which template file is actually called under a particular admin URL. We are assuming that inside your <a href="https://docs.djangoproject.com/en/dev/topics/http/urls/">URLconf</a> file (also known as <code>urls.py</code>) the string <code>admin</code> is the one that you have chosen to visit the admin website. For example, if your site is <code>mywebsite.com</code> and this line is in your <code>urlpatterns</code> variable under <code>urls.py</code>: <code>url(r'^admin/', include(admin.site.urls)),</code> then you should visit the magnificent admin website at <code>mywebsite.com/admin/</code>.</p>
+<ul>
+<li>URL: <strong><code>yourwebsite.com/&lt;app_label&gt;/&lt;model_name&gt;/</code></strong>, Template: <strong><code>change_list.html</code></strong><ul>
+<li>Inside the template <code>change_list.html</code> the following templates are <em>included</em>: <code>change_list_results.html</code>, <code>actions.html</code> and <code>pagination.html</code></li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>URL (yourwebsite.com/admin/...)</th>
+<th>Template</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>''</code></td>
+<td><code>index.html</code></td>
+<td>The admin home page</td>
+</tr>
+<tr>
+<td><code>&lt;app_label&gt;/</code></td>
+<td><code>app_index.html</code></td>
+<td>You have clicked on the name of the app (not model)</td>
+</tr>
+<tr>
+<td><code>&lt;app_label&gt;/&lt;model_name&gt;/</code></td>
+<td><code>change_list.html</code>&#185;</td>
+<td>You have clicked on the name of a model</td>
+</tr>
+<tr>
+<td><code>&lt;app_label&gt;/&lt;model_name&gt;/&lt;pk&gt;/change/</code> <code>&lt;app_label&gt;/&lt;model_name&gt;/add/</code></td>
+<td><code>change_form.html</code>&#178;</td>
+<td>You have clicked on an object to change it</td>
+</tr>
+<tr>
+<td><code>&lt;app_label&gt;/&lt;model_name&gt;/&lt;pk&gt;/history/</code></td>
+<td><code>object_history.html</code></td>
+<td>You have clicked on the HISTORY button to see the object's history</td>
+</tr>
+<tr>
+<td><code>&lt;app_label&gt;/&lt;model_name&gt;/</code></td>
+<td><code>delete_confirmation.html</code>&#179;</td>
+<td>You have checked <strong>one</strong> object, selected <em>Delete selected <models_name></em> and pressed <em>Go</em></td>
+</tr>
+<tr>
+<td><code>&lt;app_label&gt;/&lt;model_name&gt;/</code></td>
+<td><code>delete_selected_confirmation.html</code>&#179;</td>
+<td>You have checked <strong>multiple</strong> objects, selected <em>Delete selected <models_name></em> and pressed <em>Go</em></td>
+</tr>
+<tr>
+<td><code>login/</code></td>
+<td><code>login.html</code></td>
+<td>You requested to login</td>
+</tr>
+<tr>
+<td><code>password_change/</code></td>
+<td><code>registration/password_change_form.html</code></td>
+<td>You requested to change your password</td>
+</tr>
+<tr>
+<td><code>logout/</code></td>
+<td><code>registration/logged_out.html</code></td>
+<td>You requested to logged out</td>
+</tr>
+</tbody>
+</table>
+<p>&#185; Inside the template <code>change_list.html</code> these templates are used:</p>
+<ul>
+<li><code>change_list_results.html</code> (to show the objects of this model - entries in the database, if you like)</li>
+<li><code>actions.html</code> (to show the <em>actions</em> <code>div</code> which contains the default action <code>Delete</code> and any other of your own)</li>
+<li><code>pagination.html</code> (for the pagination across your objects)</li>
+<li><code>date_hierarchy.html</code> (only if the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.date_hierarchy"><code>date_hierarchy</code></a> is used)</li>
+<li><code>filter.html</code> (only if the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter"><code>list_filter</code></a> is used)</li>
+<li><code>search_form.html</code> (only if the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.search_fields"><code>search_fields</code></a> is used)</li>
+</ul>
+<p>&#178; Inside the template <code>change_form.html</code> these templates are used:</p>
+<ul>
+<li><code>edit_inline/stacked.html</code> and <code>edit_inline/tabular.html</code> (if the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#inlinemodeladmin-objects"><code>StackedInline</code> or <code>TabularInline</code></a> is used)</li>
+<li><code>related_widget_wrapper.html</code> (again, if an inline is used)</li>
+<li><code>includes/fieldset.html</code> (if the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.fieldsets"><code>fieldsets</code></a> or/and an inline is used)</li>
+<li><code>submit_line.html</code> (in order to show the bottom - or <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.save_on_top">top</a> - <code>div</code> of the <em>Delete</em>, <em>Save and add another`</em>, <em>Save and continue editing</em> and <em>Save</em> buttons)</li>
+<li><code>prepopulated_fields_js.html</code> (if the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.prepopulated_fields"><code>prepopulated_fields</code></a> is used)</li>
+</ul>
+<p>&#179; Inside the templates <code>delete_confirmation.html</code> and <code>delete_selected_confirmation.html</code> the <code>includes/object_delete_summary.html</code>template is used.</p>
+<p><br></p>
+<figure>
+<img id="dj-admin-diagram" alt="Django admin template inheritance diagram" src="/images/django_admin_template_structure/admin_template_inheritance.jpg">
+<figcaption>Django admin template inheritance diagram</figcaption>
+</figure>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://alone-djangonaut.com/tag/python.html">python</a>
+      <a href="https://alone-djangonaut.com/tag/django-admin.html">django-admin</a>
+      <a href="https://alone-djangonaut.com/tag/django-admin-templates.html">django-admin templates</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'manikos';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy; 2023 Nick Mavrakis</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://alone-djangonaut.com/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Alone Djangonaut ",
+  "url" : "https://alone-djangonaut.com",
+  "image": "https://alone-djangonaut.com/images/logo/logo_3.png",
+  "description": "Tutorials, blog posts and thoughts of a Django developer. He/him. Music lover."
+}
+</script>
+
+
+</body>
+</html>

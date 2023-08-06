@@ -1,0 +1,861 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://alone-djangonaut.com/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/solid.css">
+
+    <link href="https://alone-djangonaut.com/extra/manikos_style.css" rel="stylesheet">
+
+    <link href="https://alone-djangonaut.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alone Djangonaut Atom">
+
+
+    <link rel="shortcut icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+
+  
+
+
+<meta name="author" content="Nick Mavrakis" />
+<meta name="description" content="Have you ever wondered what happens under the hood when you type import my_package.my_module? This article enlightens some of the (pretty) complicated aspects of the python import machinery." />
+<meta name="keywords" content="import">
+
+
+<meta property="og:site_name" content="Alone Djangonaut"/>
+<meta property="og:title" content="How python&#39;s import machinery works"/>
+<meta property="og:description" content="Have you ever wondered what happens under the hood when you type import my_package.my_module? This article enlightens some of the (pretty) complicated aspects of the python import machinery."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://alone-djangonaut.com/how-pythons-import-machinery-works"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2018-01-22 00:00:00+02:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="https://alone-djangonaut.com/author/nick-mavrakis.html">
+<meta property="article:section" content="python"/>
+<meta property="article:tag" content="import"/>
+<meta property="og:image" content="https://alone-djangonaut.com/images/logo/logo_3.png">
+
+  <title>Alone Djangonaut &ndash; How python&#39;s import machinery works</title>
+
+</head>
+<body >
+  <aside>
+    <div>
+      <a href="https://alone-djangonaut.com">
+        <img src="https://alone-djangonaut.com/images/logo/logo_3.png" alt="Alone Djangonaut" title="Alone Djangonaut">
+      </a>
+
+      <h1>
+        <a href="https://alone-djangonaut.com">Alone Djangonaut</a>
+      </h1>
+
+<p>living in the pale blue dot</p>
+
+      <nav>
+        <ul class="list">
+
+
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/portfolio/">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/about/">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/contact/">
+                  Contact
+                </a>
+              </li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/manikosN" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-github" href="https://github.com/manikos" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-stack-overflow" href="https://stackoverflow.com/users/2231182/nik-m" target="_blank">
+              <i class="fab fa-stack-overflow"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-rss" href="feeds/all.atom.xml" target="_blank">
+              <i class="fas fa-rss"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://alone-djangonaut.com">Home</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+      <a href="https://alone-djangonaut.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="how-pythons-import-machinery-works">How python's import machinery works</h1>
+    <p>
+      Posted on Mon 22 January 2018 in <a href="https://alone-djangonaut.com/category/python.html">python</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <h1 id="glossary">Glossary</h1>
+<p>Let's begin with the <a href="https://docs.python.org/3/glossary.html">basics</a>. 
+From now on when we say the word <em>python</em> we mean python 3.6. Python 3 is the future and (who knows) python 4 will be the future of python 3 etc. 
+Stop using python 2!</p>
+<p>I'll try to be concise and simple, although the documentation about <a href="https://docs.python.org/3/tutorial/modules.html#modules">modules</a> and 
+<a href="https://docs.python.org/3/tutorial/modules.html#packages">packages</a> is pretty straight forward. Go ahead and take a look to either learn
+what these concepts are or just refresh your memory.</p>
+<h3 id="python-module">Python module</h3>
+<p>When we say <em>python module</em> or just <a href="https://docs.python.org/3/glossary.html#term-module"><code>module</code></a> we mean a simple python file, i.e <code>models.py</code> or <code>utils.py</code>. </p>
+<blockquote>
+<p>A module is a file containing Python definitions and statements. The file name is the module name with the suffix .py appended.</p>
+</blockquote>
+<p>When you put a bunch of modules under a directory then this directory is called a <em>python package</em>.</p>
+<h3 id="python-package">Python package</h3>
+<p>When we say <em>python package</em> or simply just <a href="https://docs.python.org/3/glossary.html#term-package"><code>package</code></a> we mean a directory that contains one or more <em>modules</em>.</p>
+<blockquote>
+<p>Packages are a way of structuring Python’s module namespace by using “dotted module names”.</p>
+</blockquote>
+<p>Of course, a package may contain a bunch of other directories (packages) which themselves may contain a bunch of other modules mixed with other packages etc. You get the point.
+That's how an application is structured. This, of course, does not apply to Python only but to every programming language out there.</p>
+<p>Now, a package may or may not contain a <code>__init.py__</code> file which distinguishes it between a <a href="https://docs.python.org/3/glossary.html#term-regular-package"><code>regular package</code></a> and a 
+<a href="https://docs.python.org/3/glossary.html#term-namespace-package"><code>namespace package</code></a>. But I'll not go into details with namespace packages because first of all I have never used
+a namespaced package and second, this article assumes a regular package (the one which has a <code>__init__.py</code> in it).</p>
+<h1 id="project-setup">Project setup</h1>
+<p>The following (super simple) project setup is assumed throughout this article:</p>
+<div class="highlight"><pre><span></span>tmp/
+  my_package/
+    __init__.py
+    my_module.py
+</pre></div>
+
+
+<p>You can follow along with this article by putting the above structure inside a directory, i.e your <code>~/tmp/</code> directory.</p>
+<p>This is the content of <code>my_module.py</code>:</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;init called&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">caps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+</pre></div>
+
+
+<p>Nothing fancy here. Super simple because we want to focus on the import system. Not classes, methods etc.</p>
+<h1 id="the-easy-way">The easy way</h1>
+<p>From now on we will assume that the python interpreter is always enabled under the directory in which the above structure exists. No virtual environments.
+I promised to keep it simple in order to get a grip on this import machinery monster.</p>
+<p>In my system, I have it under <code>~/tmp</code>.</p>
+<div class="highlight"><pre><span></span>~&gt; <span class="nb">cd</span> tmp
+~/tmp&gt; python3.6
+Python <span class="m">3</span>.6.3 <span class="o">(</span>default, Dec  <span class="m">3</span> <span class="m">2017</span>, <span class="m">22</span>:10:01<span class="o">)</span> 
+<span class="o">[</span>GCC <span class="m">5</span>.4.0 <span class="m">20160609</span><span class="o">]</span> on linux
+Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for</span> more information.
+&gt;&gt;&gt;
+</pre></div>
+
+
+<p><em>Side tip</em>: You can change the interactive python prompt from the default one (<code>&gt;&gt;&gt;</code>) to i.e <code>&gt;</code> with: <code>import sys; sys.ps1 = '&gt; '</code></p>
+<div class="highlight"><pre><span></span><span class="o">~/</span><span class="n">tmp</span><span class="o">&gt;</span> <span class="n">python3</span><span class="o">.</span><span class="mi">6</span>
+<span class="n">Python</span> <span class="mf">3.6</span><span class="o">.</span><span class="mi">3</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Dec</span>  <span class="mi">3</span> <span class="mi">2017</span><span class="p">,</span> <span class="mi">22</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">01</span><span class="p">)</span> 
+<span class="p">[</span><span class="n">GCC</span> <span class="mf">5.4</span><span class="o">.</span><span class="mi">0</span> <span class="mi">20160609</span><span class="p">]</span> <span class="n">on</span> <span class="n">linux</span>
+<span class="n">Type</span> <span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="s2">&quot;copyright&quot;</span><span class="p">,</span> <span class="s2">&quot;credits&quot;</span> <span class="ow">or</span> <span class="s2">&quot;license&quot;</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="o">.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span><span class="p">;</span> <span class="n">sys</span><span class="o">.</span><span class="n">ps1</span> <span class="o">=</span> <span class="s1">&#39;&gt; &#39;</span>
+<span class="o">&gt;</span> 
+</pre></div>
+
+
+<p>Now, if we type:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">my_package</span> <span class="kn">import</span> <span class="n">my_module</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">MyClass</span><span class="p">()</span>
+<span class="n">init</span> <span class="n">called</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">caps</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
+<span class="n">HELLO</span>
+<span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+
+
+<p>Import done! <code>MyClass</code> instance created! <code>caps()</code> method called! But you already know that. This is the first thing taught when you start learning python.</p>
+<p>Go get a coffee/chocolate/tea/beer because here comes the good part. The internals have not yet begun...</p>
+<h1 id="the-dynamic-way">The dynamic way</h1>
+<p>There is another way to import a module (or package). Using the <a href="https://docs.python.org/3/library/importlib.html#importlib.import_module">import_module</a> method. 
+Well, this is quite easy to understand and you're <strong>encouraged</strong> to use it if you want to import things dynamically (instead of the old classic way of 
+calling <a href="https://docs.python.org/3/library/functions.html#__import__"><code>__import__()</code></a>).</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">my_module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="s1">&#39;my_package.my_module&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">MyClass</span><span class="p">()</span>
+<span class="n">init</span> <span class="n">called</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">caps</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
+<span class="n">HELLO</span>
+</pre></div>
+
+
+<p>As seen from above, we have named the module, returned by the <code>import_module</code> method, as <code>my_module</code>, the same as the module's name in order to be consistent.
+We could have also name it i.e <code>mod</code> (or whatever) but then we must do <code>obj = mod.MyClass()</code>. </p>
+<p>Now take a look at this:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">my_module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">my_module</span><span class="o">.</span><span class="n">my_module</span><span class="o">.</span><span class="n">MyClass</span><span class="p">()</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+  <span class="ne">AttributeError</span><span class="p">:</span> <span class="n">module</span> <span class="s1">&#39;my_package&#39;</span> <span class="n">has</span> <span class="n">no</span> <span class="n">attribute</span> <span class="s1">&#39;my_module&#39;</span>
+</pre></div>
+
+
+<p>What? But I have imported <code>my_package</code>. Why the <code>my_module</code> module cannot be found? Because, simply, it has not been loaded (imported). 
+We should import it explicit just like we did in the previous example. When importing a package, it is not assumed that all other
+sub-packages/sub-modules are imported too. This applies to all Python import mechanisms, not only to <code>import_module</code> method.</p>
+<h1 id="the-almost-manual-way">The (almost) manual way</h1>
+<p>Hang on. We haven't reach our goal to the pure manual way of importing things. 
+Here is <a href="https://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path#answer-43602557">another way</a> of importing a 
+module (or package) without the direct usage of <a href="https://docs.python.org/3/library/importlib.html#importlib.import_module">import_module</a> method.</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">importlib.util</span> <span class="kn">import</span> <span class="n">spec_from_loader</span><span class="p">,</span> <span class="n">module_from_spec</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">SourceFileLoader</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_from_loader</span><span class="p">(</span><span class="s2">&quot;my_package.my_module&quot;</span><span class="p">,</span> <span class="n">SourceFileLoader</span><span class="p">(</span><span class="s2">&quot;my_package.my_module&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/nick/tmp/my_package/my_module.py&quot;</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span>
+<span class="n">ModuleSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_package.my_module&#39;</span><span class="p">,</span> <span class="n">loader</span><span class="o">=&lt;</span><span class="n">_frozen_importlib_external</span><span class="o">.</span><span class="n">SourceFileLoader</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f877568fcc0</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;/home/nick/tmp/my_package/my_module.py&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;__class__&#39;</span><span class="p">,</span> <span class="s1">&#39;__delattr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">,</span> <span class="s1">&#39;__dir__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__eq__&#39;</span><span class="p">,</span> <span class="s1">&#39;__format__&#39;</span><span class="p">,</span> <span class="s1">&#39;__ge__&#39;</span><span class="p">,</span> <span class="s1">&#39;__getattribute__&#39;</span><span class="p">,</span> <span class="s1">&#39;__gt__&#39;</span><span class="p">,</span> <span class="s1">&#39;__hash__&#39;</span><span class="p">,</span> 
+<span class="s1">&#39;__init__&#39;</span><span class="p">,</span> <span class="s1">&#39;__init_subclass__&#39;</span><span class="p">,</span> <span class="s1">&#39;__le__&#39;</span><span class="p">,</span> <span class="s1">&#39;__lt__&#39;</span><span class="p">,</span> <span class="s1">&#39;__module__&#39;</span><span class="p">,</span> <span class="s1">&#39;__ne__&#39;</span><span class="p">,</span> <span class="s1">&#39;__new__&#39;</span><span class="p">,</span> <span class="s1">&#39;__reduce__&#39;</span><span class="p">,</span> <span class="s1">&#39;__reduce_ex__&#39;</span><span class="p">,</span> <span class="s1">&#39;__repr__&#39;</span><span class="p">,</span> 
+<span class="s1">&#39;__setattr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__sizeof__&#39;</span><span class="p">,</span> <span class="s1">&#39;__str__&#39;</span><span class="p">,</span> <span class="s1">&#39;__subclasshook__&#39;</span><span class="p">,</span> <span class="s1">&#39;__weakref__&#39;</span><span class="p">,</span> <span class="s1">&#39;_cached&#39;</span><span class="p">,</span> <span class="s1">&#39;_set_fileattr&#39;</span><span class="p">,</span> <span class="s1">&#39;cached&#39;</span><span class="p">,</span> <span class="s1">&#39;has_location&#39;</span><span class="p">,</span> 
+<span class="s1">&#39;loader&#39;</span><span class="p">,</span> <span class="s1">&#39;loader_state&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;origin&#39;</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;submodule_search_locations&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span>
+<span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;my_package.my_module&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/home/nick/tmp/my_package/my_module.py&#39;</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;__cached__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__file__&#39;</span><span class="p">,</span> <span class="s1">&#39;__loader__&#39;</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;__package__&#39;</span><span class="p">,</span> <span class="s1">&#39;__spec__&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;MyClass&#39;</span><span class="p">,</span> <span class="s1">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s1">&#39;__cached__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__file__&#39;</span><span class="p">,</span> <span class="s1">&#39;__loader__&#39;</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;__package__&#39;</span><span class="p">,</span> <span class="s1">&#39;__spec__&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">MyClass</span><span class="p">()</span>
+<span class="n">init</span> <span class="n">called</span>
+</pre></div>
+
+
+<blockquote>
+<p>[READER] Hey, wait mister. What are these? Looks more like <a href="https://en.wikipedia.org/wiki/Klingon_language">Klingon language</a> than Python!</p>
+<p>[ME] No, no. It does not. It is pretty self-explanatory once we start digging the python's import internals.</p>
+</blockquote>
+<p>Note that there is also another way (the pure manual way) to import a Python module but I keep it for last in order to stay with me till the end :)</p>
+<hr>
+
+<h1 id="import-machinerys-concept">Import machinery's concept</h1>
+<p>Python has a very nice abstraction-philosophy of thinking about how to import things. On the other hand someone else could say that this system is quite complicated. 
+Nevertheless, the system comprises of finders, loaders, specifications, modules, caching and a conductor that orchestrates all these, 
+named <a href="https://docs.python.org/3/reference/import.html"><code>python import machinery</code></a>. All these come to play whenever you type <code>import my_package</code>.</p>
+<p>At a glance, the job of the finders is to find (locate) the requested module. If the module can be found, a specification (for that module) is returned. This spec
+is used by the loaders to <em>create the module</em>, <em>initialize it</em> and <em>execute it</em>. If the module cannot be found, the classic <a href="https://docs.python.org/3/library/exceptions.html#ModuleNotFoundError"><code>ModuleNotFoundError</code></a> exception is raised.</p>
+<h2 id="the-procedure">The procedure</h2>
+<h3 id="1-sysmodules">1. <code>sys.modules</code></h3>
+<p>Every time you import a module, the first thing searched is <a href="https://docs.python.org/3/library/sys.html#sys.modules"><code>sys.modules</code></a> dictionary. 
+The keys are just plain strings which consist of module names (with or without the dotted path, which means that are either top-level modules or sub-modules) 
+and the value is the actual <a href="https://docs.python.org/3/library/types.html#types.ModuleType"><code>module</code></a> itself. <code>sys.modules</code> dict acts like a cache. 
+If it's there, go get it. Do not instantiate the import cycle again.</p>
+<p>Let's have a look at the contents of <code>sys.modules</code>:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;builtins&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;builtins&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;sys&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;sys&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_frozen_importlib&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_frozen_importlib&#39;</span> <span class="p">(</span><span class="n">frozen</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_imp&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_imp&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_warnings&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_warnings&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_thread&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_thread&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_weakref&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_weakref&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_frozen_importlib_external&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_frozen_importlib_external&#39;</span> <span class="p">(</span><span class="n">frozen</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_io&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;io&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;marshal&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;marshal&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;posix&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;posix&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;zipimport&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;zipimport&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;encodings&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;encodings&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/encodings/__init__.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;codecs&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;codecs&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/codecs.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_codecs&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_codecs&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;encodings.aliases&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;encodings.aliases&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/encodings/aliases.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;encodings.utf_8&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;encodings.utf_8&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/encodings/utf_8.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_signal&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_signal&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;__main__&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;encodings.latin_1&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;encodings.latin_1&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/encodings/latin_1.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;io&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;io&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/io.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;abc&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;abc&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/abc.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_weakrefset&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_weakrefset&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/_weakrefset.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;site&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/site.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;os&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;os&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/os.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;errno&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;errno&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;stat&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;stat&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/stat.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_stat&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_stat&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;posixpath&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;posixpath&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/posixpath.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;genericpath&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;genericpath&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/genericpath.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;os.path&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;posixpath&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/posixpath.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_collections_abc&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_collections_abc&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/_collections_abc.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_sitebuiltins&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_sitebuiltins&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/_sitebuiltins.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;sysconfig&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;sysconfig&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/sysconfig.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_sysconfigdata_m_linux_x86_64-linux-gnu&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_sysconfigdata_m_linux_x86_64-linux-gnu&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/_sysconfigdata_m_linux_x86_64-linux-gnu.py&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;readline&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;readline&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/lib-dynload/readline.cpython-36m-x86_64-linux-gnu.so&#39;</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;atexit&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;atexit&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;rlcompleter&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;rlcompleter&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/usr/local/lib/python3.6/rlcompleter.py&#39;</span><span class="o">&gt;</span>
+<span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s1">&#39;my_package.my_module&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+<span class="kc">False</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="mi">60</span>
+</pre></div>
+
+
+<p>Can you see <code>my_package.my_module</code> in there? No? Good! That's because it has not been imported (yet) and not added to this dictionary. 
+If you write <code>from my_package import my_module</code> then:</p>
+<div class="highlight"><pre><span></span><span class="c1"># Continue from previous example</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">my_package</span> <span class="kn">import</span> <span class="n">my_module</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;builtins&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;builtins&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;sys&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;sys&#39;</span> <span class="p">(</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s1">&#39;_frozen_importlib&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;_frozen_importlib&#39;</span> <span class="p">(</span><span class="n">frozen</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="c1"># ... same as before</span>
+ <span class="s1">&#39;my_package&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;my_package&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/home/nick/tmp/my_package/__init__.py&#39;</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="s1">&#39;my_package.my_module&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;my_package.my_module&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/home/nick/tmp/my_package/my_module.py&#39;</span><span class="o">&gt;</span>
+<span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s1">&#39;my_package&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s1">&#39;my_package.my_module&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="mi">62</span>
+</pre></div>
+
+
+<p>As seen from above, when we added the <code>import</code> statement, two entries added to <code>sys.modules</code>. The top-level module (which acts like a package) and the dotted path
+to the module (<code>my_module.py</code>) itself. Now, every other time we reference to <code>my_module</code> it will be loaded from <code>sys.modules</code>.<br>
+The <code>import</code> statement took care of all the internals and added it to <code>sys.modules</code>, plus made it available to work with it. But how did all these happen? </p>
+<p>Enter import machinery!</p>
+<h3 id="2-finders">2. Finders</h3>
+<p>If the module requested is not found in the <code>sys.modules</code> dict, then the list <a href="https://docs.python.org/3/reference/import.html#the-meta-path"><code>sys.meta_path</code></a> arises. 
+This list contains <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/abc.py#L47"><code>meta path finder objects</code></a>. Lets look at it:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span><span class="p">)</span>
+<span class="p">[</span>
+  <span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">_frozen_importlib</span><span class="o">.</span><span class="n">BuiltinImporter</span><span class="s1">&#39;&gt;, </span>
+  <span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">_frozen_importlib</span><span class="o">.</span><span class="n">FrozenImporter</span><span class="s1">&#39;&gt;,</span>
+  <span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">_frozen_importlib_external</span><span class="o">.</span><span class="n">PathFinder</span><span class="s1">&#39;&gt;</span>
+<span class="p">]</span>
+</pre></div>
+
+
+<p>The job of each one is to locate the requested module by returning the specification (we'll get to that) of the module or simply <code>None</code>. The competent for that is the
+<a href="https://docs.python.org/3/library/importlib.html#importlib.abc.MetaPathFinder.find_spec"><code>find_spec</code></a> method. This method is called first (for each <code>meta finder</code>) whenever 
+you <code>import</code> something.</p>
+<p><em>from the <a href="https://docs.python.org/3/reference/import.html#the-meta-path">docs</a></em></p>
+<blockquote>
+<p>These finders are queried in order to see if they know how to handle the named module.
+Meta path finders must implement a method called <code>find_spec()</code> which takes three arguments: a name, an import path, and (optionally) a target module.</p>
+</blockquote>
+<p>The <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap.py#L689"><code>BuiltinImporter</code></a> is used purely for builtin modules. You may ask which are
+these modules. Lets take a look.</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">builtin_module_names</span>
+<span class="p">(</span><span class="s1">&#39;_ast&#39;</span><span class="p">,</span> <span class="s1">&#39;_codecs&#39;</span><span class="p">,</span> <span class="s1">&#39;_collections&#39;</span><span class="p">,</span> <span class="s1">&#39;_functools&#39;</span><span class="p">,</span> <span class="s1">&#39;_imp&#39;</span><span class="p">,</span> <span class="s1">&#39;_io&#39;</span><span class="p">,</span> <span class="s1">&#39;_locale&#39;</span><span class="p">,</span> <span class="s1">&#39;_operator&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;_signal&#39;</span><span class="p">,</span> <span class="s1">&#39;_sre&#39;</span><span class="p">,</span> <span class="s1">&#39;_stat&#39;</span><span class="p">,</span> <span class="s1">&#39;_string&#39;</span><span class="p">,</span> <span class="s1">&#39;_symtable&#39;</span><span class="p">,</span> <span class="s1">&#39;_thread&#39;</span><span class="p">,</span> <span class="s1">&#39;_tracemalloc&#39;</span><span class="p">,</span> <span class="s1">&#39;_warnings&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;_weakref&#39;</span><span class="p">,</span> <span class="s1">&#39;atexit&#39;</span><span class="p">,</span> <span class="s1">&#39;builtins&#39;</span><span class="p">,</span> <span class="s1">&#39;errno&#39;</span><span class="p">,</span> <span class="s1">&#39;faulthandler&#39;</span><span class="p">,</span> <span class="s1">&#39;gc&#39;</span><span class="p">,</span> <span class="s1">&#39;itertools&#39;</span><span class="p">,</span> <span class="s1">&#39;marshal&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;posix&#39;</span><span class="p">,</span> <span class="s1">&#39;pwd&#39;</span><span class="p">,</span> <span class="s1">&#39;sys&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;xxsubtype&#39;</span><span class="p">,</span> <span class="s1">&#39;zipimport&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>So, every time you type <code>import sys</code>, or <code>import itertools</code> etc, the finder used to locate that module (remember, <strong>not to load it</strong>) is the <code>BuiltinImporter</code>.</p>
+<p>Next, comes the <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap.py#L762"><code>FrozenImporter</code></a> which is used to locate <a href="https://wiki.python.org/moin/Freeze">frozen modules</a>. 
+We will not concern with that type of modules, though.</p>
+<p>Last but not least is the <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L1055"><code>PathFinder</code></a> which is responsible for locating any 
+module/package not in the range of the previous two. More specifically, it handles modules that are located either on <code>sys.path</code>, <code>sys.path_hooks</code>, <code>sys.path_importer_cache</code> or
+the <code>__path__</code> attribute on the package.</p>
+<blockquote>
+<p>If <code>sys.meta_path</code> processing reaches the end of its list without returning a spec, then a <a href="https://docs.python.org/3/library/exceptions.html#ModuleNotFoundError"><code>ModuleNotFoundError</code></a> is raised.</p>
+</blockquote>
+<p>Imagine the above three (default) guys like persons with a flashlight, each looking at a specific locations to find a module. If all of them fail then either the package
+exists but the finders are not looking in the correct location or the package does not exist at all. I think until here, all these are quite easy to understand.</p>
+<p>And one more thing: you can <a href="https://docs.python.org/3/reference/import.html#import-hooks">extend</a> this list writing your own <code>meta finder</code> but more on this later.</p>
+<p>Lets dive deeper...</p>
+<h4 id="21-spec-object">2.1 Spec object</h4>
+<p><a href="https://docs.python.org/3/library/importlib.html#importlib.machinery.ModuleSpec">Specification objects</a> or just <code>spec objects</code> are the meta data of 
+<a href="https://docs.python.org/3/library/types.html#types.ModuleType">modules</a>. Every <code>module</code> has a <code>spec</code> because in order to import a module the
+spec is required. Thus, every <code>module</code> exposes a <code>__spec__</code> attribute. Lets inspect one:</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">my_package</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">my_package</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s1">&#39;__cached__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__file__&#39;</span><span class="p">,</span> <span class="s1">&#39;__loader__&#39;</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;__package__&#39;</span><span class="p">,</span> <span class="s1">&#39;__path__&#39;</span><span class="p">,</span> <span class="s1">&#39;__spec__&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span> <span class="o">=</span> <span class="n">my_package</span><span class="o">.</span><span class="n">__spec__</span>
+<span class="n">ModuleSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="n">loader</span><span class="o">=&lt;</span><span class="n">_frozen_importlib_external</span><span class="o">.</span><span class="n">SourceFileLoader</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f9673ceee48</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;/home/nick/tmp/my_package/__init__.py&#39;</span><span class="p">,</span> <span class="n">submodule_search_locations</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;__class__&#39;</span><span class="p">,</span> <span class="s1">&#39;__delattr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">,</span> <span class="s1">&#39;__dir__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__eq__&#39;</span><span class="p">,</span> <span class="s1">&#39;__format__&#39;</span><span class="p">,</span> <span class="s1">&#39;__ge__&#39;</span><span class="p">,</span> <span class="s1">&#39;__getattribute__&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;__gt__&#39;</span><span class="p">,</span> <span class="s1">&#39;__hash__&#39;</span><span class="p">,</span> <span class="s1">&#39;__init__&#39;</span><span class="p">,</span> <span class="s1">&#39;__init_subclass__&#39;</span><span class="p">,</span> <span class="s1">&#39;__le__&#39;</span><span class="p">,</span> <span class="s1">&#39;__lt__&#39;</span><span class="p">,</span> <span class="s1">&#39;__module__&#39;</span><span class="p">,</span> <span class="s1">&#39;__ne__&#39;</span><span class="p">,</span> <span class="s1">&#39;__new__&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;__reduce__&#39;</span><span class="p">,</span> <span class="s1">&#39;__reduce_ex__&#39;</span><span class="p">,</span> <span class="s1">&#39;__repr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__setattr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__sizeof__&#39;</span><span class="p">,</span> <span class="s1">&#39;__str__&#39;</span><span class="p">,</span> <span class="s1">&#39;__subclasshook__&#39;</span><span class="p">,</span> <span class="s1">&#39;__weakref__&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;_cached&#39;</span><span class="p">,</span> <span class="s1">&#39;_initializing&#39;</span><span class="p">,</span> <span class="s1">&#39;_set_fileattr&#39;</span><span class="p">,</span> <span class="s1">&#39;cached&#39;</span><span class="p">,</span> <span class="s1">&#39;has_location&#39;</span><span class="p">,</span> <span class="s1">&#39;loader&#39;</span><span class="p">,</span> <span class="s1">&#39;loader_state&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;origin&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;submodule_search_locations&#39;</span>
+<span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span><span class="o">.</span><span class="n">origin</span>
+<span class="s1">&#39;/home/nick/tmp/my_package/__init__.py&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span><span class="o">.</span><span class="n">parent</span>
+<span class="s1">&#39;my_package&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span><span class="o">.</span><span class="n">submodule_search_locations</span>
+<span class="p">[</span><span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">]</span>
+</pre></div>
+
+
+<p>Examining the above code, we can see that the <code>spec</code> (object of the <code>ModuleSpec</code> class) of <code>my_package</code> package has its own methods and attributes. 
+One of the attributes it has is the <code>loader</code>. The <code>loader</code> indicates to the import machinery which loader to use while creating and executing the module.
+Remember, until now the module has not yet been created. Only the <code>spec</code>. From a spec derives a module.
+There are other attributes as well, like <code>origin</code> (name of the place from which the module is loaded, “builtin” for built-in modules and the filename for modules loaded from source.), 
+<code>parent</code> (fully-qualified name of the package) and <code>submodule_search_locations</code> (list of strings for where to find submodules), all of which are useful to the importer.</p>
+<p>As you have guessed, if you import a module (and not a package) you will see that the <code>submodule_search_locations</code> will be <code>None</code> since the module is always the
+<em>leaf in the tree</em>. In technical terms, the module has no <a href="https://docs.python.org/3/reference/import.html#__path__"><code>__path__</code></a> attribute as opposed to a package.</p>
+<p>Conclusion: <code>spec</code> objects hold valuable information about the creation of the <code>modules</code>. <code>spec</code> objects are needed to construct and import a <code>module</code>. </p>
+<h3 id="3-path-finder">3 Path Finder</h3>
+<p>Remember the list <code>sys.meta_path</code> where there three default <code>meta path finder objects</code> (aka <code>importers</code>)? The most common scenario is where you import packages
+and modules from within your project and also other modules not handled by the first two importers. So, the most busy guy is the last one. Let me introduce you
+the <a href="https://docs.python.org/3/reference/import.html#the-path-based-finder"><code>Path Based Finder</code></a>.</p>
+<p>The <code>Path Based Finder</code> (PBF for short) can be imported (if you want to play with him) with different names. All of them are aliases.</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">_frozen_importlib_external</span> <span class="kn">import</span> <span class="n">PathFinder</span> <span class="k">as</span> <span class="n">A</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">importlib._bootstrap_external</span> <span class="kn">import</span> <span class="n">PathFinder</span> <span class="k">as</span> <span class="n">B</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">PathFinder</span> <span class="k">as</span> <span class="n">C</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">A</span> <span class="o">==</span> <span class="n">B</span> <span class="o">==</span> <span class="n">C</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">A</span> <span class="ow">is</span> <span class="n">B</span> <span class="ow">is</span> <span class="n">C</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">id</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;__class__&#39;</span><span class="p">,</span> <span class="s1">&#39;__delattr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">,</span> <span class="s1">&#39;__dir__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__eq__&#39;</span><span class="p">,</span> <span class="s1">&#39;__format__&#39;</span><span class="p">,</span> <span class="s1">&#39;__ge__&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;__getattribute__&#39;</span><span class="p">,</span> <span class="s1">&#39;__gt__&#39;</span><span class="p">,</span> <span class="s1">&#39;__hash__&#39;</span><span class="p">,</span> <span class="s1">&#39;__init__&#39;</span><span class="p">,</span> <span class="s1">&#39;__init_subclass__&#39;</span><span class="p">,</span> <span class="s1">&#39;__le__&#39;</span><span class="p">,</span> <span class="s1">&#39;__lt__&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;__module__&#39;</span><span class="p">,</span> <span class="s1">&#39;__ne__&#39;</span><span class="p">,</span> <span class="s1">&#39;__new__&#39;</span><span class="p">,</span> <span class="s1">&#39;__reduce__&#39;</span><span class="p">,</span> <span class="s1">&#39;__reduce_ex__&#39;</span><span class="p">,</span> <span class="s1">&#39;__repr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__setattr__&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;__sizeof__&#39;</span><span class="p">,</span> <span class="s1">&#39;__str__&#39;</span><span class="p">,</span> <span class="s1">&#39;__subclasshook__&#39;</span><span class="p">,</span> <span class="s1">&#39;__weakref__&#39;</span><span class="p">,</span> <span class="s1">&#39;_get_spec&#39;</span><span class="p">,</span> <span class="s1">&#39;_legacy_get_spec&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;_path_hooks&#39;</span><span class="p">,</span> <span class="s1">&#39;_path_importer_cache&#39;</span><span class="p">,</span> <span class="s1">&#39;find_module&#39;</span><span class="p">,</span> <span class="s1">&#39;find_spec&#39;</span><span class="p">,</span> <span class="s1">&#39;invalidate_caches&#39;</span>
+<span class="p">]</span>
+</pre></div>
+
+
+<p>All of them aliases. But, in my opinion I'll stay with the last import statement since I don't want to mess with the underscore prefix imports.</p>
+<p>Although, PBF seems like a smart guy, he doesn't know how to import anything. He needs help. Help from other guys. Now this may sound strange. Why
+the PBF does not handle the <em>findings</em> all by himself? Well, this is an implementation detail and maybe it is for good.</p>
+<p>All that PBF does is that he traverses the individual path entries, associating each of them with a <code>path entry finder</code> that knows how to handle that particular kind of path.
+Where are these <em>path entries</em> and these <em>path entry finders</em> you may ask. Well, the <code>sys</code> package has one more time the answer.</p>
+<ul>
+<li>path entry no1: <a href="https://docs.python.org/3/library/sys.html#sys.path"><code>sys.path</code></a></li>
+<li>path entry no2: <a href="https://docs.python.org/3/library/sys.html#sys.path_hooks"><code>sys.path_hooks</code></a></li>
+<li>path entry no3: <a href="https://docs.python.org/3/library/sys.html#sys.path_importer_cache"><code>sys.path_importer_cache</code></a></li>
+<li>path entry no4: <a href="https://docs.python.org/3/reference/import.html#__path__"><code>__path__</code></a> attribute on package objects</li>
+</ul>
+<hr>
+
+<ol>
+<li>
+<p>You all know the first one. It's a list of string defined by the environment variable <code>PYTHONPATH</code> as well as from other mechanisms (virtualenvs etc). </p>
+</li>
+<li>
+<p>The second is another list consists of Path Entry Finders (PEF for short) callables. Different from the meta one we're talking about (PBF).</p>
+</li>
+<li>
+<p>The third one is a dictionary, mapping locations (strings) to PEF objects.</p>
+</li>
+<li>
+<p>The last one is the <code>spec.submodule_search_locations</code> (or <code>my_package.__path__</code>, if you like) which contains a list of strings indicating sub-modules/sub-packages locations.</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span>
+<span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python36.zip&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python3.6/lib-dynload&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python3.6/site-packages&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_hooks</span>
+<span class="p">[</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">zipimport</span><span class="o">.</span><span class="n">zipimporter</span><span class="s1">&#39;&gt;, &lt;function FileFinder.path_hook.&lt;locals&gt;.path_hook_for_FileFinder at 0x7f9673dfa6a8&gt;]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span>
+<span class="p">{</span><span class="s1">&#39;/usr/local/lib/python36.zip&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/encodings&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/encodings&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/lib-dynload&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/lib-dynload&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/site-packages&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/site-packages&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/collections&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/collections&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/importlib&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/importlib&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Feel a little lost with all these? Lets make a very brief recap to see where are we:</p>
+<ol>
+<li>An import statement is encountered</li>
+<li>Is the preferred imported name in <code>sys.modules</code>?</li>
+<li>If yes import it, done!</li>
+<li>If not, call <code>find_spec()</code> on each <code>sys.meta_path</code> importer and wait for a <code>spec</code>  <strong>&larr; this is where we are!</strong></li>
+<li>If no <code>spec</code> returned, raise <code>ModuleNotFoundError</code></li>
+<li>If a <code>spec</code> returned, create the module (have not talk about it yet)</li>
+<li>Once the module is created, initialize it with default attributes</li>
+<li>Add it to <code>sys.modules</code> (aka add it to cache)</li>
+<li>Execute the module</li>
+</ol>
+<p>Lets continue!</p>
+<p>In order to find what are the above <code>path entries</code> and how they are related to the PEF, we must take a look at the 
+<a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L11500"><code>find_spec()</code></a> implementation of the
+last meta path finder in the <code>sys.meta_path</code> list, <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L1055"><code>PathFinder</code></a>.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_path_hooks</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Search sys.path_hooks for a finder for &#39;path&#39;.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_hooks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_hooks</span><span class="p">:</span>
+        <span class="n">_warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;sys.path_hooks is empty&#39;</span><span class="p">,</span> <span class="ne">ImportWarning</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_hooks</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hook</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_path_importer_cache</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the finder for the path entry from sys.path_importer_cache.</span>
+<span class="sd">       If the path entry is not in the cache, find the appropriate finder</span>
+<span class="sd">       and cache it. If no finder is available, store None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">_os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="c1"># Don&#39;t cache the failure as the cwd can easily change to</span>
+            <span class="c1"># a valid directory later on.</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">finder</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">finder</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_path_hooks</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">finder</span>
+    <span class="k">return</span> <span class="n">finder</span>
+
+
+<span class="k">def</span> <span class="nf">_get_spec</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fullname</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the loader or namespace_path for this module/package name.&quot;&quot;&quot;</span>
+    <span class="c1"># [...]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+        <span class="n">finder</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_path_importer_cache</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">finder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">finder</span><span class="p">,</span> <span class="s1">&#39;find_spec&#39;</span><span class="p">):</span>
+                <span class="n">spec</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">fullname</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_legacy_get_spec</span><span class="p">(</span><span class="n">fullname</span><span class="p">,</span> <span class="n">finder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">spec</span>
+            <span class="c1"># other stuff here [...]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">ModuleSpec</span><span class="p">(</span><span class="n">fullname</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">submodule_search_locations</span> <span class="o">=</span> <span class="n">namespace_path</span>
+        <span class="k">return</span> <span class="n">spec</span>
+
+
+<span class="k">def</span> <span class="nf">find_spec</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fullname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Try to find a spec for &#39;fullname&#39; on sys.path or &#39;path&#39;.</span>
+<span class="sd">       The search is based on sys.path_hooks and sys.path_importer_cache.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_spec</span><span class="p">(</span><span class="n">fullname</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">namespace_path</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">submodule_search_locations</span>
+        <span class="k">if</span> <span class="n">namespace_path</span><span class="p">:</span>
+            <span class="c1"># We found at least one namespace path.  Return a</span>
+            <span class="c1">#  spec which can create the namespace package.</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="s1">&#39;namespace&#39;</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">submodule_search_locations</span> <span class="o">=</span> <span class="n">_NamespacePath</span><span class="p">(</span><span class="n">fullname</span><span class="p">,</span> <span class="n">namespace_path</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_spec</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">spec</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">spec</span>
+</pre></div>
+
+
+<p>Take a minute to navigate yourself to these pretty self-explained methods. It all starts from the
+<code>find_spec('my_package.my_module', path=['/home/nick/tmp/my_package/my_module.py'])</code> call.</p>
+<p>Done?</p>
+<p>OK, lets look at these together. Note, you're looking at the <em>meat</em> of how python locates modules in a filesystem.</p>
+<ol>
+<li>If a <code>path</code> is not passed to <code>find_spec</code> then the <code>sys.path</code> is used. </li>
+<li>The <code>_get_spec()</code> is called.</li>
+<li>For each <code>path entry</code> in the list of paths (either <code>sys.path</code> or the passed <code>path</code> parameter) the <code>_path_importer_cache()</code> is called with this entry.</li>
+<li>As said above, the <code>sys.path_importer_cache</code> is a dictionary and acts like a cache (as the name implies). The <code>_path_importer_cache()</code> method returns 
+the value (the Path Entry Finder - <a href="https://docs.python.org/3/library/importlib.html#importlib.machinery.FileFinder"><code>FileFinder</code></a>, if you recall) if a value is found for that path. </li>
+<li>If the cache fails, then a new Path Entry Finder <em>tries</em> to be created (we're inside the <code>_path_hooks()</code> method now) and returned. </li>
+<li>If that fails too, then <code>None</code> is returned and the <code>sys.path_importer_cache</code> gets updated with the key as the <em>failed</em> path and the value as <code>None</code>. So, next time the 
+same path is tried to imported, the cache will get queried, <code>None</code> will return and a <code>ModuleNotFoundError</code> gets raised.</li>
+<li>If the creation (initialization, to be more accurate) of the new PEF succeeds (<code>try</code> block of the <code>_path_hooks</code> method) then this PEF for this path is stored in the cache 
+(we are inside the <code>_path_importer_cache</code> method now).</li>
+<li>(back to <code>_get_spec</code> method) the <code>find_spec</code> method is called. If this fails, then <code>continue</code> to next path. If spec found and the spec has a <code>loader</code>, return it.</li>
+<li>Finally, if the <code>path</code> list reaches the end without a result (we're still inside the <code>_get_spec</code> method), the <code>else</code> clause (of the <code>for</code> loop) is executed and a new <code>spec</code> is created 
+without a loader. Just an empty <code>ModuleSpec</code> object. This object is returned.</li>
+<li>Because this <code>ModuleSpec</code> object has no loader associated with and the <code>submodule_search_locations</code> attribute is an empty list, <code>None</code> will be returned by the <code>find_spec</code> method.</li>
+</ol>
+<p>I want to make clear that a spec is a totally different thing than a finder. A finder is just responsible for <em>finding</em> paths, locations, files, URLs, etc. For example, the FileFinder
+is responsible to locate paths that interact with the file system. Not URLs. Neither database queries. Just plain strings, i.e <code>/path/to/a/location</code> that represent a valid file system
+path. A custom Finder could be made to <em>interpret</em> other locations, i.e a RedisFinder that can locate redis based urls.</p>
+<p>On the other hand, a spec is created given a set of parameters (<code>location</code>, <code>loader</code>, <code>submodule_search_location</code>). The real creation of the spec, the place where the initialization of
+the <code>types.ModuleSpec()</code> takes place, is just a plain function in the python's source code and its name is <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L524"><code>spec_from_file_location</code></a>. 
+There is also another place where the <code>ModuleSpec()</code> get called, inside the <code>_get_spec()</code> method as well. </p>
+<p>Am I too explicit of describing things and got lost (again)? Here is a short version of the above:</p>
+<ol>
+<li>There are two default Path Entry Finders (<code>sys.path_hooks</code>, the <code>zipimporter</code> and the <code>FileFinder</code>, actually the first one is a class and the second is a <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L1322">callable</a>) 
+which used by the Path Based Finder (<code>PathFinder</code>). However, this list can be extended. For example you may make an <code>HttpFinder</code> that is 
+<a href="https://youtu.be/0oTh1CXRaQ0?t=2h50m32s">able to locate modules through URLs</a>, along with the associated <code>loader</code> of course.</li>
+<li>Python, has already populated a cache with most common paths for you, inside the <code>sys.path_importer_cache</code> dict. Most of them are assigned to the <code>FileFinder</code> and some to <code>None</code>.</li>
+<li>If the package you're trying to import is not inside the <code>path</code> list parameter passed to <code>find_spec</code> then, I'm sorry buddy but you'll get an error!</li>
+<li>Next time you try to import the same package, unless no changes have been made to <code>sys.path</code> or <code>sys.path_importer_cache</code>, you'll get the same error because this path has been <em>black listed</em>
+inside the <code>sys.path_importer_cache</code>.</li>
+</ol>
+<p>Some hints:</p>
+<ul>
+<li>There are two <code>find_spec</code> methods. One implemented by the <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L1150"><code>PathFinder</code></a> (the meta one or the Path Based Finder, if you like this name) 
+and the other by the <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L1233"><code>FileFinder</code></a> (one of the Path Entry Finders, the other one is the zipimporter).</li>
+<li>Python calls <code>PathFinder</code>'s <code>find_spec</code> which implicit calls <code>Filefinder</code>'s <code>find_spec</code>.</li>
+<li>Nevertheless, the <code>find_spec</code> will return either a spec or <code>None</code>. Period.</li>
+</ul>
+<p>Now that we have an idea what a Finder is, lets play with that guy and try to load a spec, using different ways.</p>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span>
+<span class="p">[</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">_frozen_importlib</span><span class="o">.</span><span class="n">BuiltinImporter</span><span class="s1">&#39;&gt;, &lt;class &#39;</span><span class="n">_frozen_importlib</span><span class="o">.</span><span class="n">FrozenImporter</span><span class="s1">&#39;&gt;, &lt;class &#39;</span><span class="n">_frozen_importlib_external</span><span class="o">.</span><span class="n">PathFinder</span><span class="s1">&#39;&gt;]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pf</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span>
+<span class="p">{</span><span class="s1">&#39;/usr/local/lib/python36.zip&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/encodings&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/encodings&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/lib-dynload&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/lib-dynload&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/site-packages&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/site-packages&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6/collections&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6/collections&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># now when I try to find the spec for &quot;my_package&quot;, the cache will not find it and the</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># import mechanism will start.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pf</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">)</span>
+<span class="n">ModuleSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="n">loader</span><span class="o">=&lt;</span><span class="n">_frozen_importlib_external</span><span class="o">.</span><span class="n">SourceFileLoader</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7ff3f060fcf8</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;/home/nick/tmp/my_package/__init__.py&#39;</span><span class="p">,</span> <span class="n">submodule_search_locations</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># found it and the cache has been updated</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s1">&#39;/home/nick/tmp&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># Let&#39;s prevent it from locating our package!</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span>
+<span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python36.zip&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python3.6/lib-dynload&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/local/lib/python3.6/site-packages&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># the first element, &#39;&#39; (empty string), searches, by default, to the current working directory</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># We have removed all potential references of our current working directory. Lets see now</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pf</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">)</span>  <span class="c1"># yeah! None returned!</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># Lets add it back</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">)</span>  <span class="c1"># the same as ...append(&#39;&#39;) or sys.path.insert(0, &#39;&#39;)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pf</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">)</span>
+<span class="n">ModuleSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="n">loader</span><span class="o">=&lt;</span><span class="n">_frozen_importlib_external</span><span class="o">.</span><span class="n">SourceFileLoader</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7ff3f060fcf8</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;/home/nick/tmp/my_package/__init__.py&#39;</span><span class="p">,</span> <span class="n">submodule_search_locations</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">])</span>
+</pre></div>
+
+
+<h3 id="4-loaders">4. Loaders</h3>
+<p>The hard part is to find the spec. If the spec is found, things are quite easy. You can find the pseudo code of a loader <a href="https://docs.python.org/3/reference/import.html#loading">here</a>.</p>
+<p>In a sense, the loader uses the spec to create the module. Most of the times this will return <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L669"><code>None</code></a> 
+and the <code>module</code> will be created using the default semantics. What that, exactly means? It means that the <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap.py#L504"><code>_init_module_attrs</code></a> 
+takes place and <a href="https://docs.python.org/3/reference/import.html#import-related-module-attributes">the module object gets <em>filled</em> with the appropriate attributes</a>.
+Continuing, after the module is <em>created</em>, it has to be added to the <code>sys.modules</code> (recall this dict, it's the first cache that gets queried when an <code>import</code> statement is encountered) and finally 
+get <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L672">executed</a>. Done! Your module, after a long journey, can now be used by the programmer, you!</p>
+<p>Have you noticed the <em>secret sauce</em> when you import a package or module? It's <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L678">this line exactly</a> 
+(inside the <code>exec_module</code> method of the <code>_LoaderBasics</code> class, where the <a href="https://github.com/python/cpython/blob/3.6/Lib/importlib/_bootstrap_external.py#L836"><code>SourceFileLoader</code></a> inherits from):</p>
+<div class="highlight"><pre><span></span>_bootstrap._call_with_frames_removed<span class="o">(</span>exec, code, module.__dict__<span class="o">)</span>
+</pre></div>
+
+
+<p>The module (the python file) gets executed using the (sometimes evil one) <a href="https://docs.python.org/3/library/functions.html#exec"><code>exec</code></a> builtin function. 
+Since, the code is executed, you then have all your python definitions at your feet to work with. 
+Here's an <a href="https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python#answer-29456463">explanation from StackOverflow</a> of the differences 
+between <code>eval</code>, <code>exec</code> and <code>compile</code>. Very descriptive!</p>
+<p>Lets look at an example, a complete example this time:</p>
+<h1 id="the-pure-manual-way">The (pure) manual way</h1>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">types</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># get out lovely finder</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pf</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pf</span>
+<span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">_frozen_importlib_external</span><span class="o">.</span><span class="n">PathFinder</span><span class="s1">&#39;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># get the spec for &quot;my_package.my_module&quot;, path is given as the place to search</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s1">&#39;my_package.my_module&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span>
+<span class="n">ModuleSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;my_package.my_module&#39;</span><span class="p">,</span> <span class="n">loader</span><span class="o">=&lt;</span><span class="n">_frozen_importlib_external</span><span class="o">.</span><span class="n">SourceFileLoader</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f9117dfee48</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;/home/nick/tmp/my_package/my_module.py&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span>
+<span class="p">{</span><span class="s1">&#39;/usr/local/lib/python36.zip&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+ <span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/usr/local/lib/python3.6&#39;</span><span class="p">),</span> 
+ <span class="c1"># ... other locations here</span>
+ <span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/home/nick/tmp&#39;</span><span class="p">),</span> 
+ <span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">:</span> <span class="n">FileFinder</span><span class="p">(</span><span class="s1">&#39;/home/nick/tmp/my_package&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># ~/tmp/my_package was added to the cache along with its associated FileFinder</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">create_module</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="kc">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># Hmm... loader did not created it, lets do it manually</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># spec.name == &#39;my_package.my_module&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span>
+<span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;my_package.my_module&#39;</span><span class="o">&gt;</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># module has been created. At this time we should fill it with proper attributes</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># but it works without filling it too. I&#39;ll fill it.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span><span class="o">.</span><span class="vm">__name__</span>  <span class="c1"># already equals spec.name</span>
+<span class="s1">&#39;my_package.my_module&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span><span class="o">.</span><span class="n">__loader__</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span><span class="o">.</span><span class="vm">__file__</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">origin</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span><span class="o">.</span><span class="n">__package__</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">parent</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span>  <span class="c1"># add it to cache</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mod</span>
+<span class="o">&lt;</span><span class="n">module</span> <span class="s1">&#39;my_package.my_module&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/home/nick/tmp/my_package/my_module.py&#39;</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># the printed version of mod has changed</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__file__&#39;</span><span class="p">,</span> <span class="s1">&#39;__loader__&#39;</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;__package__&#39;</span><span class="p">,</span> <span class="s1">&#39;__spec__&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># final step. execute the module</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>  <span class="c1"># returns None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">dir</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;MyClass&#39;</span><span class="p">,</span> <span class="s1">&#39;__builtins__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;__file__&#39;</span><span class="p">,</span> <span class="s1">&#39;__loader__&#39;</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;__package__&#39;</span><span class="p">,</span> <span class="s1">&#39;__spec__&#39;</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># Wow! Look at that! MyClass. Lets use it...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">MyClass</span><span class="p">()</span>
+<span class="n">init</span> <span class="n">called</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">caps</span><span class="p">(</span><span class="s1">&#39;it worked!&#39;</span><span class="p">)</span>
+<span class="n">IT</span> <span class="n">WORKED</span><span class="err">!</span>
+</pre></div>
+
+
+<p>The above all-in manual way of importing our <code>my_module.py</code> module, was a bare implementation of the <a href="https://docs.python.org/3/reference/import.html#loading">module loading pseudo code</a>.</p>
+<p>By now, you should be able to debug better any <code>ModuleNotFoundError</code>s or <code>ImportError</code>s. Of course, in most cases, you will not have to swim so deep, as we did here, but at least, 
+you know far more than before. In addition to all the above, the <code>import</code> statement does a lot more while loading the module but that is an implementation detail and better be 
+left to core developers. </p>
+<p>For the last, here some nice sources to look, if you want to learn more or just enjoying reading-watching:</p>
+<ul>
+<li>David Beazley's video on <a href="https://www.youtube.com/watch?v=0oTh1CXRaQ0">Modules and Packages: Live and Let Die! - PyCon 2015</a></li>
+<li><a href="http://lucumr.pocoo.org/2011/2/1/exec-in-python/">Be careful with exec and eval in Python</a> article by <a href="http://lucumr.pocoo.org/about/">Armin Ronacher</a> (the creator of <a href="http://flask.pocoo.org/">Flask</a>)</li>
+<li>Another article by <a href="http://lucumr.pocoo.org/about/">Armin Ronacher</a> <a href="http://lucumr.pocoo.org/2011/9/21/python-import-blackbox/">Dealing with the Python Import Blackbox</a></li>
+</ul>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://alone-djangonaut.com/tag/import.html">import</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'manikos';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy; 2023 Nick Mavrakis</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://alone-djangonaut.com/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Alone Djangonaut ",
+  "url" : "https://alone-djangonaut.com",
+  "image": "https://alone-djangonaut.com/images/logo/logo_3.png",
+  "description": "Tutorials, blog posts and thoughts of a Django developer. He/him. Music lover."
+}
+</script>
+
+
+</body>
+</html>

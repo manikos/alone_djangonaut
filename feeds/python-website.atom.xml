@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Alone Djangonaut - python, website</title><link href="https://alone-djangonaut.com/" rel="alternate"></link><link href="https://alone-djangonaut.com/feeds/python-website.atom.xml" rel="self"></link><id>https://alone-djangonaut.com/</id><updated>2021-01-01T00:00:00+02:00</updated><subtitle>living in the pale blue dot</subtitle><entry><title>How to create a website using Pelican and Netlify (January 2021)</title><link href="https://alone-djangonaut.com/how-to-create-a-website-using-pelican-and-netlify-january-2021" rel="alternate"></link><published>2021-01-01T00:00:00+02:00</published><updated>2021-01-01T00:00:00+02:00</updated><author><name>Nick Mavrakis</name></author><id>tag:alone-djangonaut.com,2021-01-01:/how-to-create-a-website-using-pelican-and-netlify-january-2021</id><summary type="html">&lt;p&gt;How to properly set Pelican, Github and Netlify for a static generated website in minutes.&lt;/p&gt;</summary><content type="html">&lt;h1 id="introduction"&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;This introduction is going to be short since you already know what &lt;a href="https://blog.getpelican.com/"&gt;Pelican&lt;/a&gt;, Github and &lt;a href="https://www.netlify.com/"&gt;Netlify&lt;/a&gt; is used for. If not, here's an overview of those services:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pelican: A &lt;a href="https://en.wikipedia.org/wiki/Web_template_system#Static_site_generators"&gt;static site generator&lt;/a&gt; (SSG). In other words, a Python program where you write files in Markdown (or reStructuredText) format and Pelican generates a bunch of &lt;code&gt;.html&lt;/code&gt; files ready to be seen in your browser or deployed in a web server. Got it? No databases (&lt;em&gt;static&lt;/em&gt;), bunch of &lt;code&gt;html&lt;/code&gt;files (&lt;em&gt;site&lt;/em&gt;), pelican python program (&lt;em&gt;generator&lt;/em&gt;).&lt;/li&gt;
+&lt;li&gt;Github: A website which provides hosting for software development and version control using Git. If you're reading this you already know that!&lt;/li&gt;
+&lt;li&gt;Netlify: A website that offers hosting for web applications and static websites. The &lt;a href="https://www.netlify.com/pricing/"&gt;free plan&lt;/a&gt; for a simple blog is more than enough. It also has DNS management service where we'll configure a custom domain later on.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The choice Pelican was made because I like Python, I'm very familiar with it and if something breaks I can dig into it and fix it. No need to tell about Github! The choice of Netlify was mainly for experiment. I just wanted to try it out and it worked really well. At first, I tried &lt;a href="https://pages.github.com/"&gt;Github Pages&lt;/a&gt;, but setting up a custom domain there (with SSL and support for &lt;code&gt;www&lt;/code&gt;subdomain) was a headache. So, I &lt;a href="https://en.wikipedia.org/wiki/Separation_of_concerns"&gt;separated the concerns&lt;/a&gt; and used Github for repo hosting and Netlify for website hosting (plus DNS management).&lt;/p&gt;
+&lt;p&gt;Feel free to try a different combination for your static site. Check out &lt;a href="https://jamstack.org/generators/"&gt;Jamstack&lt;/a&gt;!&lt;/p&gt;
+&lt;h1 id="pelican"&gt;Pelican&lt;/h1&gt;
+&lt;p&gt;As of 1&lt;sup&gt;st&lt;/sup&gt; Jan 2021, Netlify &lt;a href="https://community.netlify.com/t/python-version-for-custom-build/6267/3"&gt;supports these Python versions&lt;/a&gt; in the Ubuntu Xenial 16.04 image (current default build image for all new sites): 2.7, 3.5, and 3.7. Thus, you should install Python 3.7 in your system. The recommended way is one: &lt;a href="https://github.com/pyenv/pyenv"&gt;pyenv&lt;/a&gt;. Clean and simple.&lt;/p&gt;
+&lt;p&gt;Before you start, you should &lt;a href="https://docs.python.org/3/tutorial/venv.html"&gt;create a vitrualenv&lt;/a&gt; (using python 3.7) and install every pelican-related package under this virtualenv. That's &lt;strong&gt;very important&lt;/strong&gt; in order not to "pollute" your system with unnecessary python packages. &lt;/p&gt;
+&lt;p&gt;Since a lot of articles have been written about how to set up Pelican (the &lt;a href="https://docs.getpelican.com/en/latest/"&gt;official docs&lt;/a&gt; are quite explanatory too), I'll assume that you have completed &lt;a href="https://frankcorso.dev/setting-up-pelican-static-site-generator.html"&gt;this tutorial&lt;/a&gt; by &lt;a href="https://github.com/fpcorso"&gt;Frank Corso&lt;/a&gt;. After all, it's just a &lt;code&gt;pip install pelican&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;After that, you should initialize your project with git. &lt;code&gt;cd my_project &amp;amp;&amp;amp; git init&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id="themes"&gt;Themes&lt;/h2&gt;
+&lt;p&gt;Most of the times, you'll want to change the default theme. Once &lt;a href="http://pelicanthemes.com/"&gt;you found&lt;/a&gt; the one you like, visit the github repository and copy the HTTPS url of it (not the SSH one). Then:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; your_project
+mkdir themes
+git submodule add HTTPS_URL_HERE themes/THEME_NAME_HERE
+&lt;span class="c1"&gt;# example&lt;/span&gt;
+git submodule add https://github.com/alexandrevicenzi/Flex.git themes/Flex
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We follow this procedure (instead of &lt;code&gt;git clone&lt;/code&gt;) because I have been bitten by Netlify error regarding submodules, during the build procedure. The first error was submodules-related and the other was &lt;a href="https://community.netlify.com/t/hugo-site-deployment-failed-due-to-host-key-verification/783/4"&gt;this&lt;/a&gt; regarding host key verification.&lt;/p&gt;
+&lt;p&gt;After you have installed your new theme, read it's documentation, play with the variables it provides (you set these variables inside &lt;code&gt;pelicanconf.py&lt;/code&gt;) and make sure that your site works as expected and looks good.&lt;/p&gt;
+&lt;h2 id="commands"&gt;Commands&lt;/h2&gt;
+&lt;p&gt;Now that you have your project ready and you can successfully interact with it in your browser, have a look at the &lt;code&gt;Makefile&lt;/code&gt; and the &lt;code&gt;tasks.py&lt;/code&gt; file. These files were produced, automatically, by the &lt;code&gt;pelican-quickstart&lt;/code&gt; command you typed to get started. When you &lt;code&gt;pip freeze&lt;/code&gt; you'll see the package &lt;code&gt;invoke&lt;/code&gt; listed. This &lt;a href="http://www.pyinvoke.org/"&gt;package&lt;/a&gt; allows you to run local commands/tasks just like it's complementary &lt;code&gt;fabric&lt;/code&gt; &lt;a href="https://www.pyinvoke.org/faq.html#invoke-split-from-fabric"&gt;which focus&lt;/a&gt; on remote tasks (usually over SSH).&lt;/p&gt;
+&lt;p&gt;Type &lt;code&gt;inv --list&lt;/code&gt; (alias for &lt;code&gt;invoke --list&lt;/code&gt;) and you'll see the available commands. For example, typing &lt;code&gt;inv build&lt;/code&gt; it will actually run under the hood &lt;code&gt;pelican pelicanconf.py&lt;/code&gt;. Of course you could write the pelican command yourself but wrap it in a task it's more flexible once the commands are getting more complex and reusability is needed.&lt;/p&gt;
+&lt;p&gt;The most used out-of-the-box command would probably be &lt;code&gt;inv serve&lt;/code&gt;. This command runs a localhost server at port 8000. Visit &lt;code&gt;127.0.0.1:8000&lt;/code&gt; or &lt;code&gt;localhost:8000&lt;/code&gt; and you should see your site. The annoying part is that you have to hit F5 in your browser each time a change is made in one of your &lt;code&gt;.md&lt;/code&gt; or &lt;code&gt;.rst&lt;/code&gt; files. &lt;/p&gt;
+&lt;p&gt;Enter, hot-reloading by running &lt;code&gt;inv livereload&lt;/code&gt; (needs &lt;code&gt;pip install livereload&lt;/code&gt;). Now, each time you save an article, the browser tab reloads automatically. There is a &lt;a href="https://github.com/getpelican/pelican/issues/2595"&gt;known closed issue here&lt;/a&gt;, where you have to remove the setting &lt;code&gt;ARTICLE_URL&lt;/code&gt; from the &lt;code&gt;pelicanconf.py&lt;/code&gt; or move it to &lt;code&gt;publishconf.py&lt;/code&gt;. I have done both and works. Among other values, my &lt;code&gt;publishconf.py&lt;/code&gt; includes &lt;code&gt;ARTICLE_URL = "{slug}"&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id="github"&gt;Github&lt;/h2&gt;
+&lt;p&gt;My &lt;code&gt;.gitignore&lt;/code&gt; file looks like this: &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;*.&lt;/span&gt;&lt;span class="n"&gt;pid&lt;/span&gt;
+&lt;span class="o"&gt;*.&lt;/span&gt;&lt;span class="n"&gt;swp&lt;/span&gt;
+&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gitignore&lt;/span&gt;
+&lt;span class="c1"&gt;# do not track output directory since it will be rebuild by Netlify&lt;/span&gt;
+&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+&lt;span class="n"&gt;__pycache__&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+&lt;span class="c1"&gt;# This is a PyCharm-specific directory. Delete it if you&amp;#39;re not using PyCharm&lt;/span&gt;
+&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idea&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Upload your project to Github.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; my_project
+git status  &lt;span class="c1"&gt;# optional, check which files are ready to be staged&lt;/span&gt;
+git add .
+git commit -m &lt;span class="s2"&gt;&amp;quot;initial commit&amp;quot;&lt;/span&gt;
+git push -u origin main
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Done. Now we have to find a home for our project.&lt;/p&gt;
+&lt;h2 id="netlify"&gt;Netlify&lt;/h2&gt;
+&lt;p&gt;In order for others to see your website, you have to host it somewhere. Again, Frank Corso, has a &lt;a href="https://frankcorso.dev/deploying-your-pelican-static-site-to-netlify.html"&gt;second part tutorial with pictures&lt;/a&gt; which guides you through setting up Netlify.&lt;/p&gt;
+&lt;p&gt;Two notes here regarding this tutorial. First, in the "Publish directory" setting, enter &lt;code&gt;output&lt;/code&gt; instead of &lt;code&gt;output/&lt;/code&gt;. Secondly, you don't have to set the &lt;code&gt;PYTHON_VERSION&lt;/code&gt; environment variable to &lt;code&gt;3.7&lt;/code&gt; since this is the default. On the other hand, none will hurt if you do :)&lt;/p&gt;
+&lt;p&gt;Procedure in a nutshell:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;You make changes locally&lt;/li&gt;
+&lt;li&gt;You &lt;code&gt;git push -u origin main&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Netlify is notified by the push and starts the build process&lt;/li&gt;
+&lt;li&gt;One task of the build process is the &lt;code&gt;Build Command&lt;/code&gt; you wrote&lt;/li&gt;
+&lt;li&gt;Once all build tasks are completed, the &lt;code&gt;output&lt;/code&gt; folder will hold the final &lt;code&gt;.html&lt;/code&gt; files (along with any js, css, images, fonts etc) which you see in your browser.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="custom-domain"&gt;Custom Domain&lt;/h2&gt;
+&lt;p&gt;Netlify, gives each app a unique url (for example &lt;code&gt;https://admiring-sammet-45tt89.netlify.app/&lt;/code&gt;). If you're fine with that then... congratulations! You have your site deployed and hosted on Netlify.&lt;/p&gt;
+&lt;p&gt;If not, you have to buy a domain from a registrar. Usually, you buy the bare domain (&lt;code&gt;example.com&lt;/code&gt; instead of &lt;code&gt;www.example.com&lt;/code&gt;) and then you can have as many subdomains as you want (depending on you registrar). &lt;/p&gt;
+&lt;p&gt;Once you buy it, you can connect it with your netlify app. Steps to follow:&lt;/p&gt;
+&lt;p&gt;Open the dashboard of your registrar page, where you have admin privileges of your domain. For this specific domain (say, &lt;code&gt;alone-djangonaut.com&lt;/code&gt;) change the nameservers to:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;dns1&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;p05&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nsone&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;net&lt;/span&gt;
+&lt;span class="n"&gt;dns2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;p05&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nsone&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;net&lt;/span&gt;
+&lt;span class="n"&gt;dns3&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;p05&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nsone&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;net&lt;/span&gt;
+&lt;span class="n"&gt;dns4&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;p05&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nsone&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;net&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Wait 10-15 minutes (maybe less) until the new information is propagated among the nameservers. &lt;/p&gt;
+&lt;p&gt;Now, visit the dashboard of your app on Netlify (&lt;code&gt;https://app.netlify.com/teams/YOUR_USERNAME/sites&lt;/code&gt;). Click on your project you want to bind the domain with. Click &lt;code&gt;Domain Settings&lt;/code&gt;. You should see this:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/home/nick/Documents/hobby/Python/alone_djangonaut/content/images/pelican_netlify/netlify_domain_list.png" alt="Domain list in Netlify" style="zoom:80%;" /&gt;&lt;/p&gt;
+&lt;p&gt;If  &lt;code&gt;Netlify DNS&lt;/code&gt; button is not showing, either the nameservers you entered in your registrar page are not propagated yet or there is a typo there. Check again and refresh the page on Netlify until this button is shown. Once it's there, click on it. You should see this:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/home/nick/Documents/hobby/Python/alone_djangonaut/content/images/pelican_netlify/netlify_dns.png" alt="Netlify DNS records" style="zoom:80%;" /&gt;&lt;/p&gt;
+&lt;p&gt;Each line is a DNS record. The two records that have &lt;code&gt;IN NETLIFY&lt;/code&gt; will be already there. Disregard the other records. There is a Bonus section at the end of this article (setting up an email using your domain) that explains these records.&lt;/p&gt;
+&lt;p&gt;For now, you're all done. Visit your domain and share your work with others!&lt;/p&gt;
+&lt;h2 id="expenses"&gt;Expenses&lt;/h2&gt;
+&lt;p&gt;For a personal blog in order to keep your articles/photos/thoughts/you-name-it you don't want to have an extra headache in your monthly expenses. If you do not buy a domain and use the one provided by Netlify, your monthly charge will be zero (0). &lt;/p&gt;
+&lt;p&gt;If you decide to buy one, then you set the monthly charge because not all domains cost the same (it depends on various factors such as the Top Level Domain - &lt;code&gt;.com&lt;/code&gt;, &lt;code&gt;.io&lt;/code&gt;, &lt;code&gt;.dev&lt;/code&gt;, &lt;code&gt;.info&lt;/code&gt; etc). Thus it's your choice how much you're able to spend.&lt;/p&gt;
+&lt;h2 id="workflow"&gt;Workflow&lt;/h2&gt;
+&lt;p&gt;As we said earlier, each time you make a change in your project in contrast to the one that's on Github, you have to push the changes. That's it! You can also wrap this procedure in a function inside &lt;code&gt;tasks.py&lt;/code&gt; and simply do &lt;code&gt;inv push&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# tasks.py&lt;/span&gt;
+
+&lt;span class="c1"&gt;# ... other tasks here&lt;/span&gt;
+
+&lt;span class="nd"&gt;@task&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;push&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;Push project to Github&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;git add . &amp;amp;&amp;amp; git commit -m &amp;quot;Update project&amp;quot; &amp;amp;&amp;amp; git push origin main&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2 id="bonus-section-setup-an-email-with-your-custom-domain"&gt;Bonus section (setup an email with your custom domain)&lt;/h2&gt;
+&lt;p&gt;It's a little bit unprofessional to own a domain and not an email with this domain, isn't it? How about to fix that? Bonus #2: this service is also free!&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Visit https://forwardemail.net/ and create an account. &lt;/li&gt;
+&lt;li&gt;Go to https://forwardemail.net/en/my-account/domains and click on &lt;code&gt;ADD NEW DOMAIN&lt;/code&gt; button. &lt;/li&gt;
+&lt;li&gt;Enter your custom domain you bought (i.e &lt;code&gt;alone-djangonaut.com&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Click on &lt;code&gt;Configure your domain&lt;/code&gt; button and follow the very-well-explained instructions&lt;/li&gt;
+&lt;li&gt;Once you have completed these steps, go back and click on &lt;code&gt;Verify Records&lt;/code&gt; button (see image below)&lt;/li&gt;
+&lt;li&gt;You'll probably get an error since it's too early. You have to wait from 1-10 hours in order for propagation to complete&lt;/li&gt;
+&lt;li&gt;That's it. Now you can receive email using your domain.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src="/home/nick/Documents/hobby/Python/alone_djangonaut/content/images/pelican_netlify/forwardemail.png" alt="Forwardemail domain status page" style="zoom:80%;" /&gt;&lt;/p&gt;
+&lt;p&gt;You can also send emails using your domain (&lt;code&gt;info@alone-djangonaut.com&lt;/code&gt;). For this, you have to follow the instructions after you click the button &lt;code&gt;Setup your Gmail&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;You can use the image above (with the DNS records), in the &lt;code&gt;Custom Domain&lt;/code&gt; section, for reference. All records, are going to be written in the Netlify's DNS records. Not your registrar's page. That's because we have changed the nameservers and we are using Netlify's nameservers.&lt;/p&gt;
+&lt;h2 id="fin"&gt;Fin&lt;/h2&gt;
+&lt;p&gt;You're now a professional with your own website, domain and email!&lt;/p&gt;</content><category term="python, website"></category><category term="python"></category><category term="pelican"></category><category term="netlify"></category></entry></feed>

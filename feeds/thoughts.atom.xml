@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Alone Djangonaut - Thoughts</title><link href="https://alone-djangonaut.com/" rel="alternate"></link><link href="https://alone-djangonaut.com/feeds/thoughts.atom.xml" rel="self"></link><id>https://alone-djangonaut.com/</id><updated>2018-07-17T00:00:00+03:00</updated><subtitle>living in the pale blue dot</subtitle><entry><title>Leaving Webfaction</title><link href="https://alone-djangonaut.com/leaving-webfaction" rel="alternate"></link><published>2018-07-17T00:00:00+03:00</published><updated>2018-07-17T00:00:00+03:00</updated><author><name>Nick Mavrakis</name></author><id>tag:alone-djangonaut.com,2018-07-17:/leaving-webfaction</id><summary type="html">&lt;p&gt;Why I left the (excellent) Webfaction shared hosting service and just "moved on".&lt;/p&gt;</summary><content type="html">&lt;h2 id="when-i-was-young"&gt;When I was young&lt;/h2&gt;
+&lt;p&gt;Five years ago (2013), when I made my first steps on Web Development, building localhost (dummy) projects I never thought of deployment or security issues.
+That's the beauty of working locally. You think, write it down, convert it to code, run it and done. Job's done. But, I wanted to make my work available to the public.
+What's the point of building a house, decorate it, paint it but with no guests at all? The point is to share. To evolve.&lt;/p&gt;
+&lt;p&gt;I was building (still do) &lt;a href="https://www.djangoproject.com/"&gt;Django&lt;/a&gt;-based websites and when the time had come to upload it somewhere I did a research.
+Few players on the board for Python applications. My best bet back then (with no knowledge about web servers, security, redirects, static files handling etc) was to
+rely on a shared hosting service. I had rejected virtual private services (VPS) since I had absolutely no idea about how to setup a server with a Django application.
+Remember, it was 5 years ago, Django was at 1.6 release (if I recall correctly), I was just learning HTML, CSS, JS, Git etc and I had my app ready to deploy.
+I wrote down on a paper all the possible solutions and finally concluded to &lt;a href="https://www.webfaction.com/"&gt;Webfaction&lt;/a&gt;. Price was (still is) $10/month.
+Not bad for an &lt;em&gt;all included&lt;/em&gt; hosting service back then.&lt;/p&gt;
+&lt;h2 id="webfaction"&gt;Webfaction&lt;/h2&gt;
+&lt;p&gt;I signed up for an account, I read their documentation about &lt;a href="https://docs.webfaction.com/software/django/getting-started.html?highlight=django#getting-started-with-django/"&gt;launching a Django-based website&lt;/a&gt;
+and I had, finally, a Django-powered website online! Of course, I had some problems at the beginning, like setting up SSL, setting up a git server and other things I don't quite recall.
+But all of them fixed either by their excellent support team or by searching the vast sea of internet. So far so good.
+But I knew I should make myself more independent than to be &lt;em&gt;enclosed&lt;/em&gt; inside Webfaction's system. Not because it was fancy and I had to learn it but because I wanted to.
+I felt like it was a missing piece of my understanding about web development. You see, when you develop a Django application and you hit &lt;code&gt;./manage.py runserver&lt;/code&gt; you're invoking a server.
+The concept of the &lt;em&gt;server&lt;/em&gt; is everywhere. I wanted to learn how it worked. How to setup a machine from zero to one hundred. I wanted to have full control of my machine. So, I decided to
+leave Webfaction and move on a VPS service. That happened on early 2018.&lt;/p&gt;
+&lt;h2 id="virtual-private-server"&gt;Virtual Private Server&lt;/h2&gt;
+&lt;p&gt;Like previously, I had no idea what to do. I signed up on both &lt;a href="https://linode.com"&gt;Linode&lt;/a&gt; and &lt;a href="https://digitalocean.com/"&gt;DigitalOcean&lt;/a&gt; and followed some &lt;em&gt;getting started&lt;/em&gt; guides.
+I read about how &lt;a href="https://www.nginx.com"&gt;nginx&lt;/a&gt; works, how it process a request, security issues, backup, email. Remember, I had no idea how to setup a Linux server machine and configure
+it properly. An analogy would be like this: Webfaction is like a cookie-cutter house where you get a house full-equipped but with no access to some areas/places. On the other hand,
+DigitalOcean is like the tools you need to build the house from the ground up. You have to saw the woods, to nail the floor, to connect the wires etc. All these by yourself.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Hard but challenging.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Fast forward to today, after two years reading about web servers (and still do), how to automate stuff using &lt;a href="https://www.ansible.com/"&gt;Ansible&lt;/a&gt;, how to secure my server and other
+things as well (uWSGI, database, etc), I am in position to deploy a website with a hit of a button. That's a great improvement for me.&lt;/p&gt;
+&lt;h2 id="going-serverless"&gt;Going serverless&lt;/h2&gt;
+&lt;p&gt;This new kid on the block, has drawn my attention but I have not study it yet. &lt;a href="https://www.zappa.io/"&gt;Zappa&lt;/a&gt; is an interesting web service to look at. But we have time for this.&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;I wanted to point out the reasons that made me left a shared hosting service and joining a VPS one. I like the fact that I can &lt;code&gt;sudo apt-get install something&lt;/code&gt; and have full control
+of my machine. Other don't like that. Respectable. Maybe in the future I'll leave this too and join a serverless web service. Who knows?
+P.S: I have also tried &lt;a href="https://www.heroku.com"&gt;Heroku&lt;/a&gt; which is an amazing web service but I personally, do not like to much magic behind the scenes. I want things to be crystal clear
+the moment they happen. One of the reasons I left Heroku too (but I have a couple of websites right now, powered by Heroku).&lt;/p&gt;</content><category term="Thoughts"></category><category term="webfaction"></category></entry></feed>

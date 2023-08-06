@@ -1,0 +1,1264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Alone Djangonaut - packaging</title><link href="https://alone-djangonaut.com/" rel="alternate"></link><link href="https://alone-djangonaut.com/feeds/packaging.atom.xml" rel="self"></link><id>https://alone-djangonaut.com/</id><updated>2019-05-07T00:00:00+03:00</updated><subtitle>living in the pale blue dot</subtitle><entry><title>A tour on Python Packaging</title><link href="https://alone-djangonaut.com/a-tour-on-python-packaging" rel="alternate"></link><published>2018-11-08T00:00:00+02:00</published><updated>2019-05-07T00:00:00+03:00</updated><author><name>Nick Mavrakis</name></author><id>tag:alone-djangonaut.com,2018-11-08:/a-tour-on-python-packaging</id><summary type="html">&lt;p&gt;The current state of packaging a Python library (not a Python application).&lt;/p&gt;</summary><content type="html">&lt;p&gt;If you're new to Python or a mature one and want to share your code with other developers
+or you have build a library to be used by end users and you're struggle with the packaging,
+then this tutorial/post/explanatory guide is (possibly) for you.&lt;/p&gt;
+&lt;div class="toc"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#prerequisites"&gt;Prerequisites&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#assumptions"&gt;Assumptions&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#packaging-in-python"&gt;Packaging in Python&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#modularity"&gt;Modularity&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#pypi"&gt;PyPI&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#setuptools"&gt;setuptools&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#wheel"&gt;wheel&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#twine"&gt;twine&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#pip"&gt;pip&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#difference-between-sdist-and-bdist_wheel"&gt;Difference between sdist and bdist_wheel&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#the-basics"&gt;The basics&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#name"&gt;Name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#cookiecutter"&gt;Cookiecutter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#structure"&gt;Structure&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#requirements_devtxt"&gt;requirements_dev.txt&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#makefile"&gt;Makefile&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#license"&gt;LICENSE&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#docs-authorsrst-contributingrst-historyrst-and-readmerst"&gt;docs/, AUTHORS.rst, CONTRIBUTING.rst, HISTORY.rst and README.rst&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#tests-and-toxini"&gt;tests/ and tox.ini&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#setuppy"&gt;setup.py&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#metadata"&gt;Metadata&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#requirements"&gt;Requirements&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#install_requires"&gt;install_requires&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#python_requires"&gt;python_requires&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#extras_require"&gt;extras_require&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#entry-points"&gt;Entry points&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#packaging"&gt;Packaging&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#wheels-aka-built-distribution"&gt;Wheels (aka built distribution)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#sdist-aka-source-distribution"&gt;Sdist (aka source distribution)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#packages"&gt;Packages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#zip_safe"&gt;zip_safe&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#test_suite"&gt;test_suite&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#setupcfg"&gt;setup.cfg&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#manifestin"&gt;MANIFEST.in&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#upload"&gt;Upload&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#keyring"&gt;keyring&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#installing-your-uploaded-package"&gt;Installing your uploaded package&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#sum-up"&gt;Sum up&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#resources"&gt;Resources&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#python-packaging-related-videos"&gt;Python packaging-related videos&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#python-packaging-related-podcasts"&gt;Python packaging-related podcasts&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#python-packaging-related-articles"&gt;Python packaging-related articles&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;h1 id="prerequisites"&gt;&lt;a href="#prerequisites"&gt;Prerequisites&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;First of all, you &lt;strong&gt;must&lt;/strong&gt; understand some basics around Python packaging
+terminology or else this (useful) post will turn into an incomprehensible one!&lt;/p&gt;
+&lt;p&gt;Your first stop is &lt;a href="https://packaging.python.org/glossary/"&gt;packaging glossary&lt;/a&gt;.
+In there, you'll find the terminology around python packaging.
+Some things I would like to highlight:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;artifact&lt;/code&gt; (not listed): fancy word for file&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;source distribution (sdist)&lt;/code&gt;: simple, source only &lt;code&gt;.tar.gz&lt;/code&gt; archive. &lt;strong&gt;Only&lt;/strong&gt; for pure Python modules/packages
+(ones that do not contain any C/C++ code).&lt;/li&gt;
+&lt;li&gt;The institution set up to deal with distribution in Python is called the &lt;a href="https://www.pypa.io/en/latest/"&gt;Python Packaging Authority&lt;/a&gt;.
+So, to a programmer, a &lt;code&gt;distribution&lt;/code&gt; looks like a &lt;em&gt;directory containing a bunch of Python code&lt;/em&gt; next to a &lt;code&gt;setup.py&lt;/code&gt; which describes
+that code and adds some metadata to it like the name, version, author etc.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1 id="assumptions"&gt;&lt;a href="#assumptions"&gt;Assumptions&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;This post assumes that python 3.6 is used and you're comfortable with virtualenvs:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Python 3.6 is used&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://virtualenv.pypa.io/en/stable/"&gt;virtualenv&lt;/a&gt; is used&lt;/li&gt;
+&lt;li&gt;and more preferably &lt;a href="https://virtualenvwrapper.readthedocs.io/en/stable/"&gt;virtualenvwrapper&lt;/a&gt; is used&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If neither &lt;code&gt;virtualenv&lt;/code&gt; or &lt;code&gt;virtualenvwrapper&lt;/code&gt; are used then, the built-in
+&lt;code&gt;python3 -m venv path/to/virtualenv&lt;/code&gt; command may be used as well but you have
+to take care (each time) of the &lt;code&gt;activate&lt;/code&gt; script and that &lt;code&gt;pip&lt;/code&gt;, &lt;code&gt;setuptools&lt;/code&gt; and
+&lt;code&gt;wheel&lt;/code&gt; are installed (things that the above tools do automatically).&lt;/p&gt;
+&lt;p&gt;When the status of the &lt;a href="https://www.python.org/dev/peps/pep-0582/"&gt;PEP 582 - Python local packages directory&lt;/a&gt;
+becomes &lt;em&gt;Final&lt;/em&gt; then we (might) get rid of the 3rd party virtualenv tools.&lt;/p&gt;
+&lt;h1 id="packaging-in-python"&gt;&lt;a href="#packaging_in_python"&gt;Packaging in Python&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;&lt;a href="https://packaging.python.org/overview/"&gt;It has been written&lt;/a&gt; and it's quite self-explanatory. Nothing to add here.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;As a general-purpose programming language, Python is designed to be used in many ways.
+You can build web sites or industrial robots or a game for your friends to play, and much more, all using the same core technology.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The term &lt;em&gt;python packaging&lt;/em&gt; is quite broad and depending on the scenario and purpose of the code written, it applies accordingly.
+That said, in this post we will focus on &lt;a href="https://packaging.python.org/overview/#python-source-distributions"&gt;packaging Python source distributions&lt;/a&gt;.
+This means to package a &lt;a href="https://docs.python.org/3/glossary.html#term-package"&gt;Python package&lt;/a&gt; (for distribution) that contains
+pure Python code.&lt;/p&gt;
+&lt;h2 id="modularity"&gt;&lt;a href="#modularity"&gt;Modularity&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id="pypi"&gt;&lt;a href="#mod_pypi"&gt;PyPI&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;The &lt;a href="https://pypi.org/"&gt;PyPI&lt;/a&gt; is the one and only deposit area/space where all Python packages are stored
+(just like &lt;a href="https://www.npmjs.com/"&gt;npmjs&lt;/a&gt; where all Javascript packages are stored).
+Of course, you may have a locally Python package which you don't plan to upload to PyPI.
+That's OK. But if you want to share your code with others, then PyPI is the answer.&lt;/p&gt;
+&lt;p&gt;Imagine this deposit area like a warehouse (fun fact: that's the alternate name for PyPI).
+The main objective of a warehouse is &lt;a href="https://en.wikipedia.org/wiki/Warehouse"&gt;the storage of goods&lt;/a&gt;.
+Each good is stored inside a container (a box). This container takes its place somewhere inside the warehouse.
+Probably, stacked with other goodies.&lt;/p&gt;
+&lt;h3 id="setuptools"&gt;&lt;a href="#mod_setuptools"&gt;setuptools&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://pypi.org/project/setuptools/"&gt;&lt;code&gt;setuptools&lt;/code&gt;&lt;/a&gt; is a Python library (just like hundreds of thousands ones)
+which purpose is to take your Python package (directory) as input
+and convert it to an archive in order to be placed in the PyPI index.
+It's the recommended tool by the &lt;a href="https://www.pypa.io/en/latest/"&gt;PyPA&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;setuptools&lt;/code&gt;is the tool to wrap your good inside a container and, eventually,
+this container be placed inside the warehouse. The insertion into the warehouse is not performed
+by &lt;code&gt;setuptools&lt;/code&gt;, but by another Python package called &lt;a href="https://pypi.org/project/twine/"&gt;&lt;code&gt;twine&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="wheel"&gt;&lt;a href="#mod_wheel"&gt;wheel&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://pypi.org/project/wheel/"&gt;&lt;code&gt;wheel&lt;/code&gt;&lt;/a&gt; is a Python library which provides a &lt;code&gt;bdist_wheel&lt;/code&gt; command for &lt;code&gt;setuptools&lt;/code&gt;.
+A wheel file (&lt;code&gt;file.whl&lt;/code&gt;) is a ZIP-format archive with a specially formatted filename and
+the &lt;code&gt;.whl&lt;/code&gt; extension.&lt;/p&gt;
+&lt;p&gt;A &lt;code&gt;wheel&lt;/code&gt; archive may be considered as a container with specifications (like specific
+dimensions, weight, labels etc). All wheels will have the same format and, thus, can be
+easily unpacked and introspected. &lt;a href="#wheels"&gt;Skip the rest and read about wheels&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="twine"&gt;&lt;a href="#mod_twine"&gt;twine&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://pypi.org/project/twine/"&gt;&lt;code&gt;twine&lt;/code&gt;&lt;/a&gt; is a Python library which given an OS path to your previously converted
+archive files (i.e &lt;code&gt;path/to/packaged/archive&lt;/code&gt;), it uploads them on the PyPI.
+It's the recommended package by the PyPA to publish Python packages on PyPI in a secure manner
+(that is over https).&lt;/p&gt;
+&lt;p&gt;Consider &lt;code&gt;twine&lt;/code&gt; as the machine that takes your well-wrapped package and inserts it,
+with extreme caution, into the warehouse. Now, your package is stored safely amongst other packages!&lt;/p&gt;
+&lt;h3 id="pip"&gt;&lt;a href="#mod_pip"&gt;pip&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://pypi.org/project/pip/"&gt;&lt;code&gt;pip&lt;/code&gt;&lt;/a&gt; is another Python library that acts as a package manager.
+It's main role is to download/install/update/downgrade/uninstall packages from/to your system.
+When you &lt;code&gt;pip install&lt;/code&gt; something then what &lt;code&gt;pip&lt;/code&gt; does is this: it goes to the PyPI index
+(unless told to go somewhere else - &lt;a href="https://pip.pypa.io/en/stable/user_guide/#installing-from-local-packages"&gt;even look in local directories&lt;/a&gt;
+and fetches and install the requested package.&lt;/p&gt;
+&lt;p&gt;In the warehouse analogy, &lt;code&gt;pip&lt;/code&gt; is the machine (make it a forklift, if you like)
+that enters the warehouse, picks the appropriate container, unpacks it and delivers it to you
+(the position of &lt;code&gt;you&lt;/code&gt; is outside of the warehouse, waiting for your package to come!).&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;"&gt;
+  &lt;a name="warehouse_img"&gt;&lt;/a&gt;
+    &lt;img id="pypi-warehouse" src="/images/a_tour_on_python_packaging/pypi_warehouse.jpg" alt="Python Package Index Warehouse representation"&gt;
+    &lt;figcaption&gt;Representation of the PyPI and the relevant tools (image source: &lt;a href="https://www.crown.com/en-us/warehouse-solutions-products.html"&gt;www.crown.com&lt;/a&gt;)&lt;/figcaption&gt;
+&lt;/figure&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;So, there you have it, a warehouse (PyPI) to store Python codes (libraries, #3),
+a tool to wrap your code (&lt;code&gt;setuptools&lt;/code&gt;, #1) in specific formats (&lt;code&gt;sdist&lt;/code&gt; and &lt;code&gt;wheel&lt;/code&gt;, #3),
+a tool to put Python code into the warehouse (&lt;code&gt;twine&lt;/code&gt;, #2) and a tool to fetch and
+install Python code from the warehouse into your machine (&lt;code&gt;pip&lt;/code&gt;, #4).
+This is the backbone knowledge in order to proceed into more on Python packaging.
+Once these concepts are clear to your head, then you have everything you need in your arsenal
+to package a Python package with ease, reliability and security.
+Also, others will be able to download your package and install it without any issues.&lt;/p&gt;
+&lt;h2 id="difference-between-sdist-and-bdist_wheel"&gt;&lt;a href="#sdist_wheel_diff"&gt;Difference between &lt;code&gt;sdist&lt;/code&gt; and &lt;code&gt;bdist_wheel&lt;/code&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://packaging.python.org/tutorials/installing-packages/#source-distributions-vs-wheels"&gt;PyPUG (Python Package User Guide) has already covered this difference&lt;/a&gt;
+but I would like to clarify some things.&lt;/p&gt;
+&lt;p&gt;The command to convert your local directory (which is meant to be a Python library)
+into a distributable one is &lt;code&gt;python setup.py sdist bdist_wheel&lt;/code&gt;.
+This command will read your &lt;code&gt;setup.py&lt;/code&gt; along with other ones (&lt;code&gt;MANIFEST.in&lt;/code&gt;, &lt;code&gt;setup.cfg&lt;/code&gt; etc)
+and will generate two archives: a &lt;code&gt;.tar.gz&lt;/code&gt; (&lt;code&gt;sdist&lt;/code&gt; aka source distribution) and a &lt;code&gt;.whl&lt;/code&gt;
+(&lt;code&gt;bdist_wheel&lt;/code&gt; aka binary distribution wheel or just &lt;code&gt;wheel&lt;/code&gt;) one.
+You may inspect both of them by double-click on each.&lt;/p&gt;
+&lt;p&gt;The main difference between the two is that:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;The &lt;code&gt;sdist&lt;/code&gt; archive contains a single directory which consists of your source files
+   (your actual code which may be either a Python module or a Python package) along with
+   the &lt;code&gt;setup.py&lt;/code&gt;, &lt;code&gt;setup.cfg&lt;/code&gt;, &lt;code&gt;MANIFEST.in&lt;/code&gt;etc files (and optionally along with your
+   &lt;code&gt;tests/&lt;/code&gt;, &lt;code&gt;docs/&lt;/code&gt; directories depending on your &lt;code&gt;MANIFEST.in&lt;/code&gt; file).&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;wheel&lt;/code&gt; contains &lt;strong&gt;only&lt;/strong&gt; two directories, the directory that holds your source
+   files &lt;strong&gt;only&lt;/strong&gt; (without the &lt;code&gt;setup.py&lt;/code&gt; files etc) and a &lt;code&gt;.dist-info&lt;/code&gt; directory which
+   contains metadata of your package. If you like to learn more on this extra directory,
+   read the &lt;a href="https://www.python.org/dev/peps/pep-0427/"&gt;PEP 427 -- The Wheel Binary Package Format 1.0&lt;/a&gt; and the upcoming
+   &lt;a href="https://www.python.org/dev/peps/pep-0491/"&gt;PEP 491 -- The Wheel Binary Package Format 1.9&lt;/a&gt; which is still in &lt;code&gt;draft&lt;/code&gt; status.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Another difference is that installing from &lt;code&gt;wheel&lt;/code&gt; is as simple as copy-paste the two
+directories as-is inside the &lt;code&gt;site-packages&lt;/code&gt; directory of your environment (that's it)
+while installing from &lt;code&gt;sdist&lt;/code&gt; requires this extra step of reading the &lt;code&gt;setup.py&lt;/code&gt; do any
+potential compilation, convert to &lt;code&gt;wheel&lt;/code&gt; and then add the directories inside the &lt;code&gt;site-packages&lt;/code&gt; dir.
+I am not saying it's bad to install from source but since the author of a package is able to
+produce a &lt;code&gt;wheel&lt;/code&gt; as well, then why not upload that too?
+Besides, since &lt;a href="https://pip.pypa.io/en/stable/user_guide/#installing-from-wheels"&gt;pip prefers wheel&lt;/a&gt;, having both kind of distributions uploaded,
+allows one to convert &lt;code&gt;sidst&lt;/code&gt; to &lt;code&gt;wheel&lt;/code&gt;, store it (cache it) and next time it will
+use the cached one (saving bandwidth).
+The other way around, convert &lt;code&gt;wheel&lt;/code&gt; into &lt;code&gt;sdist&lt;/code&gt; is not feasible. Put it that way,
+&lt;code&gt;wheel&lt;/code&gt; is a distribution format much more minimal that &lt;code&gt;sdist&lt;/code&gt;, thus there is no way
+for &lt;code&gt;wheel&lt;/code&gt;s to generate &lt;code&gt;sdist&lt;/code&gt;s.&lt;/p&gt;
+&lt;p&gt;If your question is why to have both generated and uploaded to PyPI, the answer is
+the edge case of some users which do not have the &lt;a href="https://pypi.org/project/wheel/"&gt;&lt;code&gt;wheel&lt;/code&gt;&lt;/a&gt; package installed
+or have an old version of &lt;a href="https://pypi.org/project/pip/"&gt;&lt;code&gt;pip&lt;/code&gt;&lt;/a&gt; which does not support installation from &lt;code&gt;wheel&lt;/code&gt; packages.
+On the other hand, having only source distributions uploaded (&lt;code&gt;sdist&lt;/code&gt;) you enforce users
+to compile your package each time they download it.
+This may not sound too time-consuming but if your package consists of Python extensions
+(i.e C, C++ etc) then compiling those may take a long time comparing with &lt;code&gt;wheel&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;So, upload both and keep everybody happy!&lt;/p&gt;
+&lt;h1 id="the-basics"&gt;&lt;a href="#thebasics"&gt;The basics&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;By now, you either have a clear image about what is happening or you're completely
+lost, regarding, of course, Python packaging. In this chapter we will play with an
+imaginable Python package and try to distribute it to other Pythonistas.&lt;/p&gt;
+&lt;h2 id="name"&gt;&lt;a href="#name"&gt;Name&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;The first thing you'll want to consider when your aim is to create a redistributable
+Python package (either to use is locally or distribute it via PyPI) is the name of it.
+Once the package has been created and begins to grow, if you decide to change the name
+of the package in the middle of the road, then it'll be hard to spot and change
+references to this name across your project.
+Think first, act last. Of course, IDEs will help you do that in an easy manner, but that means
+that you had made a frivolous choice.&lt;/p&gt;
+&lt;p&gt;Nevertheless, assuming that you're going to build something that is related with &lt;em&gt;flowers&lt;/em&gt;
+you'll have to go to &lt;a href="https://pypi.org/"&gt;PyPI&lt;/a&gt; and search for this term. If it's occupied then see if you
+can attach a hyphen (&lt;code&gt;-&lt;/code&gt;) and add another word into it. Do not name your package with more than two
+words and make it possible so others will simply &lt;code&gt;pip install package&lt;/code&gt; and then in their code do
+&lt;code&gt;import package&lt;/code&gt; or &lt;code&gt;from package import func&lt;/code&gt;.
+Sometimes, of course, this will not be feasible, but please try! It's clean, elegant and lazy (for the others).&lt;/p&gt;
+&lt;p&gt;Older methods that required to &lt;em&gt;register&lt;/em&gt; the name of the package before uploading it,
+&lt;a href="https://packaging.python.org/guides/migrating-to-pypi-org/#registering-package-names-metadata"&gt;are gone&lt;/a&gt;.
+You, now, proceed directly to uploading artifacts.&lt;/p&gt;
+&lt;p&gt;We have decided that we would like to build a Python library which will add some more
+capabilities (methods) for Python strings and lists.
+An idea taken from &lt;a href="https://lodash.com/"&gt;lodash&lt;/a&gt; (a famous JS library extending built-in capabilities).
+The name of it would be &lt;code&gt;booster&lt;/code&gt;. I think it's concise, short and right to the point.
+Plus, &lt;a href="https://pypi.org/search/?q=booster"&gt;it's not reserved in PyPI (until this post is written)&lt;/a&gt;
+nor it would be since we'll not upload it. Maybe, a nice choice/idea for the next developer!&lt;/p&gt;
+&lt;h2 id="cookiecutter"&gt;&lt;a href="#cookicutter"&gt;Cookiecutter&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;We will make our life easier and rely on a cookiecutter to build our package rather than build it from scratch.
+That's the reason of a cookiecutter. To make your/our lives as developers easier.&lt;/p&gt;
+&lt;p&gt;There is one dominant cookiecutter for Python packages: &lt;a href="https://github.com/audreyr/cookiecutter-pypackage"&gt;the cookiecutter-pypackage&lt;/a&gt;
+and several other popular forks like &lt;a href="https://github.com/Nekroze/cookiecutter-pypackage"&gt;Nekroze&lt;/a&gt;,
+&lt;a href="https://github.com/ardydedase/cookiecutter-pypackage"&gt;ardydedase&lt;/a&gt;, &lt;a href="https://github.com/samastur/cookiecutter-pypackage"&gt;samastur&lt;/a&gt;
+and &lt;a href="https://github.com/audreyr/cookiecutter-pypackage/network/members"&gt;thousands more&lt;/a&gt;!
+Pardon me if I have missed a &lt;em&gt;multi-starred&lt;/em&gt; cookiecutter. If so, let me know in the comments below and I'll update this section.&lt;/p&gt;
+&lt;p&gt;The logic behind a cookiecutter is pretty simple. A project structure has already been written by the author leaving
+&lt;em&gt;placeholders&lt;/em&gt; (usually with &lt;code&gt;{{ name }}&lt;/code&gt;) to be filled through CLI questions by the developer.&lt;/p&gt;
+&lt;p&gt;Thus, you &lt;code&gt;pip install cookiecutter&lt;/code&gt; into your virtualenv (or &lt;code&gt;pip install --user cookiecutter&lt;/code&gt; to install it under the &lt;code&gt;~/.local/&lt;/code&gt; directory)
+and now you have the &lt;code&gt;cookiecutter&lt;/code&gt; command available. Note that &lt;code&gt;cookiecutter&lt;/code&gt; is a CLI command, not a project template. You use this command
+along with a project template URL in order to create a project. Thus, you run &lt;code&gt;cookiecutter &amp;lt;github_repo_url&amp;gt;&lt;/code&gt;,
+a series of questions is initiated and at the end you'll have a pre-configured Python package ready to be
+developed (not deployed, since there is no source code written by you, yet).
+For more info, read the installation guide for the cookiecutter of your choice.
+There is &lt;a href="https://github.com/audreyr/cookiecutter#a-pantry-full-of-cookiecutters"&gt;a ton of templates&lt;/a&gt; to choose from (from pure Python packages
+to Django, Flask, Pyramid, C++, Java, JS, Tornado etc).&lt;/p&gt;
+&lt;p&gt;In this post, we'll use audreyr's cookiecutter &lt;a href="https://github.com/audreyr/cookiecutter-pypackage"&gt;template for pure Python packages&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id="structure"&gt;&lt;a href="#structure"&gt;Structure&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Using the above cookiecutter, the following questions showed up...:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;distvenv&lt;span class="o"&gt;)&lt;/span&gt; nick ~/t/boo&amp;gt; cookiecutter https://github.com/audreyr/cookiecutter-pypackage.git
+full_name &lt;span class="o"&gt;[&lt;/span&gt;Audrey Roy Greenfeld&lt;span class="o"&gt;]&lt;/span&gt;: Nick Mavrakis
+email &lt;span class="o"&gt;[&lt;/span&gt;audreyr@example.com&lt;span class="o"&gt;]&lt;/span&gt;: web@web.gr
+github_username &lt;span class="o"&gt;[&lt;/span&gt;audreyr&lt;span class="o"&gt;]&lt;/span&gt;: manikos
+project_name &lt;span class="o"&gt;[&lt;/span&gt;Python Boilerplate&lt;span class="o"&gt;]&lt;/span&gt;: booster
+project_slug &lt;span class="o"&gt;[&lt;/span&gt;booster&lt;span class="o"&gt;]&lt;/span&gt;: booster
+project_short_description &lt;span class="o"&gt;[&lt;/span&gt;Python Boilerplate ... a Python package&lt;span class="o"&gt;]&lt;/span&gt;: Extra functionality &lt;span class="k"&gt;for&lt;/span&gt; Python strings!
+pypi_username &lt;span class="o"&gt;[&lt;/span&gt;test_user&lt;span class="o"&gt;]&lt;/span&gt;: test_user
+version &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.1.0&lt;span class="o"&gt;]&lt;/span&gt;:
+use_pytest &lt;span class="o"&gt;[&lt;/span&gt;n&lt;span class="o"&gt;]&lt;/span&gt;: y
+use_pypi_deployment_with_travis &lt;span class="o"&gt;[&lt;/span&gt;y&lt;span class="o"&gt;]&lt;/span&gt;: y
+add_pyup_badge &lt;span class="o"&gt;[&lt;/span&gt;n&lt;span class="o"&gt;]&lt;/span&gt;: n
+Select command_line_interface:
+&lt;span class="m"&gt;1&lt;/span&gt; - Click
+&lt;span class="m"&gt;2&lt;/span&gt; - No command-line interface
+Choose from &lt;span class="m"&gt;1&lt;/span&gt;, &lt;span class="m"&gt;2&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;
+create_author_file &lt;span class="o"&gt;[&lt;/span&gt;y&lt;span class="o"&gt;]&lt;/span&gt;: y
+Select open_source_license:
+&lt;span class="m"&gt;1&lt;/span&gt; - MIT license
+&lt;span class="m"&gt;2&lt;/span&gt; - BSD license
+&lt;span class="m"&gt;3&lt;/span&gt; - ISC license
+&lt;span class="m"&gt;4&lt;/span&gt; - Apache Software License &lt;span class="m"&gt;2&lt;/span&gt;.0
+&lt;span class="m"&gt;5&lt;/span&gt; - GNU General Public License v3
+&lt;span class="m"&gt;6&lt;/span&gt; - Not open &lt;span class="nb"&gt;source&lt;/span&gt;
+Choose from &lt;span class="m"&gt;1&lt;/span&gt;, &lt;span class="m"&gt;2&lt;/span&gt;, &lt;span class="m"&gt;3&lt;/span&gt;, &lt;span class="m"&gt;4&lt;/span&gt;, &lt;span class="m"&gt;5&lt;/span&gt;, &lt;span class="m"&gt;6&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;: &lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="o"&gt;(&lt;/span&gt;distvenv&lt;span class="o"&gt;)&lt;/span&gt; nick ~/t/boo&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;...creating the following project structure:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;distvenv&lt;span class="o"&gt;)&lt;/span&gt; nick ~/t/boo&amp;gt;ls
+booster
+
+&lt;span class="o"&gt;(&lt;/span&gt;distvenv&lt;span class="o"&gt;)&lt;/span&gt; nick ~/t/boo&amp;gt;tree booster/
+booster
+├── AUTHORS.rst
+├── booster
+│   ├── booster.py
+│   ├── cli.py
+│   └── __init__.py
+├── CONTRIBUTING.rst
+├── docs
+│   ├── authors.rst
+│   ├── conf.py
+│   ├── contributing.rst
+│   ├── history.rst
+│   ├── index.rst
+│   ├── installation.rst
+│   ├── make.bat
+│   ├── Makefile
+│   ├── readme.rst
+│   └── usage.rst
+├── HISTORY.rst
+├── LICENSE
+├── Makefile
+├── MANIFEST.in
+├── README.rst
+├── requirements_dev.txt
+├── setup.cfg
+├── setup.py
+├── tests
+│   └── test_booster.py
+└── tox.ini
+
+&lt;span class="m"&gt;3&lt;/span&gt; directories, &lt;span class="m"&gt;25&lt;/span&gt; files
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Depending on your given answers to the questions the structure may be different,
+but some files not, since they are mandatory in order to call this directory a &lt;em&gt;re-distributable Python package&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;You may have seen in other Python libraries that the source code is inside a directory called &lt;code&gt;src/&lt;/code&gt;.
+I will not advice you to put your code inside the &lt;code&gt;src/&lt;/code&gt; directory or not.
+&lt;a href="https://github.com/pypa/python-packaging-user-guide/issues/320"&gt;There is an open issue on PyPA user guide on github&lt;/a&gt;
+and if you're brave enough, go read it. After all, it's a great discussion exchanging different thoughts.
+That's the spirit of a healthy community!
+&lt;a href="https://blog.ionelmc.ro/2014/05/25/python-packaging/"&gt;There is also a great post that enforces you to use the &lt;code&gt;src/&lt;/code&gt; dir&lt;/a&gt;.
+Decision is yours. Whichever you take, make sure that your package, at the end, is installable and usable without any errors.&lt;/p&gt;
+&lt;p&gt;Now back to the above, generated, file structure. Do not freak out seeing all these files! Most of them are there to &lt;em&gt;support&lt;/em&gt; your project.
+You may ask if all these are mandatory in order to upload your simple Python package.
+No, they are not. If you had, only, the &lt;code&gt;booster&lt;/code&gt; dir (containing &lt;code&gt;booster.py&lt;/code&gt; file which is actually your code)
+and the &lt;code&gt;setup.py&lt;/code&gt; file you would be good to go. A single dir and a file. But that would not be too helpful because it lacks:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;license&lt;/li&gt;
+&lt;li&gt;documentation&lt;/li&gt;
+&lt;li&gt;tests&lt;/li&gt;
+&lt;li&gt;continuous integration (CI)&lt;/li&gt;
+&lt;li&gt;version control&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;and other goodies which make your package more mature and complete.&lt;/p&gt;
+&lt;p&gt;Be patient. Do not rush yourself. Spend some time and &lt;a href="https://blog.digitalocean.com/documentation-as-an-open-source-practice/"&gt;write documentation&lt;/a&gt;
+and tests. Many other developers (including yourself tomorrow) will thank you. Personally, if I see a package with no docs, I skip it.
+Short story. Not because it's not useful or I want to penaltize it, but because I don't know how to install and use it.
+What do I &lt;code&gt;import&lt;/code&gt;? What arguments a function takes? How about tests? Is it tested thoroughly? Why do I have to read the source code in order to use it?
+All these questions are vital to every developer before using a package (not just a Python one).&lt;/p&gt;
+&lt;p&gt;How satisfied/confident are you when you see a package with decent documentation and over 80% test coverage? Someone, wrote all these.
+Someone that took the writing of his/her Python package, seriously. Maybe it's not a single person but a group of contributors.
+It does not matter. Time has been spent in order to write docs and tests. That's what makes a package &lt;em&gt;beautiful&lt;/em&gt; and &lt;em&gt;elegant&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Lesson learned&lt;/strong&gt;: Do not hurry to finish your package. PyPI is not going away. Be fussy not only for coding but to support it as well
+(support means &lt;em&gt;docs&lt;/em&gt; &lt;strong&gt;and&lt;/strong&gt; &lt;em&gt;tests&lt;/em&gt;).&lt;/p&gt;
+&lt;h3 id="requirements_devtxt"&gt;&lt;a href="#requirements_dev.txt"&gt;requirements_dev.txt&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;You may have noticed the file &lt;code&gt;requirements_dev.txt&lt;/code&gt; which contains the requirements (aka dependencies) of your project in case
+another developer (or even you, the author) wants to reproduce it. By &lt;code&gt;pip install&lt;/code&gt;ing the package, these requirements
+will &lt;strong&gt;not&lt;/strong&gt; be honored. These are just for development cases. &lt;a href="https://packaging.python.org/discussions/install-requires-vs-requirements/?highlight=requirements#requirements-files"&gt;The official docs say&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Whereas &lt;code&gt;install_requires&lt;/code&gt; defines the dependencies for a single project,
+Requirements Files are often used to define the requirements for a complete Python environment.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;We have not seen &lt;code&gt;install_requires&lt;/code&gt; &lt;a href="#install_requires"&gt;yet&lt;/a&gt;, but keep the above statement in mind. Also, note that this file may be named
+any name you like. It's just a convention to name it that way.&lt;/p&gt;
+&lt;p&gt;Suppose, for example, that you and me are working on the &lt;code&gt;booster&lt;/code&gt; package. We, both, must have the same development environment
+which means the same versions of dependencies and, of course, the same Python version. &lt;code&gt;requirements_dev.txt&lt;/code&gt; ensures scenarios
+like this and if I change (or format) my computer then I will be able to reproduce this environment by &lt;code&gt;pip install -r requirements_dev.txt&lt;/code&gt;
+under my virtualenv and will be back to tracks.&lt;/p&gt;
+&lt;p&gt;You may, also, want to switch &lt;code&gt;requirements_dev.txt&lt;/code&gt; with &lt;code&gt;Pipfile&lt;/code&gt; (and its auto-generated brother &lt;code&gt;Pipfile.lock&lt;/code&gt;).
+No changes here. The same logic applies. Instead of &lt;code&gt;pip install -r requirements_dev.txt&lt;/code&gt; you would do &lt;code&gt;pipenv install&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 id="makefile"&gt;&lt;a href="#makefile"&gt;Makefile&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;This is a usual &lt;a href="ftp://ftp.gnu.org/old-gnu/Manuals/make-3.79.1/html_chapter/make_2.html"&gt;Make&lt;/a&gt; file which provides some useful
+CLI commands to facilitate your development flow.
+It's a cookiecutter-specific file and you may alter it at your own needs. Other cookiecutters may have similar &lt;code&gt;Make&lt;/code&gt; file.
+You can view it, in order to see each function details or just write &lt;code&gt;make&lt;/code&gt; (under the root package directory,
+&lt;code&gt;booster&lt;/code&gt; in our case) and have an overview of the available commands.&lt;/p&gt;
+&lt;h3 id="license"&gt;&lt;a href="#license"&gt;LICENSE&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;The official packaging docs &lt;a href="https://packaging.python.org/tutorials/packaging-projects/?highlight=license#creating-a-license"&gt;cover this file&lt;/a&gt;
+but I would like to add to it a little more.&lt;/p&gt;
+&lt;p&gt;This is a mandatory file that &lt;strong&gt;must not be empty&lt;/strong&gt;. If it's omitted then the default LICENCE applied to the
+project/package is &lt;em&gt;all rights reserved&lt;/em&gt; which basically means &lt;em&gt;I, the owner of the package, am the only one allowed
+to use this package&lt;/em&gt;. Thus, why bother uploading to PyPI? Just keep it in your local directory. PyPI means sharing and
+adding a non-empty &lt;code&gt;LICENSE&lt;/code&gt; file, respects this.&lt;/p&gt;
+&lt;p&gt;There is a myriad type of licenses out there and digging into them brings a lot of confusion, resulting in omitting the
+file, altogether. Play safe and adopt the MIT or BSD licence. I am not promoting these kind of licenses but it's the
+most commonly used for open source projects. The user's limitation, by using a package under one of the above licenses,
+is &lt;em&gt;to keep the name and the copyright declaration intact&lt;/em&gt;. A useful website that might be help you to pick a license
+is the &lt;a href="https://choosealicense.com"&gt;choosealicense.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Congratulations, you now have a package ready to be shared!&lt;/p&gt;
+&lt;h3 id="docs-authorsrst-contributingrst-historyrst-and-readmerst"&gt;&lt;a href="#doc_files"&gt;docs/, AUTHORS.rst, CONTRIBUTING.rst, HISTORY.rst and README.rst&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;As you might have guessed, these files are documentation files. Each file is pre-filled with content
+(thank you cookiecutter) and the tweaks you might do, the first time, are minor. Each file is quite
+self-explanatory. Open each file to read the contents and alter it if you like.&lt;/p&gt;
+&lt;p&gt;These files are written using the &lt;a href="http://docutils.sourceforge.net/rst.html"&gt;reStructuredText&lt;/a&gt; file format.
+You may use the Markdown format but be aware that &lt;code&gt;.rst&lt;/code&gt; files are by far more rich and extensible.
+They play perfect together with Sphinx. Learning this kind of language may take some time but the benefits you gain are huge.
+Did we mention to not rush yourself to finish your beloved Python package?
+If you do change the format, however, &lt;a href="https://packaging.python.org/specifications/core-metadata/#description-content-type-optional"&gt;you must use a special keyword&lt;/a&gt;
+inside the &lt;code&gt;setup&lt;/code&gt; function, the &lt;code&gt;long_description_content_type=text/markdown&lt;/code&gt;.
+We have not seen this function, yet. &lt;a href="#setuppy"&gt;I am keeping the desert for last :)&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Fun fact: The reStructuredText file format may be applied to any kind of text. Not just documentation for you code.
+After all, documentation is just text (code-agnostic). You could write a novel too.&lt;/p&gt;
+&lt;p&gt;Another part of the documentation procedure is &lt;a href="http://www.sphinx-doc.org/en/master/"&gt;Sphinx&lt;/a&gt;. Sphinx is a documentation generator. What this means is that
+you write a bunch of &lt;code&gt;.rst&lt;/code&gt; files, you run &lt;code&gt;make html&lt;/code&gt; and voila. The HTML look of your ugly-looking files have been
+generated. A PDF version is also available. There is list of HTML templates available to choose and also Sphinx can
+be customized through the &lt;code&gt;docs/conf.py&lt;/code&gt; file. The cookiecutter tool, also, provides another &lt;code&gt;Makefile&lt;/code&gt;, exclusive for
+doc facilitation. I think there is no reason, now, not to write docs.&lt;/p&gt;
+&lt;p&gt;Bonus tip #1: Once docs have been written, you may upload them on &lt;a href="https://readthedocs.org/"&gt;readthedocs.org&lt;/a&gt; (RTD for short).
+Just link your github repo to the RTD and you're good to go (you need an account before that).&lt;/p&gt;
+&lt;p&gt;Bonus tip #2: If your Python package is small enough and writing a bunch of docs would be considered overkill
+because there is not much to say about it (that is, &lt;em&gt;it can all fit in a single file&lt;/em&gt;) then it is perfectly fine
+to include just a &lt;code&gt;README&lt;/code&gt; file. You may then upload it to &lt;a href="https://readthedocs.org/"&gt;readthedocs.org&lt;/a&gt;. Remember that if
+you use Markdown, you should change the &lt;code&gt;long_description_content_type&lt;/code&gt; value inside the &lt;code&gt;setup()&lt;/code&gt; function.
+Beware though, that the skeleton of this file stays the same with the &lt;em&gt;full version&lt;/em&gt; of the documentation,
+which is a &lt;em&gt;contributing&lt;/em&gt;, a &lt;em&gt;history&lt;/em&gt; (or &lt;em&gt;changelog&lt;/em&gt;), an &lt;em&gt;installation&lt;/em&gt;, a &lt;em&gt;usage&lt;/em&gt; section etc.&lt;/p&gt;
+&lt;h3 id="tests-and-toxini"&gt;&lt;a href="#tests"&gt;tests/ and tox.ini&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Code without tests is unreliable. Simple as that. It's like having a "friend" on facebook
+without actually ever interact with this person. In what context is this person your friend?
+Friends, in a general meaning, are people we can count on them. They are reliable. So are
+the tests of your code. No more to add here.&lt;/p&gt;
+&lt;p&gt;Whether you use &lt;a href="https://docs.pytest.org/en/latest/"&gt;pytest&lt;/a&gt;, &lt;a href="https://docs.python.org/3/library/unittest.html"&gt;unittest&lt;/a&gt;, &lt;a href="https://nose.readthedocs.io/en/latest/"&gt;nose&lt;/a&gt; or something else, all your
+test files should live inside the &lt;code&gt;test/&lt;/code&gt; directory.&lt;/p&gt;
+&lt;p&gt;In addition, &lt;a href="https://tox.readthedocs.io/en/latest/"&gt;tox&lt;/a&gt; is a Python library which helps you to test your code under different
+Python versions and contexts in general. It's extremely powerful, quick and easy to use (although,
+there is a slight learning curve, at start, in order to understand how to write the &lt;code&gt;tox.ini&lt;/code&gt; file).&lt;/p&gt;
+&lt;h1 id="setuppy"&gt;&lt;a href="#setup.py"&gt;setup.py&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;After the description of all the aside helper files and folders (excluding the &lt;code&gt;booster&lt;/code&gt; sub-directory which is actually your
+source code), created by the cookiecutter, we are now ready to dive in to the beast called &lt;code&gt;setup.py&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;I will not go through the evolution of Python packaging because
+&lt;a href="http://python-notes.curiousefficiency.org/en/latest/pep_ideas/core_packaging_api.html"&gt;Nick Coghlan has already posted about it&lt;/a&gt;.
+A lot have changed and there is more to come.&lt;/p&gt;
+&lt;p&gt;Briefly, this file is just a regular Python file which, at top, contains a very important &lt;code&gt;import&lt;/code&gt; statement:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;from setuptools import setup&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The &lt;a href="https://github.com/pypa/setuptools/blob/master/setuptools/__init__.py#L140"&gt;setup&lt;/a&gt; function is the &lt;em&gt;beast&lt;/em&gt; we mentioned above. It serves two roles:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Describes the package (name, author, requirements, scripts etc)&lt;/li&gt;
+&lt;li&gt;It's the tool you run to convert a package (full of source code) into an installable &amp;amp; distributable unit.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Using the electronic engineering terminology, you may say that this component is both active and passive,
+depending on how you use it. More on this in a little bit.&lt;/p&gt;
+&lt;p&gt;After the &lt;code&gt;import&lt;/code&gt; statement, a simple call to the &lt;code&gt;setup&lt;/code&gt; function is all you need. An example, using
+our &lt;code&gt;booster&lt;/code&gt; package is shown below.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;setuptools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;setup&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;find_packages&lt;/span&gt;
+
+
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;README.rst&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;readme_file&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;readme&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;readme_file&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;HISTORY.rst&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;history_file&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;history&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;history_file&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;setup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="c1"&gt;# Project information&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;booster&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;version&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;0.1.0&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;author&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Nick Mavrakis&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;author_email&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;nick@nick.gr&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;https://github.com/manikos/booster/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;  &lt;span class="c1"&gt;# 404, just an example&lt;/span&gt;
+    &lt;span class="n"&gt;license&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;MIT license&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Description&lt;/span&gt;
+    &lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Extra functionality for Python strings.&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;long_description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;readme&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;history&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;long_description_content_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;text/x-rst&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Requirements&lt;/span&gt;
+    &lt;span class="n"&gt;python_requires&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;gt;=3.6&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;install_requires&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[],&lt;/span&gt;
+    &lt;span class="n"&gt;extras_require&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;test&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;  &lt;span class="c1"&gt;# install these with: pip install booster[test]&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;pytest&amp;gt;=3.8&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;coverage&amp;gt;=4.5&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;pytest-cov&amp;gt;=2.6&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;tox&amp;gt;=3.3&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;codecov&amp;gt;=2.0&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Packaging&lt;/span&gt;
+    &lt;span class="n"&gt;packages&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;find_packages&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;include&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;booster&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;booster.*&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]),&lt;/span&gt;
+    &lt;span class="n"&gt;include_package_data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;zip_safe&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Tests&lt;/span&gt;
+    &lt;span class="n"&gt;test_suite&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;tests&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# CLI&lt;/span&gt;
+    &lt;span class="n"&gt;entry_points&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;console_scripts&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;transform=booster.cli:string_transform&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Metadata&lt;/span&gt;
+    &lt;span class="n"&gt;keywords&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;string strings accent beautify&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;project_urls&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;Documentation&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;https://booster.readthedocs.io/en/latest/&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s1"&gt;&amp;#39;Tracker&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;https://github.com/manikos/booster/issues/&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="n"&gt;classifiers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Development Status :: 5 - Production/Stable&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Intended Audience :: Developers&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Topic :: Software Development :: Build Tools&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;License :: OSI Approved :: MIT License&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Natural Language :: English&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Programming Language :: Python :: 3 :: Only&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Programming Language :: Python :: 3&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Programming Language :: Python :: 3.6&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Programming Language :: Python :: 3.7&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;],&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Again, do not freak out. This is the present state of packaging in Python and believe it or not
+it's better than ever. Also, if you think that this &lt;code&gt;setup.py&lt;/code&gt; file is confusing, have a look
+at other Python libraries and then you may freak out!&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;setup&lt;/code&gt; function is called using keyword arguments (not positional ones). The whole list of these parameters
+can be found in the &lt;a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#new-and-changed-setup-keywords"&gt;setuptools docs&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Recalling the first role of &lt;code&gt;setup.py&lt;/code&gt; file above, calling this function, allows us to describe the package metadata, dependencies etc.
+Recalling the second role of &lt;code&gt;setup.py&lt;/code&gt; file above, executing (through the shell) &lt;code&gt;python setup.py &amp;lt;command&amp;gt;&lt;/code&gt; allows us to
+do things (build artifacts, wheels etc) with the package. The artifacts that may be generated using the CLI command,
+contain (as text in specific dirs/files) the metadata, dependencies etc written inside the &lt;code&gt;setup&lt;/code&gt; function. So, these two
+roles are, somehow, interconnected.&lt;/p&gt;
+&lt;p&gt;You may now visit &lt;a href="https://pypi.org/"&gt;PyPI&lt;/a&gt; and pick a package which has both formats available for download (in the &lt;code&gt;Downloads&lt;/code&gt; section, on the left).
+Download both archives (&lt;code&gt;.whl&lt;/code&gt; and &lt;code&gt;.tar.gz&lt;/code&gt;). Open the &lt;code&gt;.whl&lt;/code&gt; and inspect the &lt;code&gt;.dist-info/&lt;/code&gt; dir.
+Open, also, the &lt;code&gt;setup.py&lt;/code&gt; file inside the &lt;code&gt;.tar.gz&lt;/code&gt; and see the call to the &lt;code&gt;setup()&lt;/code&gt; function.
+You will find all the &lt;code&gt;setup()&lt;/code&gt; keyword-value items inside the &lt;code&gt;.dist-info/METADATA&lt;/code&gt; file.
+I hope, by now, the two roles of &lt;code&gt;setup.py&lt;/code&gt; are now distinguished and understood.&lt;/p&gt;
+&lt;p&gt;When you run &lt;code&gt;python setup.py sdist&lt;/code&gt; in order to create a source distribution (&lt;a href="#source-distribution-aka-sdist"&gt;we will talk about that&lt;/a&gt;)
+and your &lt;code&gt;setup()&lt;/code&gt; is empty, then the script will run with no errors but your source distribution will be named &lt;code&gt;UNKNOWN&lt;/code&gt;
+and you will get some nice warnings:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;warning: check: missing required meta-data: name, url
+warning: check: missing meta-data: either &lt;span class="o"&gt;(&lt;/span&gt;author and author_email&lt;span class="o"&gt;)&lt;/span&gt; or &lt;span class="o"&gt;(&lt;/span&gt;maintainer and maintainer_email&lt;span class="o"&gt;)&lt;/span&gt; must be supplied
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;which are quite self-explanatory: at least pass the &lt;code&gt;name&lt;/code&gt;, &lt;code&gt;url&lt;/code&gt;, &lt;code&gt;author&lt;/code&gt; and &lt;code&gt;author_email&lt;/code&gt; as arguments to &lt;code&gt;setup&lt;/code&gt; function.
+But, please, do not supply only these! This is just for demonstration purposes. You should be explicit about your package.&lt;/p&gt;
+&lt;p&gt;Now, lets take a deep breath and dive in to the &lt;code&gt;setup&lt;/code&gt; basics.&lt;/p&gt;
+&lt;h2 id="metadata"&gt;&lt;a href="#metadata"&gt;Metadata&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;This section is named &lt;em&gt;Metadata&lt;/em&gt; but it's a kind of &lt;strong&gt;grouping&lt;/strong&gt;, of &lt;code&gt;setup&lt;/code&gt; function, in my head. No official docs call it
+this way. Because, &lt;code&gt;setup&lt;/code&gt; contains a lot of keyword arguments I want to organize them into logical groups. Thus,
+I give it the name of &lt;em&gt;Metadata&lt;/em&gt; to distinguish it from the other keywords. After all, it's the easy part.&lt;/p&gt;
+&lt;p&gt;In this section, &lt;code&gt;setup(**kwargs)&lt;/code&gt;, the - pretty straightforward - keyword arguments contain the:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: name of the package (what other users will &lt;code&gt;pip install&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;author&lt;/code&gt;: your name (after all you're the author)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;author_email&lt;/code&gt;: a contact email of yours&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;url&lt;/code&gt;: project's URL (usually a VCS url)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;license&lt;/code&gt;: a string declaring the license title (the full body is written in the &lt;code&gt;LICENSE&lt;/code&gt; file)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;description&lt;/code&gt;: a string containing a short/brief description of the package&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;long_description&lt;/code&gt;: a string with more details (usually the same as the &lt;code&gt;README&lt;/code&gt; file)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;long_description_content_type&lt;/code&gt;: one of &lt;code&gt;'text/plain'&lt;/code&gt;, &lt;code&gt;'text/x-rst'&lt;/code&gt; (default) or &lt;code&gt;'text/markdown'&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;keywords&lt;/code&gt;: just a list of strings (not used anywhere practically for the moment)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;project_urls&lt;/code&gt;: dictionary of &lt;code&gt;title: url&lt;/code&gt; key-value pairs.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;classifiers&lt;/code&gt;: &lt;a href="https://pypi.org/classifiers/"&gt;a list of predefined strings&lt;/a&gt; to be used for
+  filtering/searching when searching via the &lt;a href="https://pypi.org/"&gt;PyPI&lt;/a&gt; website&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Again, all of the above might be too much, but the cookiecutter has already pre-filled most of them for us with
+sane defaults (actually the defaults are the &lt;a href="#structure"&gt;answers you gave through the console&lt;/a&gt;).
+You may edit them, add new ones, delete some etc. These were, more or less, the easy-to-understand ones.&lt;/p&gt;
+&lt;h2 id="requirements"&gt;&lt;a href="#kwarg_requirements"&gt;Requirements&lt;/a&gt;&lt;/h2&gt;
+&lt;h3 id="install_requires"&gt;install_requires&lt;/h3&gt;
+&lt;p&gt;We discussed earlier about environment reproduction using &lt;code&gt;requirements_dev.txt&lt;/code&gt; or &lt;code&gt;Pipfile&lt;/code&gt; or any other tool
+you might use to resolve dependencies. But how about the dependencies of the project itself?
+These are declared through the &lt;code&gt;install_requires&lt;/code&gt; keyword argument. It's a list of strings and contains all
+the 3rd party libraries (if any) your project/library depends on. If your library depends on &lt;code&gt;foo&lt;/code&gt; Python
+library, then inside the &lt;code&gt;install_requires&lt;/code&gt; list, the &lt;code&gt;'foo'&lt;/code&gt; string must be included, otherwise when the end-user
+will &lt;code&gt;pip install &amp;lt;library_name&amp;gt;&lt;/code&gt; then the &lt;code&gt;foo&lt;/code&gt; library will not be installed resulting in an error when running
+you package.&lt;/p&gt;
+&lt;p&gt;Remember, the &lt;code&gt;requirements_dev.txt&lt;/code&gt; is used for &lt;code&gt;pip install -r requirements_dev.txt&lt;/code&gt; only (for development
+purposes), while &lt;code&gt;install_requires&lt;/code&gt; is used only during the installation of the library (&lt;code&gt;pip install &amp;lt;library_name&amp;gt;&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;You are allowed not to have a &lt;code&gt;requirements_dev.txt&lt;/code&gt; file at all. Also, if your project does not depend on other
+libraries, the &lt;code&gt;install_requires&lt;/code&gt; may be omitted as well. But, if your project is dependent on other libraries
+you must have the &lt;code&gt;install_requires&lt;/code&gt; inside the &lt;code&gt;setup&lt;/code&gt; function.&lt;/p&gt;
+&lt;p&gt;The best practice when you list dependencies is not to pin them (i.e &lt;code&gt;library==x.y&lt;/code&gt;) to a specific version.
+Just specify the minimum major version and you're to go (i.e &lt;code&gt;"library&amp;gt;=x.y"&lt;/code&gt;). The reason for this practice
+may be found &lt;a href="https://blog.miguelgrinberg.com/post/the-package-dependency-blues"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="python_requires"&gt;&lt;a href="#kwarg_python_requires"&gt;python_requires&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;The &lt;code&gt;python_requires&lt;/code&gt; &lt;a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires"&gt;argument&lt;/a&gt;
+specifies to the installer tool (&lt;a href="https://pypi.org/project/pip/"&gt;pip&lt;/a&gt;, &lt;a href="https://pypi.org/project/poetry/"&gt;poetry&lt;/a&gt; etc) under which Python
+version this package may run. If, for example, you're working in a virtualenv with Python 3.6 interpreter and you want
+to install a package named &lt;code&gt;foo&lt;/code&gt; which has declared &lt;code&gt;python_requires==2.7&lt;/code&gt;, then &lt;code&gt;pip&lt;/code&gt; will exit with an error message:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;py_36_venv&lt;span class="o"&gt;)&lt;/span&gt; $ pip install foo  &lt;span class="c1"&gt;# foo is Python 2.7 compatible only&lt;/span&gt;
+Could not find a version that satisfies the requirement foo &lt;span class="o"&gt;(&lt;/span&gt;from versions: &lt;span class="o"&gt;)&lt;/span&gt;
+No matching distribution found &lt;span class="k"&gt;for&lt;/span&gt; foo
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You should fill this one since it prevents early running errors regarding Python versions.&lt;/p&gt;
+&lt;h3 id="extras_require"&gt;&lt;a href="#kwarg_extras_require"&gt;extras_require&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;This is a handy way of installing additional packages by simply &lt;em&gt;enabling flags&lt;/em&gt;. Based on the &lt;a href="#setuppy"&gt;above&lt;/a&gt; &lt;code&gt;setup&lt;/code&gt;,
+if I want to download this package and install &lt;em&gt;test&lt;/em&gt;-related packages only, then I would run &lt;code&gt;pip install booster[test]&lt;/code&gt;,
+where &lt;code&gt;test&lt;/code&gt; (the name inside the brackets) is a key of the dictionary. This key maps to a list of dependencies and thus
+by executing this command the test-related packages will be installed. You may have a ton of other &lt;em&gt;aside&lt;/em&gt; packages
+grouped together under a single name (all these under this dictionary), i.e &lt;code&gt;"security": [...]&lt;/code&gt;.
+A reminder though, do not confuse this requirement setting with the &lt;code&gt;install_requires&lt;/code&gt; one.
+The former is (usually) for other developers while the latter is for the end user which will simply do &lt;code&gt;pip install booster&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id="entry-points"&gt;&lt;a href="#kwarg_entry_points"&gt;Entry points&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;This is a handy feature of &lt;code&gt;setuptools&lt;/code&gt; which allows us to define CLI commands which when executed, certain
+Python functions will run.&lt;/p&gt;
+&lt;p&gt;For example suppose that inside the &lt;code&gt;booster/cli.py&lt;/code&gt; file, we have written the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# booster/cli.py&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;string_transform&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;string transformed!&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and, recalling the &lt;code&gt;setup&lt;/code&gt; function &lt;a href="#setuppy"&gt;above&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;setuptools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;setup&lt;/span&gt;
+
+&lt;span class="n"&gt;setup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;entry_points&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;console_scripts&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;transform=booster.cli:string_transform&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, once the package has been installed, opening a console we can simply write
+&lt;code&gt;transform&lt;/code&gt; and the message &lt;code&gt;string transformed!&lt;/code&gt; will get printed on screen.&lt;/p&gt;
+&lt;p&gt;What is happening, behind the scenes, is that &lt;code&gt;setuptools&lt;/code&gt; create an executable file
+inside the &lt;code&gt;bin/&lt;/code&gt; directory of the &lt;code&gt;virtualenv&lt;/code&gt; dir (just like &lt;code&gt;pip&lt;/code&gt;, &lt;code&gt;wheel&lt;/code&gt; and other commands that
+are available through the command line) which maps to the function(s) declared in the value of the
+key &lt;code&gt;console_scripts&lt;/code&gt;, under the &lt;code&gt;entry_points&lt;/code&gt; dictionary.&lt;/p&gt;
+&lt;p&gt;The string is composed of &lt;code&gt;"&amp;lt;cli_command_name&amp;gt;&lt;/code&gt;=&lt;code&gt;&amp;lt;python_dottted_path_to_module&amp;gt;&lt;/code&gt;:&lt;code&gt;&amp;lt;function_name&amp;gt;"&lt;/code&gt;.
+Of course, the above function instead of printing something it can return something, accept parameters
+(&lt;code&gt;transform &amp;lt;a string here&amp;gt; &amp;lt;another one&amp;gt;&lt;/code&gt;) etc. If you plan to have cli support then &lt;a href="https://click.palletsprojects.com/en/master/"&gt;Click&lt;/a&gt;
+is a must-have library to do this kind of things.&lt;/p&gt;
+&lt;h2 id="packaging"&gt;&lt;a href="#packaging_general"&gt;Packaging&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;This will be the most hard-to-explain section, but I will do my best. You know, there are several
+things in life where while you're trying to explain a single thing, another thing needs to be explained first and
+then you realise that another thing needs to be explained first etc and at the end you forget what
+you were trying to explain at the first place! Same rule applies here but I'll try to be consistent and not get lost.&lt;/p&gt;
+&lt;p&gt;First of all, before talking about packaging, we must understand the available forms of packaging. Referring to the
+&lt;a href="#warehouse_img"&gt;image at the beginning&lt;/a&gt;, Python packages come in two forms: wheels and source distributions (#3 on image).
+It can also be seen from the image below:&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;"&gt;
+  &lt;a name="packaging_formats_img"&gt;&lt;/a&gt;
+    &lt;img id="packaging-formats" src="/images/a_tour_on_python_packaging/packaging_whl_tar.png" alt="Python Packaging Formats (sdist and wheel)"&gt;
+    &lt;figcaption&gt;Python packaging formats: built distribution and source (wheel and sdist, respectively)&lt;/figcaption&gt;
+&lt;/figure&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3 id="wheels-aka-built-distribution"&gt;&lt;a href="#wheel"&gt;Wheels (aka built distribution)&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;a href="https://www.python.org/dev/peps/pep-0427/"&gt;The wheel binary package format&lt;/a&gt; or &lt;em&gt;built distribution&lt;/em&gt;
+or just &lt;em&gt;wheel&lt;/em&gt; is a way to package code into a redistributable way. The abstract of it's PEP, is quite comprehensive:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A wheel is a ZIP-format archive with a specially formatted file name and the &lt;code&gt;.whl&lt;/code&gt; extension.
+It contains a single distribution nearly as it would be installed according to PEP 376 with a particular installation scheme.
+Although a specialized installer is recommended, a wheel file may be installed by simply unpacking into site-packages
+with the standard 'unzip' tool while preserving enough information to spread its contents out onto their final paths at any later time.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In other words, instead of having a source distribution file that pip downloads, unpacks and runs "setup.py install",
+the wheel format has things, effectively, in the format that they need to be when they are installed on the system.
+So pip can just unpack the zip file (.whl) in a very specific way, but you don't actually have to run any code to do installs.
+This means that installs are much faster and safer since you don't execute arbitrary code from the internet.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#wheels"&gt;Wheels come in three flavors&lt;/a&gt;:
+universal, pure Python and platform. Because of its compiled extensions (C extensions), Numpy comes in platform wheels.
+Take a minute and choose the appropriate distribution wheel. Simple rule of thumb: Does your package contains pure
+Python code? If yes, choose either pure Python (does not support both Python 2 and 3) or universal (your package
+does support both Python 2 and 3). If no, then you must go with platform wheel. No worries, though. The command
+is the same in all options: &lt;code&gt;python setup.py bdist_wheel&lt;/code&gt;. The onle point of difference is inside the &lt;code&gt;setup.cfg&lt;/code&gt; file.
+&lt;a href="#setupcfg"&gt;We will get to that&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Furthermore, wheel formats have another advantage. Their filename says a lot about the package. Have a minute and visit the
+&lt;a href="https://pypi.org/project/numpy/#files"&gt;numpy downloadble file list&lt;/a&gt;. There is a whole list of different wheels
+(the source distribution is at the bottom). Luckily, you don't have to choose one, download and install. &lt;code&gt;pip&lt;/code&gt;
+will do it for you automatically, depending on your OS system, Python version etc. My point here is that the author
+of the package has the ability to make the package installable on different platforms, Python versions etc, using
+the wheel format. No chance with the source dist one.&lt;/p&gt;
+&lt;p&gt;Visiting PyPI and examining some packages, you may see that not all packages have a wheel format. However, all of them
+have a source distribution one. A good practice is to &lt;strong&gt;always generate both wheel and source distributions&lt;/strong&gt; each time
+you upload a new version of your package.&lt;/p&gt;
+&lt;p&gt;Now that we have explained what a wheel is, theoretically, lets build one for our booster package.
+The command that builds a wheel is &lt;code&gt;python setup.py bdist_wheel&lt;/code&gt;. If you like, run &lt;code&gt;python setup.py bdist_wheel --help&lt;/code&gt;
+to get a list of options applied to this command (most popular is &lt;code&gt;--universal&lt;/code&gt;).
+If you get an error running this command, then your working Python environment has not the &lt;a href="https://pypi.org/project/wheel/"&gt;wheel&lt;/a&gt;
+library installed (which is installed automatically every time you create a virtualenv using the &lt;a href="https://virtualenv.pypa.io/en/latest/"&gt;virtualenv&lt;/a&gt; library).
+You can see that using &lt;code&gt;setup.py&lt;/code&gt; this way, it acts as the 2nd role we described earlier (tool for handling packages etc).
+Note that no code has been written yet inside the &lt;code&gt;booster/booster.py&lt;/code&gt; file.
+It doesnt matter because at this point we're focusing on the package rather the contents of each file.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; path/to/booster/
+$ python setup.py bdist_wheel
+running bdist_wheel
+running build
+...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If you examine the root &lt;code&gt;booster&lt;/code&gt; directory, you will see that three new directories have been created:
+&lt;code&gt;booster.egg-info/&lt;/code&gt;, &lt;code&gt;build/&lt;/code&gt; and &lt;code&gt;dist/&lt;/code&gt;. Leave the first two folders intact and focus on the &lt;code&gt;dist&lt;/code&gt; one.
+This would be the directory (although it's name may be changed, &lt;code&gt;-d&lt;/code&gt; option) where you'll place your wheels
+and your source distributions as well. These two go together. Always. Remember that. wheel + sdist = BFF
+like we wrote in the 90's.
+The contents of the &lt;code&gt;.whl&lt;/code&gt; file are two folders: &lt;code&gt;booster/&lt;/code&gt; and &lt;code&gt;booster-0.1.0.dist-info/&lt;/code&gt;. If you paste
+the &lt;code&gt;booster/&lt;/code&gt; folder into your virtualenv &lt;code&gt;site-packages&lt;/code&gt; folder, then &lt;code&gt;booster&lt;/code&gt; would be available in your
+Python path (i.e you can do &lt;code&gt;import booster&lt;/code&gt;).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Aside fact #1: there is another way to build a wheel for your package (although, the above method
+  should always be used). Once inside the root directory of the package run &lt;code&gt;pip wheel -w dist --no-deps .&lt;/code&gt;
+  (this will create only a &lt;code&gt;dist/&lt;/code&gt; dir which includes the &lt;code&gt;.whl&lt;/code&gt; file).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aside fact #2: We have mentioned the &lt;a href="https://pypi.org/project/wheel/"&gt;wheel&lt;/a&gt; library but we have not used it yet. In fact you never
+  have to play with it but you may install wheels through this library also. Again, this is not the recommended
+  way. Once you have a wheel of your library, you may install it with &lt;code&gt;wheel install dist/booster-0.1.0-py2.py3-none-any.whl&lt;/code&gt;.
+  Verify that by doing: &lt;code&gt;pip freeze | grep booster&lt;/code&gt;. There it is! But &lt;code&gt;wheel&lt;/code&gt; command has no uninstall procedure
+  which signifies that this method is unsuitable for installing/uninstalling packages. To uninstall it run
+  &lt;code&gt;pip uninstall booster&lt;/code&gt;. Press &lt;code&gt;y&lt;/code&gt; (for yes) and it's gone.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aside fact #3: Since &lt;code&gt;pip&lt;/code&gt; can install wheels, let's take a look of a manual way of doing that. Again, this is
+  not the recommended way. Inside the root package run &lt;code&gt;pip install --no-index --find-links=. dist/booster-0.1.0-py2.py3-none-any.whl&lt;/code&gt;.
+  Because the default behavior of &lt;code&gt;pip&lt;/code&gt; is to look for package in the PyPI index we tell it to not look at any (&lt;code&gt;--no-index&lt;/code&gt;)
+  and advise it to look for packages in the current dir (&lt;code&gt;--find-links=.&lt;/code&gt;). Next follows the path of the wheel file.
+  This works brilliantly but it's overkill to write all these every time!&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aside fact #4: Enter developer mode. Or else &lt;code&gt;editable&lt;/code&gt; mode. When you develop your package, instead of
+  &lt;code&gt;pip install&lt;/code&gt; it every time you make a change (or you want to examine a &lt;code&gt;print&lt;/code&gt; statement somewhere) you may
+  symlink it and then all changes will be applied automatically. You can either do &lt;code&gt;python setup.py develop&lt;/code&gt;
+  (which shows a verbose output) or &lt;code&gt;pip install -e .&lt;/code&gt; (where the dot at the end specifies the current working
+  directory which is the project root one) which gives a suppressed output but pay close attention at it.
+  It says &lt;code&gt;Running setup.py develop for booster&lt;/code&gt;. So, the same command is used.
+  Anyhow, I prefer to use the latter (&lt;code&gt;pip install -e .&lt;/code&gt;) and I'm good to go.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aside fact #5: You may notice that wheels include only what's under your source code directory. Anything else
+  outside will not be included (because, simply, it's not needed in order for your library to run). So, if your
+  &lt;code&gt;MANIFEST.in&lt;/code&gt; file (we'll look at it &lt;a href="#manifestin"&gt;below&lt;/a&gt;) includes other dirs/files outside the &lt;code&gt;booster/&lt;/code&gt;
+  root source directory, running &lt;code&gt;python setup.py bdist_wheel&lt;/code&gt;, the produced &lt;code&gt;.whl&lt;/code&gt; archive will not include those.
+  However, it will include any dirs/files (written in the manifest) that are inside the &lt;code&gt;booster/&lt;/code&gt; root source dir.
+  On the other hand, all the above are not valid for the &lt;code&gt;sdist&lt;/code&gt; distribution. In this format, almost everything
+  are included in the &lt;code&gt;.tar.gz&lt;/code&gt; archive.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aside fact #6: You may produce a wheel artifact out from an &lt;code&gt;sdist&lt;/code&gt;, but not the other way around.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Aside fact #7: You might have heard of Python &lt;code&gt;.egg&lt;/code&gt; files. These kind of archives are considered obsolete.
+  The official packaging docs state that &lt;a href="https://packaging.python.org/discussions/wheel-vs-egg/"&gt;wheels are now considered the standard&lt;/a&gt;.
+  So, there is no need to worry about them. Consider &lt;code&gt;wheel&lt;/code&gt; the upgraded version of &lt;code&gt;egg&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="sdist-aka-source-distribution"&gt;&lt;a href="#sdist"&gt;Sdist (aka source distribution)&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Source distribution (sdist for short) is actually a &lt;code&gt;.tar.gz&lt;/code&gt; file which contains not only the directory
+where your code lives but also the other files (depending of the contents of &lt;code&gt;MANIFEST.in&lt;/code&gt; file)
+inside the root directory of the package (such as &lt;code&gt;setup.py&lt;/code&gt;, &lt;code&gt;setup.cfg&lt;/code&gt; etc).
+Some packages on PyPI either have only &lt;code&gt;sdist&lt;/code&gt;s, &lt;code&gt;wheel&lt;/code&gt;s or both. &lt;code&gt;pip&lt;/code&gt; will always prefer a &lt;code&gt;wheel&lt;/code&gt;
+because it's faster and requires no compilation at all. In contrast, if &lt;code&gt;wheel&lt;/code&gt; file is missing,
+&lt;code&gt;pip&lt;/code&gt; will download the sdist, run &lt;code&gt;python setup.py install&lt;/code&gt; and finally install the lib. Sdist
+has all the information needed to build a wheel, install the library etc. That's why it's called
+&lt;em&gt;source&lt;/em&gt; distribution.&lt;/p&gt;
+&lt;p&gt;To build a sdist simply &lt;code&gt;python setup.py sdist&lt;/code&gt;. Note that this command will not create a &lt;code&gt;build/&lt;/code&gt; dir
+like &lt;code&gt;bdist_wheel&lt;/code&gt; did earlier. It creates a &lt;code&gt;booster.egg-info/&lt;/code&gt; and a &lt;code&gt;dist/&lt;/code&gt; folder. Inside the &lt;code&gt;dist/&lt;/code&gt;
+folder you can see the &lt;code&gt;.tar.gz&lt;/code&gt; archive which contains your package with all the accompanying dirs and
+files.&lt;/p&gt;
+&lt;p&gt;Of course, running &lt;code&gt;python setup.py sdist --help&lt;/code&gt; will show you the available options for the sdist argument.
+There are other formats you can archive your package. &lt;code&gt;python setup.py sdist --help-formats&lt;/code&gt; to see the list.&lt;/p&gt;
+&lt;p&gt;Usually, we do not run &lt;code&gt;python setup.py bdist_wheel&lt;/code&gt; and &lt;code&gt;python setup.py sdist&lt;/code&gt; individually. We combine
+these commands into a single one &lt;code&gt;python setup.py bdist_wheel sdist&lt;/code&gt; (&lt;code&gt;bdist_wheel&lt;/code&gt; comes first in case you forget ;)
+and any options on each argument (if any) are included in the &lt;code&gt;setup.cfg&lt;/code&gt; file. What? How &lt;code&gt;setup.py&lt;/code&gt; file gets the
+options from the &lt;code&gt;setup.cfg&lt;/code&gt; file? We will look &lt;a href="#setupcfg"&gt;at it in a moment&lt;/a&gt; when we will talk about &lt;code&gt;setup.cfg&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;In order to facilitate this process, the &lt;code&gt;Makefile&lt;/code&gt; (created by the cookiecutter) has a command called &lt;code&gt;dist&lt;/code&gt; which
+first deletes the &lt;code&gt;build/&lt;/code&gt; dir, the &lt;code&gt;dist/&lt;/code&gt; dir, any hidden &lt;code&gt;.eggs/&lt;/code&gt; dir, any &lt;code&gt;.pyc&lt;/code&gt; files and other stuff and finally
+runs &lt;code&gt;python setup.py bdist_wheel sdist&lt;/code&gt; in order to generate the new distribution pair of artifacts. Run it as
+&lt;code&gt;make dist&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Reminder: Until now, we have talked about how to wrap your package into a format that can be uploaded to PyPI and
+be distributed to the Python world. We have not talked about how to upload a package to PyPI or once uploaded
+how to install it in your machine. We have talked about the number 3 referring to &lt;a href="#warehouse_img"&gt;the image on top&lt;/a&gt;. Although,
+we have used &lt;code&gt;pip&lt;/code&gt; (#4) and &lt;code&gt;setuptools&lt;/code&gt; (#1).&lt;/p&gt;
+&lt;h3 id="packages"&gt;&lt;a href="#kwarg_packages"&gt;Packages&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;The &lt;code&gt;packages&lt;/code&gt; keyword argument to &lt;code&gt;setup()&lt;/code&gt; function tells &lt;code&gt;setuptools&lt;/code&gt; where to look to find Python code.
+It takes a list of strings declaring Python package names. We could, in our example, not used the
+&lt;code&gt;find_packages&lt;/code&gt; function at all and instead write &lt;code&gt;setup(packages=["booster"])&lt;/code&gt; or use the &lt;code&gt;find_packages&lt;/code&gt;
+without any parameters, &lt;code&gt;setup(packages=find_packages())&lt;/code&gt;. It would be exactly the same.
+This argument (&lt;code&gt;packages&lt;/code&gt;), however, is important because if you got it wrong then your actual code will not be included inside
+the distributable package (both the wheel and the sdist)!&lt;/p&gt;
+&lt;p&gt;The handy function &lt;code&gt;find_packages&lt;/code&gt; is given some parameters and it looks for Python modules.
+&lt;a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#using-find-packages"&gt;setuptools docs for find_packages function&lt;/a&gt;
+explain it very well:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Anyway, &lt;code&gt;find_packages()&lt;/code&gt; walks the target directory, filtering by inclusion patterns
+and finds Python packages (any directory). Packages are only recognized if they include an &lt;code&gt;__init__.py&lt;/code&gt; file.
+Finally, exclusion patterns are applied to remove matching packages.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In our case, we have a single dir called &lt;code&gt;booster/&lt;/code&gt; and under it three Python modules
+(&lt;code&gt;booster.py&lt;/code&gt;, &lt;code&gt;cli.py&lt;/code&gt; and &lt;code&gt;__init__.py&lt;/code&gt;). The &lt;code&gt;find_packages&lt;/code&gt; function is called without any arguments resulting
+in including this dir into the distributable one. If, however, this dir was not a Python package (without the
+&lt;code&gt;__init__.py&lt;/code&gt; module) then it will not be included by this function.&lt;/p&gt;
+&lt;p&gt;Fire up a Python console and import &lt;code&gt;find_packages&lt;/code&gt; from &lt;code&gt;setuptools&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;setuptools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;find_packages&lt;/span&gt;
+
+&lt;span class="n"&gt;find_packages&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="c1"&gt;# [&amp;#39;booster&amp;#39;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now, delete the &lt;code&gt;booster/__init__.py&lt;/code&gt; and run &lt;code&gt;find_packages&lt;/code&gt; again:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;setuptools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;find_packages&lt;/span&gt;
+
+&lt;span class="n"&gt;find_packages&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="c1"&gt;# []&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It doesnt matter how many subpackages your main package have. The &lt;code&gt;find_packages&lt;/code&gt; function
+will work recursively and find them all. However, if you have, say, a file named &lt;code&gt;config.json&lt;/code&gt;
+or &lt;code&gt;config.yml&lt;/code&gt; or anything that does not have a &lt;code&gt;.py&lt;/code&gt; suffix and you want to include it, because
+somewhere you parse it and use it, then &lt;code&gt;find_packages&lt;/code&gt; will not help you there.&lt;/p&gt;
+&lt;p&gt;These kind of files are not Python ones and thus they are called &lt;em&gt;data files&lt;/em&gt;. There are many
+scenarios on including those files and once again
+&lt;a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#including-data-files"&gt;setuptools docs for data files&lt;/a&gt;
+have all these covered in an explicit fashion.&lt;/p&gt;
+&lt;h3 id="zip_safe"&gt;&lt;a href="#kwarg_zip_safe"&gt;zip_safe&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;To be really honest I don't quite comprehend this setting and to always play safe I set it on &lt;code&gt;False&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;As per the &lt;a href="http://peak.telecommunity.com/DevCenter/setuptools#setting-the-zip-safe-flag"&gt;PEAK docs say about setuptools&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;For maximum performance, Python packages are best installed as zip files.
+Not all packages, however, are capable of running in compressed form, because they may expect
+to be able to access either source code or data files as normal operating system files.
+So, setuptools can install your project as a zipfile or a directory
+and its default choice is determined by the project's zip_safe flag.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Also &lt;a href="https://medium.com/@madumalt/python-setuptools-adding-non-code-files-to-a-package-804f9e914807"&gt;a post on medium&lt;/a&gt;
+tries to explain &lt;code&gt;zip_safe&lt;/code&gt; option. Last but not least read this
+&lt;a href="https://stackoverflow.com/questions/15869473/what-is-the-advantage-of-setting-zip-safe-to-true-when-packaging-a-python-projec"&gt;answer on StackOverflow about &lt;code&gt;zip_safe&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;As I understand it, unless you know what you're doing keep &lt;code&gt;zip_safe=False&lt;/code&gt;. Most Python packages (small and big ones) have it &lt;code&gt;False&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 id="test_suite"&gt;&lt;a href="#kwarg_test_suite"&gt;test_suite&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;This option, once again is covered by the &lt;a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#test-build-package-and-run-a-unittest-suite"&gt;setuptools docs&lt;/a&gt;.
+When set, then you'll be able to run &lt;code&gt;python setup.py test&lt;/code&gt; and the test suite will get initiated.&lt;/p&gt;
+&lt;p&gt;In our example, the &lt;code&gt;test_suite&lt;/code&gt; keyword is set to the &lt;code&gt;tests/&lt;/code&gt; directory. That's it. Try to run &lt;code&gt;python setup.py test&lt;/code&gt; and
+see the already written by the cookiecutter test run and succeed. Since we are using &lt;code&gt;pytest&lt;/code&gt; we can also run tests using
+&lt;code&gt;pytest&lt;/code&gt; or &lt;code&gt;py.test&lt;/code&gt; or &lt;code&gt;python setup.py pytest&lt;/code&gt;.
+If you get the error &lt;code&gt;E   ModuleNotFoundError: No module named 'booster'&lt;/code&gt; then you have not installed &lt;code&gt;booster&lt;/code&gt; in your virtualenv.
+Do that first (&lt;code&gt;pip install -e .&lt;/code&gt;) and then rerun &lt;code&gt;pytest&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 id="setupcfg"&gt;&lt;a href="#setup.cfg"&gt;setup.cfg&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;This file is not mandatory but most of the times comes in handy due to repetition of &lt;code&gt;setup.py&lt;/code&gt; command options.
+It's an &lt;code&gt;ini&lt;/code&gt; file and describes how the &lt;code&gt;setup.py&lt;/code&gt; is going to run. Instead of doing &lt;code&gt;python setup.py bdist_wheel --universal&lt;/code&gt;,
+you set this option inside the &lt;code&gt;setup.cfg&lt;/code&gt; as follows:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# apply to the &amp;quot;setup.py bdist_wheel&amp;quot; command&lt;/span&gt;
+&lt;span class="c1"&gt;# the universal option with a value of 1 (that is, set it to true)&lt;/span&gt;
+&lt;span class="k"&gt;[bdist_wheel]&lt;/span&gt;
+&lt;span class="na"&gt;universal&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;1&lt;/span&gt;
+
+&lt;span class="k"&gt;[aliases]&lt;/span&gt;
+&lt;span class="na"&gt;test&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;pytest&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;A general practice is to list the available &lt;code&gt;setup.py&lt;/code&gt; commands with &lt;code&gt;python setup.py --help-commands&lt;/code&gt;
+and for each command, list it's available options, i.e &lt;code&gt;python setup.py --help sdist&lt;/code&gt;. Then, if
+you want an option to persist while you create &lt;code&gt;sdist&lt;/code&gt; formats, you write it down to &lt;code&gt;setup.cfg&lt;/code&gt; along
+with it's corresponding value.&lt;/p&gt;
+&lt;p&gt;However, this is not true for the &lt;code&gt;alias&lt;/code&gt; command. Although, the command is &lt;code&gt;python setup.py alias &amp;lt;alias_name&amp;gt; &amp;lt;alias_command&amp;gt;&lt;/code&gt;
+the corresponding entry in the &lt;code&gt;setup.cfg&lt;/code&gt; is &lt;code&gt;[aliases]&lt;/code&gt;. Delete this section and save &lt;code&gt;setup.cfg&lt;/code&gt;.
+Then run &lt;code&gt;python setup.py alias test pytest&lt;/code&gt;. This will write to the &lt;code&gt;setup.cfg&lt;/code&gt; the lines that you previously deleted.
+The &lt;code&gt;[aliases]&lt;/code&gt; was added.&lt;/p&gt;
+&lt;p&gt;There are other Python libraries, such as &lt;a href="https://github.com/c4urself/bump2version"&gt;bump2version&lt;/a&gt; (a library to manage your package's version) that
+are &lt;em&gt;compatible&lt;/em&gt; with &lt;code&gt;setup.cfg&lt;/code&gt; and allow you to define their command options inside this file. Then, whenever
+you run &lt;code&gt;bumpversion minor&lt;/code&gt; the file &lt;code&gt;setup.cfg&lt;/code&gt; will be read under the hood for any options defined.&lt;/p&gt;
+&lt;p&gt;Another technique that gains popularity is to make the &lt;code&gt;setup.cfg&lt;/code&gt; fat and keep &lt;code&gt;setup.py&lt;/code&gt; thin. What is meant
+by this is to put all the metadata inside the &lt;code&gt;setup.cfg&lt;/code&gt; so that the &lt;code&gt;setup.py&lt;/code&gt; will, eventually, consist of
+the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;setuptools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;setup&lt;/span&gt;
+
+&lt;span class="n"&gt;setup&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It can't be any simpler! It's a matter of choice. I prefer to keep my balances and have them both
+in a sane size.&lt;/p&gt;
+&lt;p&gt;Nevertheless, it's a good idea to have &lt;code&gt;setup.cfg&lt;/code&gt; in place, in order not to forget certain options, since this file provides
+defaults for the &lt;code&gt;setup.py&lt;/code&gt; script (in other words it describes how the &lt;code&gt;setup.py&lt;/code&gt; script behaves).&lt;/p&gt;
+&lt;p&gt;A good read on this is the &lt;a href="https://docs.python.org/3/distutils/configfile.html"&gt;official python docs on distributing python modules (legacy version)&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id="manifestin"&gt;&lt;a href="#manifest.in"&gt;MANIFEST.in&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;This file defines everything else that needs to be included in your source distribution (not the wheel)
+that isn't actually necessary for the code to run itself. In contrast to &lt;code&gt;setup.py&lt;/code&gt; file which defines
+the code that's going to be executed, which code do I need to include, the requirements of the
+project etc (where all these are for functional purposes), &lt;code&gt;MANIFEST.in&lt;/code&gt; file describes other
+files/dirs you need to include in your source distribution (such as docs, tests, images, html files, examples etc).&lt;/p&gt;
+&lt;p&gt;&lt;a href="#packages"&gt;As mentioned earlier&lt;/a&gt;, data files (anything other than &lt;code&gt;.py&lt;/code&gt; files) are not included by default
+in your distributable package. To do so you must use the &lt;code&gt;include_package_data=True&lt;/code&gt; keyword argument
+of the &lt;code&gt;setup()&lt;/code&gt; function and the script will read the &lt;code&gt;MANIFEST.in&lt;/code&gt; file and include all dirs/files
+listed into the sdist one (and to the wheel if they are under the source root directory).&lt;/p&gt;
+&lt;p&gt;So, the keyword arguments of &lt;code&gt;setup()&lt;/code&gt;: &lt;code&gt;include_package_data&lt;/code&gt;, &lt;code&gt;package_data&lt;/code&gt; and &lt;code&gt;exclude_package_data&lt;/code&gt; work together
+with the &lt;code&gt;MANIFEST.in&lt;/code&gt; file in a combination fashion in order to determine what &lt;em&gt;other files&lt;/em&gt; are to be included in the &lt;code&gt;sdist&lt;/code&gt;
+package format. In fact, any files that match &lt;code&gt;exclude_package_data&lt;/code&gt; patterns will be included in the &lt;code&gt;sdist&lt;/code&gt; format but
+when the package gets installed on the system (&lt;code&gt;pip install package&lt;/code&gt;) they will be excluded from the installation.&lt;/p&gt;
+&lt;p&gt;You may read more on the &lt;code&gt;MANIFEST.in&lt;/code&gt; file on the &lt;a href="https://docs.python.org/3/distutils/sourcedist.html#specifying-the-files-to-distribute"&gt;official Python docs about MANIFEST.in&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you find yourself lost with this kind of file (as I did in the beginning), &lt;a href="https://github.com/mgedmin/check-manifest"&gt;check-manifest&lt;/a&gt;
+is very good tool that kind of &lt;em&gt;syncs&lt;/em&gt; version controlled dirs/files with the &lt;code&gt;sdist&lt;/code&gt; one.
+It also recommends which files should be added to the &lt;code&gt;MANIFEST.in&lt;/code&gt; file.&lt;/p&gt;
+&lt;h1 id="upload"&gt;&lt;a href="#upload"&gt;Upload&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;Once you have your Python package wrapped in a distributable form (remember, &lt;strong&gt;both wheel and sdist&lt;/strong&gt;) then it's
+time to share it. Your distributable ones, conventionally, live under the &lt;code&gt;dist/&lt;/code&gt; dir, in the same level as
+&lt;code&gt;setup.py&lt;/code&gt; is. The place where all Python packages are stored is called &lt;a href="https://pypi.org/"&gt;PyPI&lt;/a&gt;.
+Since, an image worth a thousand words, here you are:&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;"&gt;
+  &lt;a name="packaging_upload_img"&gt;&lt;/a&gt;
+    &lt;img id="packaging-upload" src="/images/a_tour_on_python_packaging/packaging_upload_twine.png" alt="Python Packaging upload on PyPI via twine"&gt;
+    &lt;figcaption&gt;Python packaging upload on PyPI via twine&lt;/figcaption&gt;
+&lt;/figure&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;The way to upload your goodies on PyPI is called &lt;a href="https://pypi.org/project/twine/"&gt;twine&lt;/a&gt;. However, in order to be absolutely sure
+that your package can be installed and run correctly without errors, the &lt;a href="https://test.pypi.org/"&gt;testing PyPI server&lt;/a&gt; exists
+to host (temporarily) packages and expose such errors (uploading, installation etc).&lt;/p&gt;
+&lt;p&gt;So, before you upload you package to the official live PyPI server (the default one), test it first and then
+upload it &lt;em&gt;officially&lt;/em&gt;. You'll need two different accounts; one for the testing and one for the default one.&lt;/p&gt;
+&lt;p&gt;Both uploads use the same command and it's pretty straightforward:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# for the testing PyPI server&lt;/span&gt;
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+&lt;span class="c1"&gt;# for the default PyPI server&lt;/span&gt;
+twine upload dist/*
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;After each new version release of your package, it's a good idea to empty the &lt;code&gt;dist/&lt;/code&gt; directory
+from previous ones. Also delete the &lt;code&gt;build/&lt;/code&gt; dir as well. As already been said above, the cookiecutter
+has a command to help you with this, &lt;code&gt;make dist&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Important note #1: PyPI does not allow to upload an artifact with the same version. That is, if your uploaded
+package version is &lt;code&gt;0.1.0&lt;/code&gt; and you discovered a minor bug (say a typo to a string, a minor one) and fix it
+without change the version and try to upload it again, PyPI will complain with the following error:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Uploading booster-0.1.0-py2.py3-none-any.whl
+&lt;span class="m"&gt;100&lt;/span&gt;%&lt;span class="p"&gt;|&lt;/span&gt;███████████████████████████████████████████████████████████████████████████████████&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;8&lt;/span&gt;.94k/8.94k &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;00&lt;/span&gt;:01&amp;lt;&lt;span class="m"&gt;00&lt;/span&gt;:00, &lt;span class="m"&gt;5&lt;/span&gt;.84kB/s&lt;span class="o"&gt;]&lt;/span&gt;
+HTTPError: &lt;span class="m"&gt;400&lt;/span&gt; Client Error: File already exists. See https://test.pypi.org/help/#file-name-reuse &lt;span class="k"&gt;for&lt;/span&gt; url: https://test.pypi.org/legacy/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Fix that by increment the patch version part to &lt;code&gt;0.1.1&lt;/code&gt; and then upload it. Or wait for some feedback
+from the users, gather some bugs and then update it. It depends on the scenario and how big these
+bugs are.&lt;/p&gt;
+&lt;p&gt;Important note #2: Every time you change a version you should log it inside the &lt;code&gt;HISTORY.rst&lt;/code&gt;
+or the &lt;code&gt;CHANGELOG.rst&lt;/code&gt; file (if you have it). That's a good practice not only for documentation
+tracking purposes but also for the end users who need to know what has changed since the previous
+version.&lt;/p&gt;
+&lt;h2 id="keyring"&gt;&lt;a href="#keyring"&gt;keyring&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;After running the above command(s), &lt;code&gt;twine&lt;/code&gt; will ask your username and password. Instead of providing them
+through the console each time, there is another way, the lazy one.&lt;/p&gt;
+&lt;p&gt;Under your virtualenv install &lt;a href="https://pypi.org/project/keyring/"&gt;keyring&lt;/a&gt; (once again, you're using a virtualenv, don't you?),
+&lt;code&gt;pip install keyring&lt;/code&gt;. Read the installation docs carefully because at some platforms, additional platform-specific
+libraries might be needed. As it's docs say:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;code&gt;keyring&lt;/code&gt; provides an easy way to access the system keyring service
+from Python. It can be used in any application that needs safe password storage.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Before, &lt;code&gt;keyring&lt;/code&gt;, the &lt;a href="https://docs.python.org/3/distutils/packageindex.html#the-pypirc-file"&gt;recommended practice was to create a &lt;code&gt;.pypirc&lt;/code&gt; file&lt;/a&gt;
+under your home directory and inside there write in plain text the username and password for
+each index (test and default).&lt;/p&gt;
+&lt;p&gt;Those days are gone and we may now be much more safe and cryptic.
+Back to &lt;code&gt;keyring&lt;/code&gt;, run the following two commands (one at a time):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;keyring &lt;span class="nb"&gt;set&lt;/span&gt; https://test.pypi.org/legacy/ &amp;lt;your_testing_PyPI_username_here&amp;gt;
+keyring &lt;span class="nb"&gt;set&lt;/span&gt; https://upload.pypi.org/legacy/ &amp;lt;your_default_PyPI_username_here&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Each command will prompt you for your password. Enter it and you're good to go.&lt;/p&gt;
+&lt;h2 id="installing-your-uploaded-package"&gt;&lt;a href="#installing-your-uploaded-package"&gt;Installing your uploaded package&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Once the package has been uploaded to the testing server, you may install it from there,
+in a new and clean virtualenv. Create your testing virtualenv and then:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install --index-url https://test.pypi.org/simple/ &amp;lt;package_name&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Confirm that installation produced no errors and that you can run your package
+without any difficulties. In general, confirm that your package works as expected.&lt;/p&gt;
+&lt;p&gt;Once done, you may upload it to the default PyPI server and then simply use the
+famous simple command:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install &amp;lt;package_name&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Congratulations! If you have made it so far that means you are in position to
+share your ideas with others and make the world a better place to live!&lt;/p&gt;
+&lt;p&gt;Extra tip: Recall the keyword argument of the &lt;code&gt;setup&lt;/code&gt; function, &lt;code&gt;extras_require&lt;/code&gt;,
+you may install additional packages/dependencies by just &lt;code&gt;pip install booster[test]&lt;/code&gt;,
+where &lt;code&gt;test&lt;/code&gt; is a key of the dictionary.&lt;/p&gt;
+&lt;h1 id="sum-up"&gt;&lt;a href="#sum-up"&gt;Sum up&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;If you're confused with all the above, which I admit, are a lot to learn (but easy ones)
+in the first place, here are some advices in order to make your life easier:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Create a virtualenv.&lt;/li&gt;
+&lt;li&gt;Try to separate the concerns. First focus on your package and make sure it works. Forget about packaging.&lt;/li&gt;
+&lt;li&gt;Write documentation. No, docstrings are not enough! &lt;a href="#docs-authorsrst-contributingrst-historyrst-and-readmerst"&gt;We talked about it above&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Write tests. No more here to say. &lt;a href="#tests-and-toxini"&gt;We talked about it above&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Now it's time to think about wrapping your library to a package. Again, separation of concerns.&lt;/li&gt;
+&lt;li&gt;Using a cookiecutter of your choice, try to fill/edit/delete each file produced. One at a time.&lt;/li&gt;
+&lt;li&gt;Docs work with Sphinx? Tests pass? Package can be installed locally in developer mode? Works as expected?&lt;/li&gt;
+&lt;li&gt;Create the archives (wheel and sdist)&lt;/li&gt;
+&lt;li&gt;Upload first to testing PyPI and then to the default PyPI&lt;/li&gt;
+&lt;li&gt;Enjoy and tell others what you have built.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;I am repeating myself here (against the &lt;a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself"&gt;DRY&lt;/a&gt; discipline)
+but it's for good:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Do not rush. One step at a time. Complete each step and then go to the next.
+Maybe you create your own &lt;em&gt;steps&lt;/em&gt;, that's OK. But please try not to do things
+simultaneously. The error lies in asynchronous human tasks. Be synchronous!&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I am not saying that I succeeded the first time I try to build a Python package. I failed.
+That's why I created this &lt;em&gt;kind of guide&lt;/em&gt;. You may fail too. But do not give up.
+Enough with the advices and lessons learned.&lt;/p&gt;
+&lt;p&gt;Now dive in and share your ideas with the Python community!&lt;/p&gt;
+&lt;h1 id="resources"&gt;&lt;a href="#resources"&gt;Resources&lt;/a&gt;&lt;/h1&gt;
+&lt;h2 id="python-packaging-related-videos"&gt;&lt;a href="#py_packaging_videos"&gt;Python packaging-related videos&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;If you are a video-person then the following list contains (maybe all) english-spoken
+video conferences, since 2012, related to Python packaging.
+They are listed from recent to older without making older videos stale
+(except those talking about the &lt;code&gt;distutils&lt;/code&gt; package).
+As a bonus, there is a small comment on each, by me, highlighting some points (if any) about the video.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=s5lJsFzv_iI"&gt;What does PEP 517 mean for packaging&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/takluyver"&gt;Thomas Kluyver&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon UK 2019 (Cardiff, UK)&lt;/li&gt;
+&lt;li&gt;A brief history on Python packaging. Talks about PEP 517, pyproject.toml and
+    distinguish between frontend and backend of packaging.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=P3dY3uDmnkU"&gt;Shipping your first Python package and automating future publishing&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/crwilcox"&gt;Chris Wilcox&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2019 (Cleveland, Ohio)&lt;/li&gt;
+&lt;li&gt;Not something new in comparison to other talks in the past.
+    Ends with the automation of package deployment which is quite handy!&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=02aAZ8u3wEQ"&gt;The Black Magic of Python Wheels&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/ehashman"&gt;Elana Hashman&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2019 (Cleveland, Ohio)&lt;/li&gt;
+&lt;li&gt;Focuses on building extension wheels (ones that include C code, not only Python),
+    explains what &lt;a href="https://github.com/pypa/manylinux"&gt;manylinux&lt;/a&gt;, &lt;a href="https://github.com/pypa/auditwheel"&gt;auditwheel&lt;/a&gt;
+    and symbol version (C specific) are.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=OaBhcueqNqw"&gt;Dependency hell: a library author's guide&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;Yanhui Li &amp;amp; &lt;a href="https://github.com/brianquinlan"&gt;Brian Quinlan&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2019 (Cleveland, Ohio)&lt;/li&gt;
+&lt;li&gt;Describes the problem of "dependecy hell" (diamond dependency) and recommends on using
+    semantic versioning (&lt;a href="https://semver.org/"&gt;semver&lt;/a&gt;)&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=RQrZRFcbYM0"&gt;Packaging Django apps for distribution on PyPI&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/lgh2"&gt;Laura Hampton&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;North Bay Python 2018 (Petaluma, California)&lt;/li&gt;
+&lt;li&gt;Despite the Django-specific parts at the beginning,
+    not something new to learn in comparison with the other talks&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=Gt3Pkgsd0Tk"&gt;Can packaging improve Django deployments?&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/keimlink"&gt;Markus Zapke-Gründemann&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;DjangoCon Europe 2018 (Heidelberg, Germany)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;pip-tools&lt;/code&gt;, different Django project structure, &lt;code&gt;contraints.txt&lt;/code&gt;, &lt;code&gt;setup.cfg&lt;/code&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=QgZ7qv4Cd0Y"&gt;How to publish a package on PyPI&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/judy2k"&gt;Mark Smith&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon Australia 2018&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://gitignore.io"&gt;gitignore.io&lt;/a&gt;, &lt;a href="https://choosealicense.com"&gt;choosealicense.com&lt;/a&gt;,
+  &lt;a href="https://github.com/mgedmin/check-manifest"&gt;check-manifest&lt;/a&gt;, &lt;a href="https://github.com/pypa/pipenv"&gt;pipenv&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=AQsZsgJ30AE"&gt;Inside the Cheeseshop: How Python Packaging Works&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/di"&gt;Dustin Ingram&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2018 (Cleveland, Ohio)&lt;/li&gt;
+&lt;li&gt;Focus on packaging history and not on how to package your Python code. Good references, though.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=WdhYa--Cahk"&gt;Packaging Let’s Encrypt Lessons learned shipping Python code to hundreds of thousands of users&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/SwartzCr"&gt;Noah Swartz&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2017 (Portland, Oregon)&lt;/li&gt;
+&lt;li&gt;Focuses on Python Applications (&lt;a href="https://certbot.eff.org/"&gt;certbot&lt;/a&gt;) and problems encountered during
+  development and production. Not a talk for Python libraries.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=qOH-h-EKKac"&gt;Share your code! Python Packaging Without Complication&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/tylerdave"&gt;Dave Forgac&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2017 (Portland, Oregon)&lt;/li&gt;
+&lt;li&gt;Not something new in comparison to the 2016 talks&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=ikT2i4I2LYY"&gt;The trends in choosing licenses in Python ecosystem&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/anweshadas"&gt;Anwesha Das&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2017 (Portland, Oregon)&lt;/li&gt;
+&lt;li&gt;Learn about different types of licenses and best practices to license your project.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=xSbezLCJ87E"&gt;Python Packaging - current state and overview&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/Gandi24"&gt;Jakub Wasielak&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;EuroPython 2017 (Rimini, Italy)&lt;/li&gt;
+&lt;li&gt;Learn a lot about &lt;code&gt;setup.py&lt;/code&gt; like &lt;a href="https://github.com/pypa/setuptools_scm"&gt;setuptools_scm&lt;/a&gt;, &lt;code&gt;extras_require&lt;/code&gt;, &lt;code&gt;setup.cfg&lt;/code&gt;
+  &lt;code&gt;python setup.py install/develop&lt;/code&gt;, &lt;a href="https://www.devpi.net/"&gt;devpi.net&lt;/a&gt;
+  and &lt;a href="https://www.python.org/dev/peps/pep-0440/"&gt;PEP 440 -- Version Identification and Dependency Specification&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=iLVNWfPWAC8"&gt;The Packaging Gradient&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/mahmoud"&gt;Mahmoud Hashemi&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyBay 2017 (San Francisco, California)&lt;/li&gt;
+&lt;li&gt;Focuses more on packaging Python applications instead of Python libraries. Refers to &lt;a href="https://github.com/pantsbuild/pex"&gt;pex&lt;/a&gt;,
+  &lt;a href="https://www.anaconda.com/"&gt;anaconda&lt;/a&gt;, &lt;a href="https://docs.python-guide.org/shipping/freezing/"&gt;freezers&lt;/a&gt; and other methods.
+  Obsolete, regarding the command for upload to PyPI (uses &lt;code&gt;setup.py upload&lt;/code&gt;)&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=Ai2l9V2Y5Kw"&gt;Confessions of a Python packaging noo&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/ssaporta"&gt;Steven Saporta&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyGotham 2017 (New York City)&lt;/li&gt;
+&lt;li&gt;Learn about the different wheel types&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=5BqAeN-F9Qs"&gt;Shipping Software To Users With Python&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/glyph"&gt;Glyph Lefkowitz&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2016 (Portland, Oregon)&lt;/li&gt;
+&lt;li&gt;Talks more on distributing Python applications and not Python libraries.
+  Learn about not to install globally using &lt;code&gt;sudo&lt;/code&gt; and instead use &lt;code&gt;pip install --user package&lt;/code&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=nFozViwDWvY"&gt;Publish your code so others can use it in 5 easy steps&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/samastur"&gt;Marko Samastur&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2016 (Portland, Oregon)&lt;/li&gt;
+&lt;li&gt;It's the same talk as of EuroPython 2016 so, more or less the same.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=v_wFF2wEG_A"&gt;Warehouse - the future of PyPI&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/nlhkabu"&gt;Nicole Harris&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyConFR 2016&lt;/li&gt;
+&lt;li&gt;Focuses more on the &lt;em&gt;old&lt;/em&gt; PyPI and the birth of the new one (warehouse),
+  learn about the &lt;a href="https://en.wikipedia.org/wiki/Bus_factor"&gt;bus factor&lt;/a&gt;, &lt;a href="https://www.pypa.io/en/latest/"&gt;PyPA&lt;/a&gt;,
+  &lt;a href="https://packaging.python.org/"&gt;PyPUG&lt;/a&gt;, &lt;a href="https://wiki.python.org/psf/PackagingWG"&gt;PSF Packaging WG&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=gc9dkktg1gU"&gt;Publish your code so others can use it in 4 easy steps&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/samastur"&gt;Marko Samastur&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;EuroPython 2016 (Bilbao, Spain)&lt;/li&gt;
+&lt;li&gt;It's kind of stale (uses &lt;code&gt;setup.py sdist upload&lt;/code&gt; instead of &lt;a href="https://pypi.org/project/twine/"&gt;twine&lt;/a&gt;)&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=osCJgs5UetU"&gt;What Python can learn from Haskell packaging&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/domenkozar"&gt;Domen Kožar&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;EuroPython 2016 (Bilbao, Spain)&lt;/li&gt;
+&lt;li&gt;Talks about Haskell with a few referrals to Python&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=oE5iePv8nD8"&gt;Reinventing the &lt;code&gt;whl&lt;/code&gt;: New Developments in Upstream Python Packaging Ecosystem&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/njsmith/"&gt;Nathaniel Smith&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;SciPy 2016 (Austin, Texas)&lt;/li&gt;
+&lt;li&gt;Speaks about packaging Python applications, mostly, not Python libraries.
+  Talks about the &lt;a href="https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-pre"&gt;pip install --pre &lt;package&gt;&lt;/a&gt;
+  and the upcoming &lt;code&gt;pyproject.toml&lt;/code&gt; configuration file.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=W8A2bOKPtJU"&gt;Rethinking packaging, development and deployment&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/domenkozar"&gt;Domen Kožar&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2015 (Montréal, Canada)&lt;/li&gt;
+&lt;li&gt;Talks about the &lt;a href="https://nixos.org/nixpkgs/manual/#python"&gt;nix&lt;/a&gt; project&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=UtFHIpNPMPA"&gt;Grug make fire! Grug make wheel!&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/freakboy3742"&gt;Russell Keith-Magee&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon Australia 2014&lt;/li&gt;
+&lt;li&gt;A little stale but you may learn about &lt;code&gt;setup.cfg&lt;/code&gt;, &lt;code&gt;MANIFEST&lt;/code&gt; and  &lt;code&gt;LICENCE&lt;/code&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=eLPiPHr6TVI"&gt;Python packaging simplified, for end users, app developers&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/paulproteus"&gt;Asheesh Laroia&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2014 (Montréal, Canada)&lt;/li&gt;
+&lt;li&gt;A bit of stale too, but you learn that &lt;code&gt;pip install -e .&lt;/code&gt; is the alias
+  of &lt;code&gt;python setup.py develop&lt;/code&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=jOiAp3wtx18"&gt;What is coming in Python packaging&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/coderanger"&gt;Noah Kantrowitz&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon 2014 (Montréal, Canada)&lt;/li&gt;
+&lt;li&gt;Learn about the &lt;a href="https://warehouse.pypa.io/api-reference/json/"&gt;warehouse JSON API&lt;/a&gt;,
+  &lt;a href="https://docs.python.org/3/library/ensurepip.html"&gt;ensurepip&lt;/a&gt;,
+  &lt;a href="https://www.python.org/dev/peps/pep-0453/"&gt;PEP 453 -- Explicit bootstrapping of pip in Python installations&lt;/a&gt;
+  and &lt;code&gt;wheel&lt;/code&gt;s&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=8Xrdt3-YVz4"&gt;Nobody Expects the Python Packaging Authority&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/ncoghlan"&gt;Nick Coghlan&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyCon Australia 2013&lt;/li&gt;
+&lt;li&gt;Talks about the pre-PyPA era and packaging issues that prevent Python packaging from evolving.
+  Great talk for historical reasons.&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.youtube.com/watch?v=bwwf_HbEJQM"&gt;Sharing is Caring: Posting to the Python Package Index&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/lukesneeringer"&gt;Luke Sneeringer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;PyConUS 2012 (Santa Clara, California)&lt;/li&gt;
+&lt;li&gt;Very good video but a bit of stale since he uses &lt;code&gt;distutils&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="python-packaging-related-podcasts"&gt;&lt;a href="#py_packaging_podcasts"&gt;Python packaging-related podcasts&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;If you want to put on your headphones and enjoy the listening about Python
+packaging, then this list is for you:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://testandcode.com/52"&gt;52: pyproject.toml : the future of Python packaging&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/brettcannon"&gt;Brett Cannon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;5 November 2018&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="python-packaging-related-articles"&gt;&lt;a href="#py_packaging_articles"&gt;Python packaging-related articles&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;Searching for "python packaging" will give you a ton of results. I tried to minimize
+this list of results and end up with the following articles. They are in chronological
+order. This does not mean that older posts are obsolete.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://andrewsforge.com/article/python-new-package-landscape/"&gt;Python's new package landscape&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/jambonrose"&gt;Andrew Pinkham&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;11 May 2018&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://snarky.ca/a-tutorial-on-python-package-building/"&gt;A tutorial on packaging up your Python code for PyPI&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/brettcannon"&gt;Brett Cannon&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;28 October 2017&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://hynek.me/articles/sharing-your-labor-of-love-pypi-quick-and-dirty/"&gt;Sharing your labor of love: PyPI quick and dirty&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/hynek"&gt;Hynek Schlawack&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;29 July 2013 (updated on 23 October 2017)&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://veekaybee.github.io/2017/09/26/python-packaging/"&gt;Alice in Python projectland&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/veekaybee"&gt;Vicki Boykis&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;26 September 2017&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://brunorocha.org/python/publish-your-python-packages-easily-using-flit.html"&gt;Publish your Python packages easily using flit&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/rochacbruno"&gt;Bruno Rocha&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;22 August 2017&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://jakevdp.github.io/blog/2016/08/25/conda-myths-and-misconceptions/"&gt;Conda: Myths and misconceptions&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/jakevdp"&gt;Jake VanderPlas&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;25 Aug 2016&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://glyph.twistedmatrix.com/2016/08/python-packaging.html"&gt;Python packaging is good now&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/glyph"&gt;Glyph Lefkowitz&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;14 August 2016&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://hynek.me/articles/testing-packaging/"&gt;Testing &amp;amp; Packaging&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/hynek"&gt;Hynek Schlawack&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;19 October 2015&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://blog.ionelmc.ro/2014/06/25/python-packaging-pitfalls/"&gt;Python packaging pitfalls&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/ionelmc"&gt;Ionel Cristian Mărieș&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;25 June 2014&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://blog.miguelgrinberg.com/post/the-package-dependency-blues"&gt;The package dependency blues&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/miguelgrinberg"&gt;Miguel Grinberg&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;2 Sep 2013&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://caremad.io/posts/2013/07/setup-vs-requirement/"&gt;setup.py vs requirements.txt&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/dstufft"&gt;Donald Stuff&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;22 Jul 2013&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://python-notes.curiousefficiency.org/en/latest/pep_ideas/core_packaging_api.html"&gt;Incremental plans to improve Python packaging&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/ncoghlan"&gt;Nick Coghlan&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://justin.abrah.ms/python/setuptools_lessons.html"&gt;6 things I learned about setuptools&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/justinabrahms"&gt;Justin Abrahms&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://packaging.python.org/tutorials/"&gt;PyPA tutorials&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://packaging.python.org/guides/"&gt;PyPA guides&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://setuptools.readthedocs.io/en/latest/"&gt;setuptools official docs&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="packaging"></category><category term="python"></category><category term="package"></category><category term="PyPI"></category></entry></feed>

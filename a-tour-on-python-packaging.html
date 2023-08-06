@@ -1,0 +1,1477 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://alone-djangonaut.com/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/solid.css">
+
+    <link href="https://alone-djangonaut.com/extra/manikos_style.css" rel="stylesheet">
+
+    <link href="https://alone-djangonaut.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alone Djangonaut Atom">
+
+
+    <link rel="shortcut icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+
+  
+
+
+<meta name="author" content="Nick Mavrakis" />
+<meta name="description" content="The current state of packaging a Python library (not a Python application)." />
+<meta name="keywords" content="python, package, PyPI">
+
+
+<meta property="og:site_name" content="Alone Djangonaut"/>
+<meta property="og:title" content="A tour on Python Packaging"/>
+<meta property="og:description" content="The current state of packaging a Python library (not a Python application)."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://alone-djangonaut.com/a-tour-on-python-packaging"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2018-11-08 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2019-05-07 00:00:00+03:00"/>
+<meta property="article:author" content="https://alone-djangonaut.com/author/nick-mavrakis.html">
+<meta property="article:section" content="packaging"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="package"/>
+<meta property="article:tag" content="PyPI"/>
+<meta property="og:image" content="https://alone-djangonaut.com/images/logo/logo_3.png">
+
+  <title>Alone Djangonaut &ndash; A tour on Python Packaging</title>
+
+</head>
+<body >
+  <aside>
+    <div>
+      <a href="https://alone-djangonaut.com">
+        <img src="https://alone-djangonaut.com/images/logo/logo_3.png" alt="Alone Djangonaut" title="Alone Djangonaut">
+      </a>
+
+      <h1>
+        <a href="https://alone-djangonaut.com">Alone Djangonaut</a>
+      </h1>
+
+<p>living in the pale blue dot</p>
+
+      <nav>
+        <ul class="list">
+
+
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/portfolio/">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/about/">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/contact/">
+                  Contact
+                </a>
+              </li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/manikosN" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-github" href="https://github.com/manikos" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-stack-overflow" href="https://stackoverflow.com/users/2231182/nik-m" target="_blank">
+              <i class="fab fa-stack-overflow"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-rss" href="feeds/all.atom.xml" target="_blank">
+              <i class="fas fa-rss"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://alone-djangonaut.com">Home</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+      <a href="https://alone-djangonaut.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="a-tour-on-python-packaging">A tour on Python Packaging</h1>
+    <p>
+      Posted on Thu 08 November 2018 in <a href="https://alone-djangonaut.com/category/packaging.html">packaging</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>If you're new to Python or a mature one and want to share your code with other developers
+or you have build a library to be used by end users and you're struggle with the packaging,
+then this tutorial/post/explanatory guide is (possibly) for you.</p>
+<div class="toc">
+<ul>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#assumptions">Assumptions</a></li>
+<li><a href="#packaging-in-python">Packaging in Python</a><ul>
+<li><a href="#modularity">Modularity</a><ul>
+<li><a href="#pypi">PyPI</a></li>
+<li><a href="#setuptools">setuptools</a></li>
+<li><a href="#wheel">wheel</a></li>
+<li><a href="#twine">twine</a></li>
+<li><a href="#pip">pip</a></li>
+</ul>
+</li>
+<li><a href="#difference-between-sdist-and-bdist_wheel">Difference between sdist and bdist_wheel</a></li>
+</ul>
+</li>
+<li><a href="#the-basics">The basics</a><ul>
+<li><a href="#name">Name</a></li>
+<li><a href="#cookiecutter">Cookiecutter</a></li>
+<li><a href="#structure">Structure</a><ul>
+<li><a href="#requirements_devtxt">requirements_dev.txt</a></li>
+<li><a href="#makefile">Makefile</a></li>
+<li><a href="#license">LICENSE</a></li>
+<li><a href="#docs-authorsrst-contributingrst-historyrst-and-readmerst">docs/, AUTHORS.rst, CONTRIBUTING.rst, HISTORY.rst and README.rst</a></li>
+<li><a href="#tests-and-toxini">tests/ and tox.ini</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#setuppy">setup.py</a><ul>
+<li><a href="#metadata">Metadata</a></li>
+<li><a href="#requirements">Requirements</a><ul>
+<li><a href="#install_requires">install_requires</a></li>
+<li><a href="#python_requires">python_requires</a></li>
+<li><a href="#extras_require">extras_require</a></li>
+</ul>
+</li>
+<li><a href="#entry-points">Entry points</a></li>
+<li><a href="#packaging">Packaging</a><ul>
+<li><a href="#wheels-aka-built-distribution">Wheels (aka built distribution)</a></li>
+<li><a href="#sdist-aka-source-distribution">Sdist (aka source distribution)</a></li>
+<li><a href="#packages">Packages</a></li>
+<li><a href="#zip_safe">zip_safe</a></li>
+<li><a href="#test_suite">test_suite</a></li>
+<li><a href="#setupcfg">setup.cfg</a></li>
+<li><a href="#manifestin">MANIFEST.in</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#upload">Upload</a><ul>
+<li><a href="#keyring">keyring</a></li>
+<li><a href="#installing-your-uploaded-package">Installing your uploaded package</a></li>
+</ul>
+</li>
+<li><a href="#sum-up">Sum up</a></li>
+<li><a href="#resources">Resources</a><ul>
+<li><a href="#python-packaging-related-videos">Python packaging-related videos</a></li>
+<li><a href="#python-packaging-related-podcasts">Python packaging-related podcasts</a></li>
+<li><a href="#python-packaging-related-articles">Python packaging-related articles</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h1 id="prerequisites"><a href="#prerequisites">Prerequisites</a></h1>
+<p>First of all, you <strong>must</strong> understand some basics around Python packaging
+terminology or else this (useful) post will turn into an incomprehensible one!</p>
+<p>Your first stop is <a href="https://packaging.python.org/glossary/">packaging glossary</a>.
+In there, you'll find the terminology around python packaging.
+Some things I would like to highlight:</p>
+<ol>
+<li><code>artifact</code> (not listed): fancy word for file</li>
+<li><code>source distribution (sdist)</code>: simple, source only <code>.tar.gz</code> archive. <strong>Only</strong> for pure Python modules/packages
+(ones that do not contain any C/C++ code).</li>
+<li>The institution set up to deal with distribution in Python is called the <a href="https://www.pypa.io/en/latest/">Python Packaging Authority</a>.
+So, to a programmer, a <code>distribution</code> looks like a <em>directory containing a bunch of Python code</em> next to a <code>setup.py</code> which describes
+that code and adds some metadata to it like the name, version, author etc.</li>
+</ol>
+<h1 id="assumptions"><a href="#assumptions">Assumptions</a></h1>
+<p>This post assumes that python 3.6 is used and you're comfortable with virtualenvs:</p>
+<ul>
+<li>Python 3.6 is used</li>
+<li><a href="https://virtualenv.pypa.io/en/stable/">virtualenv</a> is used</li>
+<li>and more preferably <a href="https://virtualenvwrapper.readthedocs.io/en/stable/">virtualenvwrapper</a> is used</li>
+</ul>
+<p>If neither <code>virtualenv</code> or <code>virtualenvwrapper</code> are used then, the built-in
+<code>python3 -m venv path/to/virtualenv</code> command may be used as well but you have
+to take care (each time) of the <code>activate</code> script and that <code>pip</code>, <code>setuptools</code> and
+<code>wheel</code> are installed (things that the above tools do automatically).</p>
+<p>When the status of the <a href="https://www.python.org/dev/peps/pep-0582/">PEP 582 - Python local packages directory</a>
+becomes <em>Final</em> then we (might) get rid of the 3rd party virtualenv tools.</p>
+<h1 id="packaging-in-python"><a href="#packaging_in_python">Packaging in Python</a></h1>
+<p><a href="https://packaging.python.org/overview/">It has been written</a> and it's quite self-explanatory. Nothing to add here.</p>
+<blockquote>
+<p>As a general-purpose programming language, Python is designed to be used in many ways.
+You can build web sites or industrial robots or a game for your friends to play, and much more, all using the same core technology.</p>
+</blockquote>
+<p>The term <em>python packaging</em> is quite broad and depending on the scenario and purpose of the code written, it applies accordingly.
+That said, in this post we will focus on <a href="https://packaging.python.org/overview/#python-source-distributions">packaging Python source distributions</a>.
+This means to package a <a href="https://docs.python.org/3/glossary.html#term-package">Python package</a> (for distribution) that contains
+pure Python code.</p>
+<h2 id="modularity"><a href="#modularity">Modularity</a></h2>
+<h3 id="pypi"><a href="#mod_pypi">PyPI</a></h3>
+<p>The <a href="https://pypi.org/">PyPI</a> is the one and only deposit area/space where all Python packages are stored
+(just like <a href="https://www.npmjs.com/">npmjs</a> where all Javascript packages are stored).
+Of course, you may have a locally Python package which you don't plan to upload to PyPI.
+That's OK. But if you want to share your code with others, then PyPI is the answer.</p>
+<p>Imagine this deposit area like a warehouse (fun fact: that's the alternate name for PyPI).
+The main objective of a warehouse is <a href="https://en.wikipedia.org/wiki/Warehouse">the storage of goods</a>.
+Each good is stored inside a container (a box). This container takes its place somewhere inside the warehouse.
+Probably, stacked with other goodies.</p>
+<h3 id="setuptools"><a href="#mod_setuptools">setuptools</a></h3>
+<p><a href="https://pypi.org/project/setuptools/"><code>setuptools</code></a> is a Python library (just like hundreds of thousands ones)
+which purpose is to take your Python package (directory) as input
+and convert it to an archive in order to be placed in the PyPI index.
+It's the recommended tool by the <a href="https://www.pypa.io/en/latest/">PyPA</a>.</p>
+<p><code>setuptools</code>is the tool to wrap your good inside a container and, eventually,
+this container be placed inside the warehouse. The insertion into the warehouse is not performed
+by <code>setuptools</code>, but by another Python package called <a href="https://pypi.org/project/twine/"><code>twine</code></a>.</p>
+<h3 id="wheel"><a href="#mod_wheel">wheel</a></h3>
+<p><a href="https://pypi.org/project/wheel/"><code>wheel</code></a> is a Python library which provides a <code>bdist_wheel</code> command for <code>setuptools</code>.
+A wheel file (<code>file.whl</code>) is a ZIP-format archive with a specially formatted filename and
+the <code>.whl</code> extension.</p>
+<p>A <code>wheel</code> archive may be considered as a container with specifications (like specific
+dimensions, weight, labels etc). All wheels will have the same format and, thus, can be
+easily unpacked and introspected. <a href="#wheels">Skip the rest and read about wheels</a>.</p>
+<h3 id="twine"><a href="#mod_twine">twine</a></h3>
+<p><a href="https://pypi.org/project/twine/"><code>twine</code></a> is a Python library which given an OS path to your previously converted
+archive files (i.e <code>path/to/packaged/archive</code>), it uploads them on the PyPI.
+It's the recommended package by the PyPA to publish Python packages on PyPI in a secure manner
+(that is over https).</p>
+<p>Consider <code>twine</code> as the machine that takes your well-wrapped package and inserts it,
+with extreme caution, into the warehouse. Now, your package is stored safely amongst other packages!</p>
+<h3 id="pip"><a href="#mod_pip">pip</a></h3>
+<p><a href="https://pypi.org/project/pip/"><code>pip</code></a> is another Python library that acts as a package manager.
+It's main role is to download/install/update/downgrade/uninstall packages from/to your system.
+When you <code>pip install</code> something then what <code>pip</code> does is this: it goes to the PyPI index
+(unless told to go somewhere else - <a href="https://pip.pypa.io/en/stable/user_guide/#installing-from-local-packages">even look in local directories</a>
+and fetches and install the requested package.</p>
+<p>In the warehouse analogy, <code>pip</code> is the machine (make it a forklift, if you like)
+that enters the warehouse, picks the appropriate container, unpacks it and delivers it to you
+(the position of <code>you</code> is outside of the warehouse, waiting for your package to come!).</p>
+<p><br><figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+  <a name="warehouse_img"></a>
+    <img id="pypi-warehouse" src="/images/a_tour_on_python_packaging/pypi_warehouse.jpg" alt="Python Package Index Warehouse representation">
+    <figcaption>Representation of the PyPI and the relevant tools (image source: <a href="https://www.crown.com/en-us/warehouse-solutions-products.html">www.crown.com</a>)</figcaption>
+</figure><br></p>
+<p>So, there you have it, a warehouse (PyPI) to store Python codes (libraries, #3),
+a tool to wrap your code (<code>setuptools</code>, #1) in specific formats (<code>sdist</code> and <code>wheel</code>, #3),
+a tool to put Python code into the warehouse (<code>twine</code>, #2) and a tool to fetch and
+install Python code from the warehouse into your machine (<code>pip</code>, #4).
+This is the backbone knowledge in order to proceed into more on Python packaging.
+Once these concepts are clear to your head, then you have everything you need in your arsenal
+to package a Python package with ease, reliability and security.
+Also, others will be able to download your package and install it without any issues.</p>
+<h2 id="difference-between-sdist-and-bdist_wheel"><a href="#sdist_wheel_diff">Difference between <code>sdist</code> and <code>bdist_wheel</code></a></h2>
+<p><a href="https://packaging.python.org/tutorials/installing-packages/#source-distributions-vs-wheels">PyPUG (Python Package User Guide) has already covered this difference</a>
+but I would like to clarify some things.</p>
+<p>The command to convert your local directory (which is meant to be a Python library)
+into a distributable one is <code>python setup.py sdist bdist_wheel</code>.
+This command will read your <code>setup.py</code> along with other ones (<code>MANIFEST.in</code>, <code>setup.cfg</code> etc)
+and will generate two archives: a <code>.tar.gz</code> (<code>sdist</code> aka source distribution) and a <code>.whl</code>
+(<code>bdist_wheel</code> aka binary distribution wheel or just <code>wheel</code>) one.
+You may inspect both of them by double-click on each.</p>
+<p>The main difference between the two is that:</p>
+<ol>
+<li>The <code>sdist</code> archive contains a single directory which consists of your source files
+   (your actual code which may be either a Python module or a Python package) along with
+   the <code>setup.py</code>, <code>setup.cfg</code>, <code>MANIFEST.in</code>etc files (and optionally along with your
+   <code>tests/</code>, <code>docs/</code> directories depending on your <code>MANIFEST.in</code> file).</li>
+<li>The <code>wheel</code> contains <strong>only</strong> two directories, the directory that holds your source
+   files <strong>only</strong> (without the <code>setup.py</code> files etc) and a <code>.dist-info</code> directory which
+   contains metadata of your package. If you like to learn more on this extra directory,
+   read the <a href="https://www.python.org/dev/peps/pep-0427/">PEP 427 -- The Wheel Binary Package Format 1.0</a> and the upcoming
+   <a href="https://www.python.org/dev/peps/pep-0491/">PEP 491 -- The Wheel Binary Package Format 1.9</a> which is still in <code>draft</code> status.</li>
+</ol>
+<p>Another difference is that installing from <code>wheel</code> is as simple as copy-paste the two
+directories as-is inside the <code>site-packages</code> directory of your environment (that's it)
+while installing from <code>sdist</code> requires this extra step of reading the <code>setup.py</code> do any
+potential compilation, convert to <code>wheel</code> and then add the directories inside the <code>site-packages</code> dir.
+I am not saying it's bad to install from source but since the author of a package is able to
+produce a <code>wheel</code> as well, then why not upload that too?
+Besides, since <a href="https://pip.pypa.io/en/stable/user_guide/#installing-from-wheels">pip prefers wheel</a>, having both kind of distributions uploaded,
+allows one to convert <code>sidst</code> to <code>wheel</code>, store it (cache it) and next time it will
+use the cached one (saving bandwidth).
+The other way around, convert <code>wheel</code> into <code>sdist</code> is not feasible. Put it that way,
+<code>wheel</code> is a distribution format much more minimal that <code>sdist</code>, thus there is no way
+for <code>wheel</code>s to generate <code>sdist</code>s.</p>
+<p>If your question is why to have both generated and uploaded to PyPI, the answer is
+the edge case of some users which do not have the <a href="https://pypi.org/project/wheel/"><code>wheel</code></a> package installed
+or have an old version of <a href="https://pypi.org/project/pip/"><code>pip</code></a> which does not support installation from <code>wheel</code> packages.
+On the other hand, having only source distributions uploaded (<code>sdist</code>) you enforce users
+to compile your package each time they download it.
+This may not sound too time-consuming but if your package consists of Python extensions
+(i.e C, C++ etc) then compiling those may take a long time comparing with <code>wheel</code>.</p>
+<p>So, upload both and keep everybody happy!</p>
+<h1 id="the-basics"><a href="#thebasics">The basics</a></h1>
+<p>By now, you either have a clear image about what is happening or you're completely
+lost, regarding, of course, Python packaging. In this chapter we will play with an
+imaginable Python package and try to distribute it to other Pythonistas.</p>
+<h2 id="name"><a href="#name">Name</a></h2>
+<p>The first thing you'll want to consider when your aim is to create a redistributable
+Python package (either to use is locally or distribute it via PyPI) is the name of it.
+Once the package has been created and begins to grow, if you decide to change the name
+of the package in the middle of the road, then it'll be hard to spot and change
+references to this name across your project.
+Think first, act last. Of course, IDEs will help you do that in an easy manner, but that means
+that you had made a frivolous choice.</p>
+<p>Nevertheless, assuming that you're going to build something that is related with <em>flowers</em>
+you'll have to go to <a href="https://pypi.org/">PyPI</a> and search for this term. If it's occupied then see if you
+can attach a hyphen (<code>-</code>) and add another word into it. Do not name your package with more than two
+words and make it possible so others will simply <code>pip install package</code> and then in their code do
+<code>import package</code> or <code>from package import func</code>.
+Sometimes, of course, this will not be feasible, but please try! It's clean, elegant and lazy (for the others).</p>
+<p>Older methods that required to <em>register</em> the name of the package before uploading it,
+<a href="https://packaging.python.org/guides/migrating-to-pypi-org/#registering-package-names-metadata">are gone</a>.
+You, now, proceed directly to uploading artifacts.</p>
+<p>We have decided that we would like to build a Python library which will add some more
+capabilities (methods) for Python strings and lists.
+An idea taken from <a href="https://lodash.com/">lodash</a> (a famous JS library extending built-in capabilities).
+The name of it would be <code>booster</code>. I think it's concise, short and right to the point.
+Plus, <a href="https://pypi.org/search/?q=booster">it's not reserved in PyPI (until this post is written)</a>
+nor it would be since we'll not upload it. Maybe, a nice choice/idea for the next developer!</p>
+<h2 id="cookiecutter"><a href="#cookicutter">Cookiecutter</a></h2>
+<p>We will make our life easier and rely on a cookiecutter to build our package rather than build it from scratch.
+That's the reason of a cookiecutter. To make your/our lives as developers easier.</p>
+<p>There is one dominant cookiecutter for Python packages: <a href="https://github.com/audreyr/cookiecutter-pypackage">the cookiecutter-pypackage</a>
+and several other popular forks like <a href="https://github.com/Nekroze/cookiecutter-pypackage">Nekroze</a>,
+<a href="https://github.com/ardydedase/cookiecutter-pypackage">ardydedase</a>, <a href="https://github.com/samastur/cookiecutter-pypackage">samastur</a>
+and <a href="https://github.com/audreyr/cookiecutter-pypackage/network/members">thousands more</a>!
+Pardon me if I have missed a <em>multi-starred</em> cookiecutter. If so, let me know in the comments below and I'll update this section.</p>
+<p>The logic behind a cookiecutter is pretty simple. A project structure has already been written by the author leaving
+<em>placeholders</em> (usually with <code>{{ name }}</code>) to be filled through CLI questions by the developer.</p>
+<p>Thus, you <code>pip install cookiecutter</code> into your virtualenv (or <code>pip install --user cookiecutter</code> to install it under the <code>~/.local/</code> directory)
+and now you have the <code>cookiecutter</code> command available. Note that <code>cookiecutter</code> is a CLI command, not a project template. You use this command
+along with a project template URL in order to create a project. Thus, you run <code>cookiecutter &lt;github_repo_url&gt;</code>,
+a series of questions is initiated and at the end you'll have a pre-configured Python package ready to be
+developed (not deployed, since there is no source code written by you, yet).
+For more info, read the installation guide for the cookiecutter of your choice.
+There is <a href="https://github.com/audreyr/cookiecutter#a-pantry-full-of-cookiecutters">a ton of templates</a> to choose from (from pure Python packages
+to Django, Flask, Pyramid, C++, Java, JS, Tornado etc).</p>
+<p>In this post, we'll use audreyr's cookiecutter <a href="https://github.com/audreyr/cookiecutter-pypackage">template for pure Python packages</a>.</p>
+<h2 id="structure"><a href="#structure">Structure</a></h2>
+<p>Using the above cookiecutter, the following questions showed up...:</p>
+<div class="highlight"><pre><span></span><span class="o">(</span>distvenv<span class="o">)</span> nick ~/t/boo&gt; cookiecutter https://github.com/audreyr/cookiecutter-pypackage.git
+full_name <span class="o">[</span>Audrey Roy Greenfeld<span class="o">]</span>: Nick Mavrakis
+email <span class="o">[</span>audreyr@example.com<span class="o">]</span>: web@web.gr
+github_username <span class="o">[</span>audreyr<span class="o">]</span>: manikos
+project_name <span class="o">[</span>Python Boilerplate<span class="o">]</span>: booster
+project_slug <span class="o">[</span>booster<span class="o">]</span>: booster
+project_short_description <span class="o">[</span>Python Boilerplate ... a Python package<span class="o">]</span>: Extra functionality <span class="k">for</span> Python strings!
+pypi_username <span class="o">[</span>test_user<span class="o">]</span>: test_user
+version <span class="o">[</span><span class="m">0</span>.1.0<span class="o">]</span>:
+use_pytest <span class="o">[</span>n<span class="o">]</span>: y
+use_pypi_deployment_with_travis <span class="o">[</span>y<span class="o">]</span>: y
+add_pyup_badge <span class="o">[</span>n<span class="o">]</span>: n
+Select command_line_interface:
+<span class="m">1</span> - Click
+<span class="m">2</span> - No command-line interface
+Choose from <span class="m">1</span>, <span class="m">2</span> <span class="o">[</span><span class="m">1</span><span class="o">]</span>: <span class="m">1</span>
+create_author_file <span class="o">[</span>y<span class="o">]</span>: y
+Select open_source_license:
+<span class="m">1</span> - MIT license
+<span class="m">2</span> - BSD license
+<span class="m">3</span> - ISC license
+<span class="m">4</span> - Apache Software License <span class="m">2</span>.0
+<span class="m">5</span> - GNU General Public License v3
+<span class="m">6</span> - Not open <span class="nb">source</span>
+Choose from <span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>, <span class="m">4</span>, <span class="m">5</span>, <span class="m">6</span> <span class="o">[</span><span class="m">1</span><span class="o">]</span>: <span class="m">1</span>
+<span class="o">(</span>distvenv<span class="o">)</span> nick ~/t/boo&gt;
+</pre></div>
+
+
+<p>...creating the following project structure:</p>
+<div class="highlight"><pre><span></span><span class="o">(</span>distvenv<span class="o">)</span> nick ~/t/boo&gt;ls
+booster
+
+<span class="o">(</span>distvenv<span class="o">)</span> nick ~/t/boo&gt;tree booster/
+booster
+├── AUTHORS.rst
+├── booster
+│   ├── booster.py
+│   ├── cli.py
+│   └── __init__.py
+├── CONTRIBUTING.rst
+├── docs
+│   ├── authors.rst
+│   ├── conf.py
+│   ├── contributing.rst
+│   ├── history.rst
+│   ├── index.rst
+│   ├── installation.rst
+│   ├── make.bat
+│   ├── Makefile
+│   ├── readme.rst
+│   └── usage.rst
+├── HISTORY.rst
+├── LICENSE
+├── Makefile
+├── MANIFEST.in
+├── README.rst
+├── requirements_dev.txt
+├── setup.cfg
+├── setup.py
+├── tests
+│   └── test_booster.py
+└── tox.ini
+
+<span class="m">3</span> directories, <span class="m">25</span> files
+</pre></div>
+
+
+<p>Depending on your given answers to the questions the structure may be different,
+but some files not, since they are mandatory in order to call this directory a <em>re-distributable Python package</em>.</p>
+<p>You may have seen in other Python libraries that the source code is inside a directory called <code>src/</code>.
+I will not advice you to put your code inside the <code>src/</code> directory or not.
+<a href="https://github.com/pypa/python-packaging-user-guide/issues/320">There is an open issue on PyPA user guide on github</a>
+and if you're brave enough, go read it. After all, it's a great discussion exchanging different thoughts.
+That's the spirit of a healthy community!
+<a href="https://blog.ionelmc.ro/2014/05/25/python-packaging/">There is also a great post that enforces you to use the <code>src/</code> dir</a>.
+Decision is yours. Whichever you take, make sure that your package, at the end, is installable and usable without any errors.</p>
+<p>Now back to the above, generated, file structure. Do not freak out seeing all these files! Most of them are there to <em>support</em> your project.
+You may ask if all these are mandatory in order to upload your simple Python package.
+No, they are not. If you had, only, the <code>booster</code> dir (containing <code>booster.py</code> file which is actually your code)
+and the <code>setup.py</code> file you would be good to go. A single dir and a file. But that would not be too helpful because it lacks:</p>
+<ol>
+<li>license</li>
+<li>documentation</li>
+<li>tests</li>
+<li>continuous integration (CI)</li>
+<li>version control</li>
+</ol>
+<p>and other goodies which make your package more mature and complete.</p>
+<p>Be patient. Do not rush yourself. Spend some time and <a href="https://blog.digitalocean.com/documentation-as-an-open-source-practice/">write documentation</a>
+and tests. Many other developers (including yourself tomorrow) will thank you. Personally, if I see a package with no docs, I skip it.
+Short story. Not because it's not useful or I want to penaltize it, but because I don't know how to install and use it.
+What do I <code>import</code>? What arguments a function takes? How about tests? Is it tested thoroughly? Why do I have to read the source code in order to use it?
+All these questions are vital to every developer before using a package (not just a Python one).</p>
+<p>How satisfied/confident are you when you see a package with decent documentation and over 80% test coverage? Someone, wrote all these.
+Someone that took the writing of his/her Python package, seriously. Maybe it's not a single person but a group of contributors.
+It does not matter. Time has been spent in order to write docs and tests. That's what makes a package <em>beautiful</em> and <em>elegant</em>.</p>
+<p><strong>Lesson learned</strong>: Do not hurry to finish your package. PyPI is not going away. Be fussy not only for coding but to support it as well
+(support means <em>docs</em> <strong>and</strong> <em>tests</em>).</p>
+<h3 id="requirements_devtxt"><a href="#requirements_dev.txt">requirements_dev.txt</a></h3>
+<p>You may have noticed the file <code>requirements_dev.txt</code> which contains the requirements (aka dependencies) of your project in case
+another developer (or even you, the author) wants to reproduce it. By <code>pip install</code>ing the package, these requirements
+will <strong>not</strong> be honored. These are just for development cases. <a href="https://packaging.python.org/discussions/install-requires-vs-requirements/?highlight=requirements#requirements-files">The official docs say</a>:</p>
+<blockquote>
+<p>Whereas <code>install_requires</code> defines the dependencies for a single project,
+Requirements Files are often used to define the requirements for a complete Python environment.</p>
+</blockquote>
+<p>We have not seen <code>install_requires</code> <a href="#install_requires">yet</a>, but keep the above statement in mind. Also, note that this file may be named
+any name you like. It's just a convention to name it that way.</p>
+<p>Suppose, for example, that you and me are working on the <code>booster</code> package. We, both, must have the same development environment
+which means the same versions of dependencies and, of course, the same Python version. <code>requirements_dev.txt</code> ensures scenarios
+like this and if I change (or format) my computer then I will be able to reproduce this environment by <code>pip install -r requirements_dev.txt</code>
+under my virtualenv and will be back to tracks.</p>
+<p>You may, also, want to switch <code>requirements_dev.txt</code> with <code>Pipfile</code> (and its auto-generated brother <code>Pipfile.lock</code>).
+No changes here. The same logic applies. Instead of <code>pip install -r requirements_dev.txt</code> you would do <code>pipenv install</code>.</p>
+<h3 id="makefile"><a href="#makefile">Makefile</a></h3>
+<p>This is a usual <a href="ftp://ftp.gnu.org/old-gnu/Manuals/make-3.79.1/html_chapter/make_2.html">Make</a> file which provides some useful
+CLI commands to facilitate your development flow.
+It's a cookiecutter-specific file and you may alter it at your own needs. Other cookiecutters may have similar <code>Make</code> file.
+You can view it, in order to see each function details or just write <code>make</code> (under the root package directory,
+<code>booster</code> in our case) and have an overview of the available commands.</p>
+<h3 id="license"><a href="#license">LICENSE</a></h3>
+<p>The official packaging docs <a href="https://packaging.python.org/tutorials/packaging-projects/?highlight=license#creating-a-license">cover this file</a>
+but I would like to add to it a little more.</p>
+<p>This is a mandatory file that <strong>must not be empty</strong>. If it's omitted then the default LICENCE applied to the
+project/package is <em>all rights reserved</em> which basically means <em>I, the owner of the package, am the only one allowed
+to use this package</em>. Thus, why bother uploading to PyPI? Just keep it in your local directory. PyPI means sharing and
+adding a non-empty <code>LICENSE</code> file, respects this.</p>
+<p>There is a myriad type of licenses out there and digging into them brings a lot of confusion, resulting in omitting the
+file, altogether. Play safe and adopt the MIT or BSD licence. I am not promoting these kind of licenses but it's the
+most commonly used for open source projects. The user's limitation, by using a package under one of the above licenses,
+is <em>to keep the name and the copyright declaration intact</em>. A useful website that might be help you to pick a license
+is the <a href="https://choosealicense.com">choosealicense.com</a>.</p>
+<p>Congratulations, you now have a package ready to be shared!</p>
+<h3 id="docs-authorsrst-contributingrst-historyrst-and-readmerst"><a href="#doc_files">docs/, AUTHORS.rst, CONTRIBUTING.rst, HISTORY.rst and README.rst</a></h3>
+<p>As you might have guessed, these files are documentation files. Each file is pre-filled with content
+(thank you cookiecutter) and the tweaks you might do, the first time, are minor. Each file is quite
+self-explanatory. Open each file to read the contents and alter it if you like.</p>
+<p>These files are written using the <a href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> file format.
+You may use the Markdown format but be aware that <code>.rst</code> files are by far more rich and extensible.
+They play perfect together with Sphinx. Learning this kind of language may take some time but the benefits you gain are huge.
+Did we mention to not rush yourself to finish your beloved Python package?
+If you do change the format, however, <a href="https://packaging.python.org/specifications/core-metadata/#description-content-type-optional">you must use a special keyword</a>
+inside the <code>setup</code> function, the <code>long_description_content_type=text/markdown</code>.
+We have not seen this function, yet. <a href="#setuppy">I am keeping the desert for last :)</a></p>
+<p>Fun fact: The reStructuredText file format may be applied to any kind of text. Not just documentation for you code.
+After all, documentation is just text (code-agnostic). You could write a novel too.</p>
+<p>Another part of the documentation procedure is <a href="http://www.sphinx-doc.org/en/master/">Sphinx</a>. Sphinx is a documentation generator. What this means is that
+you write a bunch of <code>.rst</code> files, you run <code>make html</code> and voila. The HTML look of your ugly-looking files have been
+generated. A PDF version is also available. There is list of HTML templates available to choose and also Sphinx can
+be customized through the <code>docs/conf.py</code> file. The cookiecutter tool, also, provides another <code>Makefile</code>, exclusive for
+doc facilitation. I think there is no reason, now, not to write docs.</p>
+<p>Bonus tip #1: Once docs have been written, you may upload them on <a href="https://readthedocs.org/">readthedocs.org</a> (RTD for short).
+Just link your github repo to the RTD and you're good to go (you need an account before that).</p>
+<p>Bonus tip #2: If your Python package is small enough and writing a bunch of docs would be considered overkill
+because there is not much to say about it (that is, <em>it can all fit in a single file</em>) then it is perfectly fine
+to include just a <code>README</code> file. You may then upload it to <a href="https://readthedocs.org/">readthedocs.org</a>. Remember that if
+you use Markdown, you should change the <code>long_description_content_type</code> value inside the <code>setup()</code> function.
+Beware though, that the skeleton of this file stays the same with the <em>full version</em> of the documentation,
+which is a <em>contributing</em>, a <em>history</em> (or <em>changelog</em>), an <em>installation</em>, a <em>usage</em> section etc.</p>
+<h3 id="tests-and-toxini"><a href="#tests">tests/ and tox.ini</a></h3>
+<p>Code without tests is unreliable. Simple as that. It's like having a "friend" on facebook
+without actually ever interact with this person. In what context is this person your friend?
+Friends, in a general meaning, are people we can count on them. They are reliable. So are
+the tests of your code. No more to add here.</p>
+<p>Whether you use <a href="https://docs.pytest.org/en/latest/">pytest</a>, <a href="https://docs.python.org/3/library/unittest.html">unittest</a>, <a href="https://nose.readthedocs.io/en/latest/">nose</a> or something else, all your
+test files should live inside the <code>test/</code> directory.</p>
+<p>In addition, <a href="https://tox.readthedocs.io/en/latest/">tox</a> is a Python library which helps you to test your code under different
+Python versions and contexts in general. It's extremely powerful, quick and easy to use (although,
+there is a slight learning curve, at start, in order to understand how to write the <code>tox.ini</code> file).</p>
+<h1 id="setuppy"><a href="#setup.py">setup.py</a></h1>
+<p>After the description of all the aside helper files and folders (excluding the <code>booster</code> sub-directory which is actually your
+source code), created by the cookiecutter, we are now ready to dive in to the beast called <code>setup.py</code>.</p>
+<p>I will not go through the evolution of Python packaging because
+<a href="http://python-notes.curiousefficiency.org/en/latest/pep_ideas/core_packaging_api.html">Nick Coghlan has already posted about it</a>.
+A lot have changed and there is more to come.</p>
+<p>Briefly, this file is just a regular Python file which, at top, contains a very important <code>import</code> statement:</p>
+<p><code>from setuptools import setup</code></p>
+<p>The <a href="https://github.com/pypa/setuptools/blob/master/setuptools/__init__.py#L140">setup</a> function is the <em>beast</em> we mentioned above. It serves two roles:</p>
+<ol>
+<li>Describes the package (name, author, requirements, scripts etc)</li>
+<li>It's the tool you run to convert a package (full of source code) into an installable &amp; distributable unit.</li>
+</ol>
+<p>Using the electronic engineering terminology, you may say that this component is both active and passive,
+depending on how you use it. More on this in a little bit.</p>
+<p>After the <code>import</code> statement, a simple call to the <code>setup</code> function is all you need. An example, using
+our <code>booster</code> package is shown below.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span><span class="p">,</span> <span class="n">find_packages</span>
+
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;README.rst&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">readme_file</span><span class="p">:</span>
+    <span class="n">readme</span> <span class="o">=</span> <span class="n">readme_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;HISTORY.rst&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">history_file</span><span class="p">:</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">history_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="c1"># Project information</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;booster&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">author</span><span class="o">=</span><span class="s2">&quot;Nick Mavrakis&quot;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s2">&quot;nick@nick.gr&quot;</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://github.com/manikos/booster/&quot;</span><span class="p">,</span>  <span class="c1"># 404, just an example</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;MIT license&quot;</span><span class="p">,</span>
+
+    <span class="c1"># Description</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Extra functionality for Python strings.&quot;</span><span class="p">,</span>
+    <span class="n">long_description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">readme</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">history</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">long_description_content_type</span><span class="o">=</span><span class="s1">&#39;text/x-rst&#39;</span><span class="p">,</span>
+
+    <span class="c1"># Requirements</span>
+    <span class="n">python_requires</span><span class="o">=</span><span class="s1">&#39;&gt;=3.6&#39;</span><span class="p">,</span>
+    <span class="n">install_requires</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">extras_require</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="p">[</span>  <span class="c1"># install these with: pip install booster[test]</span>
+            <span class="s2">&quot;pytest&gt;=3.8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coverage&gt;=4.5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pytest-cov&gt;=2.6&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tox&gt;=3.3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;codecov&gt;=2.0&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+
+    <span class="c1"># Packaging</span>
+    <span class="n">packages</span><span class="o">=</span><span class="n">find_packages</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;booster&quot;</span><span class="p">,</span> <span class="s2">&quot;booster.*&quot;</span><span class="p">]),</span>
+    <span class="n">include_package_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">zip_safe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+    <span class="c1"># Tests</span>
+    <span class="n">test_suite</span><span class="o">=</span><span class="s2">&quot;tests&quot;</span><span class="p">,</span>
+
+    <span class="c1"># CLI</span>
+    <span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;console_scripts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;transform=booster.cli:string_transform&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+
+    <span class="c1"># Metadata</span>
+    <span class="n">keywords</span><span class="o">=</span><span class="s2">&quot;string strings accent beautify&quot;</span><span class="p">,</span>
+    <span class="n">project_urls</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;Documentation&#39;</span><span class="p">:</span> <span class="s1">&#39;https://booster.readthedocs.io/en/latest/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Tracker&#39;</span><span class="p">:</span> <span class="s1">&#39;https://github.com/manikos/booster/issues/&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">classifiers</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;Development Status :: 5 - Production/Stable&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Intended Audience :: Developers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Topic :: Software Development :: Build Tools&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;License :: OSI Approved :: MIT License&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Natural Language :: English&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Programming Language :: Python :: 3 :: Only&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Programming Language :: Python :: 3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Programming Language :: Python :: 3.6&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Programming Language :: Python :: 3.7&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Again, do not freak out. This is the present state of packaging in Python and believe it or not
+it's better than ever. Also, if you think that this <code>setup.py</code> file is confusing, have a look
+at other Python libraries and then you may freak out!</p>
+<p>The <code>setup</code> function is called using keyword arguments (not positional ones). The whole list of these parameters
+can be found in the <a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#new-and-changed-setup-keywords">setuptools docs</a>.</p>
+<p>Recalling the first role of <code>setup.py</code> file above, calling this function, allows us to describe the package metadata, dependencies etc.
+Recalling the second role of <code>setup.py</code> file above, executing (through the shell) <code>python setup.py &lt;command&gt;</code> allows us to
+do things (build artifacts, wheels etc) with the package. The artifacts that may be generated using the CLI command,
+contain (as text in specific dirs/files) the metadata, dependencies etc written inside the <code>setup</code> function. So, these two
+roles are, somehow, interconnected.</p>
+<p>You may now visit <a href="https://pypi.org/">PyPI</a> and pick a package which has both formats available for download (in the <code>Downloads</code> section, on the left).
+Download both archives (<code>.whl</code> and <code>.tar.gz</code>). Open the <code>.whl</code> and inspect the <code>.dist-info/</code> dir.
+Open, also, the <code>setup.py</code> file inside the <code>.tar.gz</code> and see the call to the <code>setup()</code> function.
+You will find all the <code>setup()</code> keyword-value items inside the <code>.dist-info/METADATA</code> file.
+I hope, by now, the two roles of <code>setup.py</code> are now distinguished and understood.</p>
+<p>When you run <code>python setup.py sdist</code> in order to create a source distribution (<a href="#source-distribution-aka-sdist">we will talk about that</a>)
+and your <code>setup()</code> is empty, then the script will run with no errors but your source distribution will be named <code>UNKNOWN</code>
+and you will get some nice warnings:</p>
+<div class="highlight"><pre><span></span>warning: check: missing required meta-data: name, url
+warning: check: missing meta-data: either <span class="o">(</span>author and author_email<span class="o">)</span> or <span class="o">(</span>maintainer and maintainer_email<span class="o">)</span> must be supplied
+</pre></div>
+
+
+<p>which are quite self-explanatory: at least pass the <code>name</code>, <code>url</code>, <code>author</code> and <code>author_email</code> as arguments to <code>setup</code> function.
+But, please, do not supply only these! This is just for demonstration purposes. You should be explicit about your package.</p>
+<p>Now, lets take a deep breath and dive in to the <code>setup</code> basics.</p>
+<h2 id="metadata"><a href="#metadata">Metadata</a></h2>
+<p>This section is named <em>Metadata</em> but it's a kind of <strong>grouping</strong>, of <code>setup</code> function, in my head. No official docs call it
+this way. Because, <code>setup</code> contains a lot of keyword arguments I want to organize them into logical groups. Thus,
+I give it the name of <em>Metadata</em> to distinguish it from the other keywords. After all, it's the easy part.</p>
+<p>In this section, <code>setup(**kwargs)</code>, the - pretty straightforward - keyword arguments contain the:</p>
+<ul>
+<li><code>name</code>: name of the package (what other users will <code>pip install</code>)</li>
+<li><code>author</code>: your name (after all you're the author)</li>
+<li><code>author_email</code>: a contact email of yours</li>
+<li><code>url</code>: project's URL (usually a VCS url)</li>
+<li><code>license</code>: a string declaring the license title (the full body is written in the <code>LICENSE</code> file)</li>
+<li><code>description</code>: a string containing a short/brief description of the package</li>
+<li><code>long_description</code>: a string with more details (usually the same as the <code>README</code> file)</li>
+<li><code>long_description_content_type</code>: one of <code>'text/plain'</code>, <code>'text/x-rst'</code> (default) or <code>'text/markdown'</code></li>
+<li><code>keywords</code>: just a list of strings (not used anywhere practically for the moment)</li>
+<li><code>project_urls</code>: dictionary of <code>title: url</code> key-value pairs.</li>
+<li><code>classifiers</code>: <a href="https://pypi.org/classifiers/">a list of predefined strings</a> to be used for
+  filtering/searching when searching via the <a href="https://pypi.org/">PyPI</a> website</li>
+</ul>
+<p>Again, all of the above might be too much, but the cookiecutter has already pre-filled most of them for us with
+sane defaults (actually the defaults are the <a href="#structure">answers you gave through the console</a>).
+You may edit them, add new ones, delete some etc. These were, more or less, the easy-to-understand ones.</p>
+<h2 id="requirements"><a href="#kwarg_requirements">Requirements</a></h2>
+<h3 id="install_requires">install_requires</h3>
+<p>We discussed earlier about environment reproduction using <code>requirements_dev.txt</code> or <code>Pipfile</code> or any other tool
+you might use to resolve dependencies. But how about the dependencies of the project itself?
+These are declared through the <code>install_requires</code> keyword argument. It's a list of strings and contains all
+the 3rd party libraries (if any) your project/library depends on. If your library depends on <code>foo</code> Python
+library, then inside the <code>install_requires</code> list, the <code>'foo'</code> string must be included, otherwise when the end-user
+will <code>pip install &lt;library_name&gt;</code> then the <code>foo</code> library will not be installed resulting in an error when running
+you package.</p>
+<p>Remember, the <code>requirements_dev.txt</code> is used for <code>pip install -r requirements_dev.txt</code> only (for development
+purposes), while <code>install_requires</code> is used only during the installation of the library (<code>pip install &lt;library_name&gt;</code>).</p>
+<p>You are allowed not to have a <code>requirements_dev.txt</code> file at all. Also, if your project does not depend on other
+libraries, the <code>install_requires</code> may be omitted as well. But, if your project is dependent on other libraries
+you must have the <code>install_requires</code> inside the <code>setup</code> function.</p>
+<p>The best practice when you list dependencies is not to pin them (i.e <code>library==x.y</code>) to a specific version.
+Just specify the minimum major version and you're to go (i.e <code>"library&gt;=x.y"</code>). The reason for this practice
+may be found <a href="https://blog.miguelgrinberg.com/post/the-package-dependency-blues">here</a>.</p>
+<h3 id="python_requires"><a href="#kwarg_python_requires">python_requires</a></h3>
+<p>The <code>python_requires</code> <a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires">argument</a>
+specifies to the installer tool (<a href="https://pypi.org/project/pip/">pip</a>, <a href="https://pypi.org/project/poetry/">poetry</a> etc) under which Python
+version this package may run. If, for example, you're working in a virtualenv with Python 3.6 interpreter and you want
+to install a package named <code>foo</code> which has declared <code>python_requires==2.7</code>, then <code>pip</code> will exit with an error message:</p>
+<div class="highlight"><pre><span></span><span class="o">(</span>py_36_venv<span class="o">)</span> $ pip install foo  <span class="c1"># foo is Python 2.7 compatible only</span>
+Could not find a version that satisfies the requirement foo <span class="o">(</span>from versions: <span class="o">)</span>
+No matching distribution found <span class="k">for</span> foo
+</pre></div>
+
+
+<p>You should fill this one since it prevents early running errors regarding Python versions.</p>
+<h3 id="extras_require"><a href="#kwarg_extras_require">extras_require</a></h3>
+<p>This is a handy way of installing additional packages by simply <em>enabling flags</em>. Based on the <a href="#setuppy">above</a> <code>setup</code>,
+if I want to download this package and install <em>test</em>-related packages only, then I would run <code>pip install booster[test]</code>,
+where <code>test</code> (the name inside the brackets) is a key of the dictionary. This key maps to a list of dependencies and thus
+by executing this command the test-related packages will be installed. You may have a ton of other <em>aside</em> packages
+grouped together under a single name (all these under this dictionary), i.e <code>"security": [...]</code>.
+A reminder though, do not confuse this requirement setting with the <code>install_requires</code> one.
+The former is (usually) for other developers while the latter is for the end user which will simply do <code>pip install booster</code>.</p>
+<h2 id="entry-points"><a href="#kwarg_entry_points">Entry points</a></h2>
+<p>This is a handy feature of <code>setuptools</code> which allows us to define CLI commands which when executed, certain
+Python functions will run.</p>
+<p>For example suppose that inside the <code>booster/cli.py</code> file, we have written the following:</p>
+<div class="highlight"><pre><span></span><span class="c1"># booster/cli.py</span>
+
+<span class="k">def</span> <span class="nf">string_transform</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;string transformed!&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>and, recalling the <code>setup</code> function <a href="#setuppy">above</a>:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;console_scripts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;transform=booster.cli:string_transform&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Now, once the package has been installed, opening a console we can simply write
+<code>transform</code> and the message <code>string transformed!</code> will get printed on screen.</p>
+<p>What is happening, behind the scenes, is that <code>setuptools</code> create an executable file
+inside the <code>bin/</code> directory of the <code>virtualenv</code> dir (just like <code>pip</code>, <code>wheel</code> and other commands that
+are available through the command line) which maps to the function(s) declared in the value of the
+key <code>console_scripts</code>, under the <code>entry_points</code> dictionary.</p>
+<p>The string is composed of <code>"&lt;cli_command_name&gt;</code>=<code>&lt;python_dottted_path_to_module&gt;</code>:<code>&lt;function_name&gt;"</code>.
+Of course, the above function instead of printing something it can return something, accept parameters
+(<code>transform &lt;a string here&gt; &lt;another one&gt;</code>) etc. If you plan to have cli support then <a href="https://click.palletsprojects.com/en/master/">Click</a>
+is a must-have library to do this kind of things.</p>
+<h2 id="packaging"><a href="#packaging_general">Packaging</a></h2>
+<p>This will be the most hard-to-explain section, but I will do my best. You know, there are several
+things in life where while you're trying to explain a single thing, another thing needs to be explained first and
+then you realise that another thing needs to be explained first etc and at the end you forget what
+you were trying to explain at the first place! Same rule applies here but I'll try to be consistent and not get lost.</p>
+<p>First of all, before talking about packaging, we must understand the available forms of packaging. Referring to the
+<a href="#warehouse_img">image at the beginning</a>, Python packages come in two forms: wheels and source distributions (#3 on image).
+It can also be seen from the image below:</p>
+<p><br><figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+  <a name="packaging_formats_img"></a>
+    <img id="packaging-formats" src="/images/a_tour_on_python_packaging/packaging_whl_tar.png" alt="Python Packaging Formats (sdist and wheel)">
+    <figcaption>Python packaging formats: built distribution and source (wheel and sdist, respectively)</figcaption>
+</figure><br></p>
+<h3 id="wheels-aka-built-distribution"><a href="#wheel">Wheels (aka built distribution)</a></h3>
+<p><a href="https://www.python.org/dev/peps/pep-0427/">The wheel binary package format</a> or <em>built distribution</em>
+or just <em>wheel</em> is a way to package code into a redistributable way. The abstract of it's PEP, is quite comprehensive:</p>
+<blockquote>
+<p>A wheel is a ZIP-format archive with a specially formatted file name and the <code>.whl</code> extension.
+It contains a single distribution nearly as it would be installed according to PEP 376 with a particular installation scheme.
+Although a specialized installer is recommended, a wheel file may be installed by simply unpacking into site-packages
+with the standard 'unzip' tool while preserving enough information to spread its contents out onto their final paths at any later time.</p>
+</blockquote>
+<p>In other words, instead of having a source distribution file that pip downloads, unpacks and runs "setup.py install",
+the wheel format has things, effectively, in the format that they need to be when they are installed on the system.
+So pip can just unpack the zip file (.whl) in a very specific way, but you don't actually have to run any code to do installs.
+This means that installs are much faster and safer since you don't execute arbitrary code from the internet.</p>
+<p><a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#wheels">Wheels come in three flavors</a>:
+universal, pure Python and platform. Because of its compiled extensions (C extensions), Numpy comes in platform wheels.
+Take a minute and choose the appropriate distribution wheel. Simple rule of thumb: Does your package contains pure
+Python code? If yes, choose either pure Python (does not support both Python 2 and 3) or universal (your package
+does support both Python 2 and 3). If no, then you must go with platform wheel. No worries, though. The command
+is the same in all options: <code>python setup.py bdist_wheel</code>. The onle point of difference is inside the <code>setup.cfg</code> file.
+<a href="#setupcfg">We will get to that</a>.</p>
+<p>Furthermore, wheel formats have another advantage. Their filename says a lot about the package. Have a minute and visit the
+<a href="https://pypi.org/project/numpy/#files">numpy downloadble file list</a>. There is a whole list of different wheels
+(the source distribution is at the bottom). Luckily, you don't have to choose one, download and install. <code>pip</code>
+will do it for you automatically, depending on your OS system, Python version etc. My point here is that the author
+of the package has the ability to make the package installable on different platforms, Python versions etc, using
+the wheel format. No chance with the source dist one.</p>
+<p>Visiting PyPI and examining some packages, you may see that not all packages have a wheel format. However, all of them
+have a source distribution one. A good practice is to <strong>always generate both wheel and source distributions</strong> each time
+you upload a new version of your package.</p>
+<p>Now that we have explained what a wheel is, theoretically, lets build one for our booster package.
+The command that builds a wheel is <code>python setup.py bdist_wheel</code>. If you like, run <code>python setup.py bdist_wheel --help</code>
+to get a list of options applied to this command (most popular is <code>--universal</code>).
+If you get an error running this command, then your working Python environment has not the <a href="https://pypi.org/project/wheel/">wheel</a>
+library installed (which is installed automatically every time you create a virtualenv using the <a href="https://virtualenv.pypa.io/en/latest/">virtualenv</a> library).
+You can see that using <code>setup.py</code> this way, it acts as the 2nd role we described earlier (tool for handling packages etc).
+Note that no code has been written yet inside the <code>booster/booster.py</code> file.
+It doesnt matter because at this point we're focusing on the package rather the contents of each file.</p>
+<div class="highlight"><pre><span></span>$ <span class="nb">cd</span> path/to/booster/
+$ python setup.py bdist_wheel
+running bdist_wheel
+running build
+...
+</pre></div>
+
+
+<p>If you examine the root <code>booster</code> directory, you will see that three new directories have been created:
+<code>booster.egg-info/</code>, <code>build/</code> and <code>dist/</code>. Leave the first two folders intact and focus on the <code>dist</code> one.
+This would be the directory (although it's name may be changed, <code>-d</code> option) where you'll place your wheels
+and your source distributions as well. These two go together. Always. Remember that. wheel + sdist = BFF
+like we wrote in the 90's.
+The contents of the <code>.whl</code> file are two folders: <code>booster/</code> and <code>booster-0.1.0.dist-info/</code>. If you paste
+the <code>booster/</code> folder into your virtualenv <code>site-packages</code> folder, then <code>booster</code> would be available in your
+Python path (i.e you can do <code>import booster</code>).</p>
+<ul>
+<li>
+<p>Aside fact #1: there is another way to build a wheel for your package (although, the above method
+  should always be used). Once inside the root directory of the package run <code>pip wheel -w dist --no-deps .</code>
+  (this will create only a <code>dist/</code> dir which includes the <code>.whl</code> file).</p>
+</li>
+<li>
+<p>Aside fact #2: We have mentioned the <a href="https://pypi.org/project/wheel/">wheel</a> library but we have not used it yet. In fact you never
+  have to play with it but you may install wheels through this library also. Again, this is not the recommended
+  way. Once you have a wheel of your library, you may install it with <code>wheel install dist/booster-0.1.0-py2.py3-none-any.whl</code>.
+  Verify that by doing: <code>pip freeze | grep booster</code>. There it is! But <code>wheel</code> command has no uninstall procedure
+  which signifies that this method is unsuitable for installing/uninstalling packages. To uninstall it run
+  <code>pip uninstall booster</code>. Press <code>y</code> (for yes) and it's gone.</p>
+</li>
+<li>
+<p>Aside fact #3: Since <code>pip</code> can install wheels, let's take a look of a manual way of doing that. Again, this is
+  not the recommended way. Inside the root package run <code>pip install --no-index --find-links=. dist/booster-0.1.0-py2.py3-none-any.whl</code>.
+  Because the default behavior of <code>pip</code> is to look for package in the PyPI index we tell it to not look at any (<code>--no-index</code>)
+  and advise it to look for packages in the current dir (<code>--find-links=.</code>). Next follows the path of the wheel file.
+  This works brilliantly but it's overkill to write all these every time!</p>
+</li>
+<li>
+<p>Aside fact #4: Enter developer mode. Or else <code>editable</code> mode. When you develop your package, instead of
+  <code>pip install</code> it every time you make a change (or you want to examine a <code>print</code> statement somewhere) you may
+  symlink it and then all changes will be applied automatically. You can either do <code>python setup.py develop</code>
+  (which shows a verbose output) or <code>pip install -e .</code> (where the dot at the end specifies the current working
+  directory which is the project root one) which gives a suppressed output but pay close attention at it.
+  It says <code>Running setup.py develop for booster</code>. So, the same command is used.
+  Anyhow, I prefer to use the latter (<code>pip install -e .</code>) and I'm good to go.</p>
+</li>
+<li>
+<p>Aside fact #5: You may notice that wheels include only what's under your source code directory. Anything else
+  outside will not be included (because, simply, it's not needed in order for your library to run). So, if your
+  <code>MANIFEST.in</code> file (we'll look at it <a href="#manifestin">below</a>) includes other dirs/files outside the <code>booster/</code>
+  root source directory, running <code>python setup.py bdist_wheel</code>, the produced <code>.whl</code> archive will not include those.
+  However, it will include any dirs/files (written in the manifest) that are inside the <code>booster/</code> root source dir.
+  On the other hand, all the above are not valid for the <code>sdist</code> distribution. In this format, almost everything
+  are included in the <code>.tar.gz</code> archive.</p>
+</li>
+<li>
+<p>Aside fact #6: You may produce a wheel artifact out from an <code>sdist</code>, but not the other way around.</p>
+</li>
+<li>
+<p>Aside fact #7: You might have heard of Python <code>.egg</code> files. These kind of archives are considered obsolete.
+  The official packaging docs state that <a href="https://packaging.python.org/discussions/wheel-vs-egg/">wheels are now considered the standard</a>.
+  So, there is no need to worry about them. Consider <code>wheel</code> the upgraded version of <code>egg</code>.</p>
+</li>
+</ul>
+<h3 id="sdist-aka-source-distribution"><a href="#sdist">Sdist (aka source distribution)</a></h3>
+<p>Source distribution (sdist for short) is actually a <code>.tar.gz</code> file which contains not only the directory
+where your code lives but also the other files (depending of the contents of <code>MANIFEST.in</code> file)
+inside the root directory of the package (such as <code>setup.py</code>, <code>setup.cfg</code> etc).
+Some packages on PyPI either have only <code>sdist</code>s, <code>wheel</code>s or both. <code>pip</code> will always prefer a <code>wheel</code>
+because it's faster and requires no compilation at all. In contrast, if <code>wheel</code> file is missing,
+<code>pip</code> will download the sdist, run <code>python setup.py install</code> and finally install the lib. Sdist
+has all the information needed to build a wheel, install the library etc. That's why it's called
+<em>source</em> distribution.</p>
+<p>To build a sdist simply <code>python setup.py sdist</code>. Note that this command will not create a <code>build/</code> dir
+like <code>bdist_wheel</code> did earlier. It creates a <code>booster.egg-info/</code> and a <code>dist/</code> folder. Inside the <code>dist/</code>
+folder you can see the <code>.tar.gz</code> archive which contains your package with all the accompanying dirs and
+files.</p>
+<p>Of course, running <code>python setup.py sdist --help</code> will show you the available options for the sdist argument.
+There are other formats you can archive your package. <code>python setup.py sdist --help-formats</code> to see the list.</p>
+<p>Usually, we do not run <code>python setup.py bdist_wheel</code> and <code>python setup.py sdist</code> individually. We combine
+these commands into a single one <code>python setup.py bdist_wheel sdist</code> (<code>bdist_wheel</code> comes first in case you forget ;)
+and any options on each argument (if any) are included in the <code>setup.cfg</code> file. What? How <code>setup.py</code> file gets the
+options from the <code>setup.cfg</code> file? We will look <a href="#setupcfg">at it in a moment</a> when we will talk about <code>setup.cfg</code>.</p>
+<p>In order to facilitate this process, the <code>Makefile</code> (created by the cookiecutter) has a command called <code>dist</code> which
+first deletes the <code>build/</code> dir, the <code>dist/</code> dir, any hidden <code>.eggs/</code> dir, any <code>.pyc</code> files and other stuff and finally
+runs <code>python setup.py bdist_wheel sdist</code> in order to generate the new distribution pair of artifacts. Run it as
+<code>make dist</code>.</p>
+<p>Reminder: Until now, we have talked about how to wrap your package into a format that can be uploaded to PyPI and
+be distributed to the Python world. We have not talked about how to upload a package to PyPI or once uploaded
+how to install it in your machine. We have talked about the number 3 referring to <a href="#warehouse_img">the image on top</a>. Although,
+we have used <code>pip</code> (#4) and <code>setuptools</code> (#1).</p>
+<h3 id="packages"><a href="#kwarg_packages">Packages</a></h3>
+<p>The <code>packages</code> keyword argument to <code>setup()</code> function tells <code>setuptools</code> where to look to find Python code.
+It takes a list of strings declaring Python package names. We could, in our example, not used the
+<code>find_packages</code> function at all and instead write <code>setup(packages=["booster"])</code> or use the <code>find_packages</code>
+without any parameters, <code>setup(packages=find_packages())</code>. It would be exactly the same.
+This argument (<code>packages</code>), however, is important because if you got it wrong then your actual code will not be included inside
+the distributable package (both the wheel and the sdist)!</p>
+<p>The handy function <code>find_packages</code> is given some parameters and it looks for Python modules.
+<a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#using-find-packages">setuptools docs for find_packages function</a>
+explain it very well:</p>
+<blockquote>
+<p>Anyway, <code>find_packages()</code> walks the target directory, filtering by inclusion patterns
+and finds Python packages (any directory). Packages are only recognized if they include an <code>__init__.py</code> file.
+Finally, exclusion patterns are applied to remove matching packages.</p>
+</blockquote>
+<p>In our case, we have a single dir called <code>booster/</code> and under it three Python modules
+(<code>booster.py</code>, <code>cli.py</code> and <code>__init__.py</code>). The <code>find_packages</code> function is called without any arguments resulting
+in including this dir into the distributable one. If, however, this dir was not a Python package (without the
+<code>__init__.py</code> module) then it will not be included by this function.</p>
+<p>Fire up a Python console and import <code>find_packages</code> from <code>setuptools</code>:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">find_packages</span>
+
+<span class="n">find_packages</span><span class="p">()</span>
+<span class="c1"># [&#39;booster&#39;]</span>
+</pre></div>
+
+
+<p>Now, delete the <code>booster/__init__.py</code> and run <code>find_packages</code> again:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">find_packages</span>
+
+<span class="n">find_packages</span><span class="p">()</span>
+<span class="c1"># []</span>
+</pre></div>
+
+
+<p>It doesnt matter how many subpackages your main package have. The <code>find_packages</code> function
+will work recursively and find them all. However, if you have, say, a file named <code>config.json</code>
+or <code>config.yml</code> or anything that does not have a <code>.py</code> suffix and you want to include it, because
+somewhere you parse it and use it, then <code>find_packages</code> will not help you there.</p>
+<p>These kind of files are not Python ones and thus they are called <em>data files</em>. There are many
+scenarios on including those files and once again
+<a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#including-data-files">setuptools docs for data files</a>
+have all these covered in an explicit fashion.</p>
+<h3 id="zip_safe"><a href="#kwarg_zip_safe">zip_safe</a></h3>
+<p>To be really honest I don't quite comprehend this setting and to always play safe I set it on <code>False</code>.</p>
+<p>As per the <a href="http://peak.telecommunity.com/DevCenter/setuptools#setting-the-zip-safe-flag">PEAK docs say about setuptools</a>:</p>
+<blockquote>
+<p>For maximum performance, Python packages are best installed as zip files.
+Not all packages, however, are capable of running in compressed form, because they may expect
+to be able to access either source code or data files as normal operating system files.
+So, setuptools can install your project as a zipfile or a directory
+and its default choice is determined by the project's zip_safe flag.</p>
+</blockquote>
+<p>Also <a href="https://medium.com/@madumalt/python-setuptools-adding-non-code-files-to-a-package-804f9e914807">a post on medium</a>
+tries to explain <code>zip_safe</code> option. Last but not least read this
+<a href="https://stackoverflow.com/questions/15869473/what-is-the-advantage-of-setting-zip-safe-to-true-when-packaging-a-python-projec">answer on StackOverflow about <code>zip_safe</code></a>.</p>
+<p>As I understand it, unless you know what you're doing keep <code>zip_safe=False</code>. Most Python packages (small and big ones) have it <code>False</code>.</p>
+<h3 id="test_suite"><a href="#kwarg_test_suite">test_suite</a></h3>
+<p>This option, once again is covered by the <a href="https://setuptools.readthedocs.io/en/latest/setuptools.html#test-build-package-and-run-a-unittest-suite">setuptools docs</a>.
+When set, then you'll be able to run <code>python setup.py test</code> and the test suite will get initiated.</p>
+<p>In our example, the <code>test_suite</code> keyword is set to the <code>tests/</code> directory. That's it. Try to run <code>python setup.py test</code> and
+see the already written by the cookiecutter test run and succeed. Since we are using <code>pytest</code> we can also run tests using
+<code>pytest</code> or <code>py.test</code> or <code>python setup.py pytest</code>.
+If you get the error <code>E   ModuleNotFoundError: No module named 'booster'</code> then you have not installed <code>booster</code> in your virtualenv.
+Do that first (<code>pip install -e .</code>) and then rerun <code>pytest</code>.</p>
+<h3 id="setupcfg"><a href="#setup.cfg">setup.cfg</a></h3>
+<p>This file is not mandatory but most of the times comes in handy due to repetition of <code>setup.py</code> command options.
+It's an <code>ini</code> file and describes how the <code>setup.py</code> is going to run. Instead of doing <code>python setup.py bdist_wheel --universal</code>,
+you set this option inside the <code>setup.cfg</code> as follows:</p>
+<div class="highlight"><pre><span></span><span class="c1"># apply to the &quot;setup.py bdist_wheel&quot; command</span>
+<span class="c1"># the universal option with a value of 1 (that is, set it to true)</span>
+<span class="k">[bdist_wheel]</span>
+<span class="na">universal</span><span class="o">=</span><span class="s">1</span>
+
+<span class="k">[aliases]</span>
+<span class="na">test</span><span class="o">=</span><span class="s">pytest</span>
+</pre></div>
+
+
+<p>A general practice is to list the available <code>setup.py</code> commands with <code>python setup.py --help-commands</code>
+and for each command, list it's available options, i.e <code>python setup.py --help sdist</code>. Then, if
+you want an option to persist while you create <code>sdist</code> formats, you write it down to <code>setup.cfg</code> along
+with it's corresponding value.</p>
+<p>However, this is not true for the <code>alias</code> command. Although, the command is <code>python setup.py alias &lt;alias_name&gt; &lt;alias_command&gt;</code>
+the corresponding entry in the <code>setup.cfg</code> is <code>[aliases]</code>. Delete this section and save <code>setup.cfg</code>.
+Then run <code>python setup.py alias test pytest</code>. This will write to the <code>setup.cfg</code> the lines that you previously deleted.
+The <code>[aliases]</code> was added.</p>
+<p>There are other Python libraries, such as <a href="https://github.com/c4urself/bump2version">bump2version</a> (a library to manage your package's version) that
+are <em>compatible</em> with <code>setup.cfg</code> and allow you to define their command options inside this file. Then, whenever
+you run <code>bumpversion minor</code> the file <code>setup.cfg</code> will be read under the hood for any options defined.</p>
+<p>Another technique that gains popularity is to make the <code>setup.cfg</code> fat and keep <code>setup.py</code> thin. What is meant
+by this is to put all the metadata inside the <code>setup.cfg</code> so that the <code>setup.py</code> will, eventually, consist of
+the following:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="n">setup</span><span class="p">()</span>
+</pre></div>
+
+
+<p>It can't be any simpler! It's a matter of choice. I prefer to keep my balances and have them both
+in a sane size.</p>
+<p>Nevertheless, it's a good idea to have <code>setup.cfg</code> in place, in order not to forget certain options, since this file provides
+defaults for the <code>setup.py</code> script (in other words it describes how the <code>setup.py</code> script behaves).</p>
+<p>A good read on this is the <a href="https://docs.python.org/3/distutils/configfile.html">official python docs on distributing python modules (legacy version)</a></p>
+<h3 id="manifestin"><a href="#manifest.in">MANIFEST.in</a></h3>
+<p>This file defines everything else that needs to be included in your source distribution (not the wheel)
+that isn't actually necessary for the code to run itself. In contrast to <code>setup.py</code> file which defines
+the code that's going to be executed, which code do I need to include, the requirements of the
+project etc (where all these are for functional purposes), <code>MANIFEST.in</code> file describes other
+files/dirs you need to include in your source distribution (such as docs, tests, images, html files, examples etc).</p>
+<p><a href="#packages">As mentioned earlier</a>, data files (anything other than <code>.py</code> files) are not included by default
+in your distributable package. To do so you must use the <code>include_package_data=True</code> keyword argument
+of the <code>setup()</code> function and the script will read the <code>MANIFEST.in</code> file and include all dirs/files
+listed into the sdist one (and to the wheel if they are under the source root directory).</p>
+<p>So, the keyword arguments of <code>setup()</code>: <code>include_package_data</code>, <code>package_data</code> and <code>exclude_package_data</code> work together
+with the <code>MANIFEST.in</code> file in a combination fashion in order to determine what <em>other files</em> are to be included in the <code>sdist</code>
+package format. In fact, any files that match <code>exclude_package_data</code> patterns will be included in the <code>sdist</code> format but
+when the package gets installed on the system (<code>pip install package</code>) they will be excluded from the installation.</p>
+<p>You may read more on the <code>MANIFEST.in</code> file on the <a href="https://docs.python.org/3/distutils/sourcedist.html#specifying-the-files-to-distribute">official Python docs about MANIFEST.in</a>.</p>
+<p>If you find yourself lost with this kind of file (as I did in the beginning), <a href="https://github.com/mgedmin/check-manifest">check-manifest</a>
+is very good tool that kind of <em>syncs</em> version controlled dirs/files with the <code>sdist</code> one.
+It also recommends which files should be added to the <code>MANIFEST.in</code> file.</p>
+<h1 id="upload"><a href="#upload">Upload</a></h1>
+<p>Once you have your Python package wrapped in a distributable form (remember, <strong>both wheel and sdist</strong>) then it's
+time to share it. Your distributable ones, conventionally, live under the <code>dist/</code> dir, in the same level as
+<code>setup.py</code> is. The place where all Python packages are stored is called <a href="https://pypi.org/">PyPI</a>.
+Since, an image worth a thousand words, here you are:</p>
+<p><br><figure style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+  <a name="packaging_upload_img"></a>
+    <img id="packaging-upload" src="/images/a_tour_on_python_packaging/packaging_upload_twine.png" alt="Python Packaging upload on PyPI via twine">
+    <figcaption>Python packaging upload on PyPI via twine</figcaption>
+</figure><br></p>
+<p>The way to upload your goodies on PyPI is called <a href="https://pypi.org/project/twine/">twine</a>. However, in order to be absolutely sure
+that your package can be installed and run correctly without errors, the <a href="https://test.pypi.org/">testing PyPI server</a> exists
+to host (temporarily) packages and expose such errors (uploading, installation etc).</p>
+<p>So, before you upload you package to the official live PyPI server (the default one), test it first and then
+upload it <em>officially</em>. You'll need two different accounts; one for the testing and one for the default one.</p>
+<p>Both uploads use the same command and it's pretty straightforward:</p>
+<div class="highlight"><pre><span></span><span class="c1"># for the testing PyPI server</span>
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+<span class="c1"># for the default PyPI server</span>
+twine upload dist/*
+</pre></div>
+
+
+<p>After each new version release of your package, it's a good idea to empty the <code>dist/</code> directory
+from previous ones. Also delete the <code>build/</code> dir as well. As already been said above, the cookiecutter
+has a command to help you with this, <code>make dist</code>.</p>
+<p>Important note #1: PyPI does not allow to upload an artifact with the same version. That is, if your uploaded
+package version is <code>0.1.0</code> and you discovered a minor bug (say a typo to a string, a minor one) and fix it
+without change the version and try to upload it again, PyPI will complain with the following error:</p>
+<div class="highlight"><pre><span></span>Uploading booster-0.1.0-py2.py3-none-any.whl
+<span class="m">100</span>%<span class="p">|</span>███████████████████████████████████████████████████████████████████████████████████<span class="p">|</span> <span class="m">8</span>.94k/8.94k <span class="o">[</span><span class="m">00</span>:01&lt;<span class="m">00</span>:00, <span class="m">5</span>.84kB/s<span class="o">]</span>
+HTTPError: <span class="m">400</span> Client Error: File already exists. See https://test.pypi.org/help/#file-name-reuse <span class="k">for</span> url: https://test.pypi.org/legacy/
+</pre></div>
+
+
+<p>Fix that by increment the patch version part to <code>0.1.1</code> and then upload it. Or wait for some feedback
+from the users, gather some bugs and then update it. It depends on the scenario and how big these
+bugs are.</p>
+<p>Important note #2: Every time you change a version you should log it inside the <code>HISTORY.rst</code>
+or the <code>CHANGELOG.rst</code> file (if you have it). That's a good practice not only for documentation
+tracking purposes but also for the end users who need to know what has changed since the previous
+version.</p>
+<h2 id="keyring"><a href="#keyring">keyring</a></h2>
+<p>After running the above command(s), <code>twine</code> will ask your username and password. Instead of providing them
+through the console each time, there is another way, the lazy one.</p>
+<p>Under your virtualenv install <a href="https://pypi.org/project/keyring/">keyring</a> (once again, you're using a virtualenv, don't you?),
+<code>pip install keyring</code>. Read the installation docs carefully because at some platforms, additional platform-specific
+libraries might be needed. As it's docs say:</p>
+<blockquote>
+<p><code>keyring</code> provides an easy way to access the system keyring service
+from Python. It can be used in any application that needs safe password storage.</p>
+</blockquote>
+<p>Before, <code>keyring</code>, the <a href="https://docs.python.org/3/distutils/packageindex.html#the-pypirc-file">recommended practice was to create a <code>.pypirc</code> file</a>
+under your home directory and inside there write in plain text the username and password for
+each index (test and default).</p>
+<p>Those days are gone and we may now be much more safe and cryptic.
+Back to <code>keyring</code>, run the following two commands (one at a time):</p>
+<div class="highlight"><pre><span></span>keyring <span class="nb">set</span> https://test.pypi.org/legacy/ &lt;your_testing_PyPI_username_here&gt;
+keyring <span class="nb">set</span> https://upload.pypi.org/legacy/ &lt;your_default_PyPI_username_here&gt;
+</pre></div>
+
+
+<p>Each command will prompt you for your password. Enter it and you're good to go.</p>
+<h2 id="installing-your-uploaded-package"><a href="#installing-your-uploaded-package">Installing your uploaded package</a></h2>
+<p>Once the package has been uploaded to the testing server, you may install it from there,
+in a new and clean virtualenv. Create your testing virtualenv and then:</p>
+<div class="highlight"><pre><span></span>pip install --index-url https://test.pypi.org/simple/ &lt;package_name&gt;
+</pre></div>
+
+
+<p>Confirm that installation produced no errors and that you can run your package
+without any difficulties. In general, confirm that your package works as expected.</p>
+<p>Once done, you may upload it to the default PyPI server and then simply use the
+famous simple command:</p>
+<div class="highlight"><pre><span></span>pip install &lt;package_name&gt;
+</pre></div>
+
+
+<p>Congratulations! If you have made it so far that means you are in position to
+share your ideas with others and make the world a better place to live!</p>
+<p>Extra tip: Recall the keyword argument of the <code>setup</code> function, <code>extras_require</code>,
+you may install additional packages/dependencies by just <code>pip install booster[test]</code>,
+where <code>test</code> is a key of the dictionary.</p>
+<h1 id="sum-up"><a href="#sum-up">Sum up</a></h1>
+<p>If you're confused with all the above, which I admit, are a lot to learn (but easy ones)
+in the first place, here are some advices in order to make your life easier:</p>
+<ol>
+<li>Create a virtualenv.</li>
+<li>Try to separate the concerns. First focus on your package and make sure it works. Forget about packaging.</li>
+<li>Write documentation. No, docstrings are not enough! <a href="#docs-authorsrst-contributingrst-historyrst-and-readmerst">We talked about it above</a>.</li>
+<li>Write tests. No more here to say. <a href="#tests-and-toxini">We talked about it above</a>.</li>
+<li>Now it's time to think about wrapping your library to a package. Again, separation of concerns.</li>
+<li>Using a cookiecutter of your choice, try to fill/edit/delete each file produced. One at a time.</li>
+<li>Docs work with Sphinx? Tests pass? Package can be installed locally in developer mode? Works as expected?</li>
+<li>Create the archives (wheel and sdist)</li>
+<li>Upload first to testing PyPI and then to the default PyPI</li>
+<li>Enjoy and tell others what you have built.</li>
+</ol>
+<p>I am repeating myself here (against the <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a> discipline)
+but it's for good:</p>
+<blockquote>
+<p>Do not rush. One step at a time. Complete each step and then go to the next.
+Maybe you create your own <em>steps</em>, that's OK. But please try not to do things
+simultaneously. The error lies in asynchronous human tasks. Be synchronous!</p>
+</blockquote>
+<p>I am not saying that I succeeded the first time I try to build a Python package. I failed.
+That's why I created this <em>kind of guide</em>. You may fail too. But do not give up.
+Enough with the advices and lessons learned.</p>
+<p>Now dive in and share your ideas with the Python community!</p>
+<h1 id="resources"><a href="#resources">Resources</a></h1>
+<h2 id="python-packaging-related-videos"><a href="#py_packaging_videos">Python packaging-related videos</a></h2>
+<p>If you are a video-person then the following list contains (maybe all) english-spoken
+video conferences, since 2012, related to Python packaging.
+They are listed from recent to older without making older videos stale
+(except those talking about the <code>distutils</code> package).
+As a bonus, there is a small comment on each, by me, highlighting some points (if any) about the video.</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=s5lJsFzv_iI">What does PEP 517 mean for packaging</a><ul>
+<li><a href="https://github.com/takluyver">Thomas Kluyver</a></li>
+<li>PyCon UK 2019 (Cardiff, UK)</li>
+<li>A brief history on Python packaging. Talks about PEP 517, pyproject.toml and
+    distinguish between frontend and backend of packaging.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=P3dY3uDmnkU">Shipping your first Python package and automating future publishing</a><ul>
+<li><a href="https://github.com/crwilcox">Chris Wilcox</a></li>
+<li>PyCon 2019 (Cleveland, Ohio)</li>
+<li>Not something new in comparison to other talks in the past.
+    Ends with the automation of package deployment which is quite handy!<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=02aAZ8u3wEQ">The Black Magic of Python Wheels</a><ul>
+<li><a href="https://github.com/ehashman">Elana Hashman</a></li>
+<li>PyCon 2019 (Cleveland, Ohio)</li>
+<li>Focuses on building extension wheels (ones that include C code, not only Python),
+    explains what <a href="https://github.com/pypa/manylinux">manylinux</a>, <a href="https://github.com/pypa/auditwheel">auditwheel</a>
+    and symbol version (C specific) are.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=OaBhcueqNqw">Dependency hell: a library author's guide</a><ul>
+<li>Yanhui Li &amp; <a href="https://github.com/brianquinlan">Brian Quinlan</a></li>
+<li>PyCon 2019 (Cleveland, Ohio)</li>
+<li>Describes the problem of "dependecy hell" (diamond dependency) and recommends on using
+    semantic versioning (<a href="https://semver.org/">semver</a>)<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=RQrZRFcbYM0">Packaging Django apps for distribution on PyPI</a><ul>
+<li><a href="https://github.com/lgh2">Laura Hampton</a></li>
+<li>North Bay Python 2018 (Petaluma, California)</li>
+<li>Despite the Django-specific parts at the beginning,
+    not something new to learn in comparison with the other talks<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=Gt3Pkgsd0Tk">Can packaging improve Django deployments?</a><ul>
+<li><a href="https://github.com/keimlink">Markus Zapke-Gründemann</a></li>
+<li>DjangoCon Europe 2018 (Heidelberg, Germany)</li>
+<li><code>pip-tools</code>, different Django project structure, <code>contraints.txt</code>, <code>setup.cfg</code><br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=QgZ7qv4Cd0Y">How to publish a package on PyPI</a><ul>
+<li><a href="https://github.com/judy2k">Mark Smith</a></li>
+<li>PyCon Australia 2018</li>
+<li><a href="https://gitignore.io">gitignore.io</a>, <a href="https://choosealicense.com">choosealicense.com</a>,
+  <a href="https://github.com/mgedmin/check-manifest">check-manifest</a>, <a href="https://github.com/pypa/pipenv">pipenv</a><br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=AQsZsgJ30AE">Inside the Cheeseshop: How Python Packaging Works</a><ul>
+<li><a href="https://github.com/di">Dustin Ingram</a></li>
+<li>PyCon 2018 (Cleveland, Ohio)</li>
+<li>Focus on packaging history and not on how to package your Python code. Good references, though.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=WdhYa--Cahk">Packaging Let’s Encrypt Lessons learned shipping Python code to hundreds of thousands of users</a><ul>
+<li><a href="https://github.com/SwartzCr">Noah Swartz</a></li>
+<li>PyCon 2017 (Portland, Oregon)</li>
+<li>Focuses on Python Applications (<a href="https://certbot.eff.org/">certbot</a>) and problems encountered during
+  development and production. Not a talk for Python libraries.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=qOH-h-EKKac">Share your code! Python Packaging Without Complication</a><ul>
+<li><a href="https://github.com/tylerdave">Dave Forgac</a></li>
+<li>PyCon 2017 (Portland, Oregon)</li>
+<li>Not something new in comparison to the 2016 talks<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=ikT2i4I2LYY">The trends in choosing licenses in Python ecosystem</a><ul>
+<li><a href="https://github.com/anweshadas">Anwesha Das</a></li>
+<li>PyCon 2017 (Portland, Oregon)</li>
+<li>Learn about different types of licenses and best practices to license your project.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=xSbezLCJ87E">Python Packaging - current state and overview</a><ul>
+<li><a href="https://github.com/Gandi24">Jakub Wasielak</a></li>
+<li>EuroPython 2017 (Rimini, Italy)</li>
+<li>Learn a lot about <code>setup.py</code> like <a href="https://github.com/pypa/setuptools_scm">setuptools_scm</a>, <code>extras_require</code>, <code>setup.cfg</code>
+  <code>python setup.py install/develop</code>, <a href="https://www.devpi.net/">devpi.net</a>
+  and <a href="https://www.python.org/dev/peps/pep-0440/">PEP 440 -- Version Identification and Dependency Specification</a><br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=iLVNWfPWAC8">The Packaging Gradient</a><ul>
+<li><a href="https://github.com/mahmoud">Mahmoud Hashemi</a></li>
+<li>PyBay 2017 (San Francisco, California)</li>
+<li>Focuses more on packaging Python applications instead of Python libraries. Refers to <a href="https://github.com/pantsbuild/pex">pex</a>,
+  <a href="https://www.anaconda.com/">anaconda</a>, <a href="https://docs.python-guide.org/shipping/freezing/">freezers</a> and other methods.
+  Obsolete, regarding the command for upload to PyPI (uses <code>setup.py upload</code>)<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=Ai2l9V2Y5Kw">Confessions of a Python packaging noo</a><ul>
+<li><a href="https://github.com/ssaporta">Steven Saporta</a></li>
+<li>PyGotham 2017 (New York City)</li>
+<li>Learn about the different wheel types<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=5BqAeN-F9Qs">Shipping Software To Users With Python</a><ul>
+<li><a href="https://github.com/glyph">Glyph Lefkowitz</a></li>
+<li>PyCon 2016 (Portland, Oregon)</li>
+<li>Talks more on distributing Python applications and not Python libraries.
+  Learn about not to install globally using <code>sudo</code> and instead use <code>pip install --user package</code><br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=nFozViwDWvY">Publish your code so others can use it in 5 easy steps</a><ul>
+<li><a href="https://github.com/samastur">Marko Samastur</a></li>
+<li>PyCon 2016 (Portland, Oregon)</li>
+<li>It's the same talk as of EuroPython 2016 so, more or less the same.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=v_wFF2wEG_A">Warehouse - the future of PyPI</a><ul>
+<li><a href="https://github.com/nlhkabu">Nicole Harris</a></li>
+<li>PyConFR 2016</li>
+<li>Focuses more on the <em>old</em> PyPI and the birth of the new one (warehouse),
+  learn about the <a href="https://en.wikipedia.org/wiki/Bus_factor">bus factor</a>, <a href="https://www.pypa.io/en/latest/">PyPA</a>,
+  <a href="https://packaging.python.org/">PyPUG</a>, <a href="https://wiki.python.org/psf/PackagingWG">PSF Packaging WG</a><br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=gc9dkktg1gU">Publish your code so others can use it in 4 easy steps</a><ul>
+<li><a href="https://github.com/samastur">Marko Samastur</a></li>
+<li>EuroPython 2016 (Bilbao, Spain)</li>
+<li>It's kind of stale (uses <code>setup.py sdist upload</code> instead of <a href="https://pypi.org/project/twine/">twine</a>)<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=osCJgs5UetU">What Python can learn from Haskell packaging</a><ul>
+<li><a href="https://github.com/domenkozar">Domen Kožar</a></li>
+<li>EuroPython 2016 (Bilbao, Spain)</li>
+<li>Talks about Haskell with a few referrals to Python<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=oE5iePv8nD8">Reinventing the <code>whl</code>: New Developments in Upstream Python Packaging Ecosystem</a><ul>
+<li><a href="https://github.com/njsmith/">Nathaniel Smith</a></li>
+<li>SciPy 2016 (Austin, Texas)</li>
+<li>Speaks about packaging Python applications, mostly, not Python libraries.
+  Talks about the <a href="https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-pre">pip install --pre <package></a>
+  and the upcoming <code>pyproject.toml</code> configuration file.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=W8A2bOKPtJU">Rethinking packaging, development and deployment</a><ul>
+<li><a href="https://github.com/domenkozar">Domen Kožar</a></li>
+<li>PyCon 2015 (Montréal, Canada)</li>
+<li>Talks about the <a href="https://nixos.org/nixpkgs/manual/#python">nix</a> project<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=UtFHIpNPMPA">Grug make fire! Grug make wheel!</a><ul>
+<li><a href="https://github.com/freakboy3742">Russell Keith-Magee</a></li>
+<li>PyCon Australia 2014</li>
+<li>A little stale but you may learn about <code>setup.cfg</code>, <code>MANIFEST</code> and  <code>LICENCE</code><br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=eLPiPHr6TVI">Python packaging simplified, for end users, app developers</a><ul>
+<li><a href="https://github.com/paulproteus">Asheesh Laroia</a></li>
+<li>PyCon 2014 (Montréal, Canada)</li>
+<li>A bit of stale too, but you learn that <code>pip install -e .</code> is the alias
+  of <code>python setup.py develop</code><br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=jOiAp3wtx18">What is coming in Python packaging</a><ul>
+<li><a href="https://github.com/coderanger">Noah Kantrowitz</a></li>
+<li>PyCon 2014 (Montréal, Canada)</li>
+<li>Learn about the <a href="https://warehouse.pypa.io/api-reference/json/">warehouse JSON API</a>,
+  <a href="https://docs.python.org/3/library/ensurepip.html">ensurepip</a>,
+  <a href="https://www.python.org/dev/peps/pep-0453/">PEP 453 -- Explicit bootstrapping of pip in Python installations</a>
+  and <code>wheel</code>s<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=8Xrdt3-YVz4">Nobody Expects the Python Packaging Authority</a><ul>
+<li><a href="https://github.com/ncoghlan">Nick Coghlan</a></li>
+<li>PyCon Australia 2013</li>
+<li>Talks about the pre-PyPA era and packaging issues that prevent Python packaging from evolving.
+  Great talk for historical reasons.<br><br></li>
+</ul>
+</li>
+<li><a href="https://www.youtube.com/watch?v=bwwf_HbEJQM">Sharing is Caring: Posting to the Python Package Index</a><ul>
+<li><a href="https://github.com/lukesneeringer">Luke Sneeringer</a></li>
+<li>PyConUS 2012 (Santa Clara, California)</li>
+<li>Very good video but a bit of stale since he uses <code>distutils</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="python-packaging-related-podcasts"><a href="#py_packaging_podcasts">Python packaging-related podcasts</a></h2>
+<p>If you want to put on your headphones and enjoy the listening about Python
+packaging, then this list is for you:</p>
+<ul>
+<li><a href="https://testandcode.com/52">52: pyproject.toml : the future of Python packaging</a><ul>
+<li><a href="https://github.com/brettcannon">Brett Cannon</a></li>
+<li>5 November 2018<br><br></li>
+</ul>
+</li>
+</ul>
+<h2 id="python-packaging-related-articles"><a href="#py_packaging_articles">Python packaging-related articles</a></h2>
+<p>Searching for "python packaging" will give you a ton of results. I tried to minimize
+this list of results and end up with the following articles. They are in chronological
+order. This does not mean that older posts are obsolete.</p>
+<ul>
+<li><a href="http://andrewsforge.com/article/python-new-package-landscape/">Python's new package landscape</a><ul>
+<li><a href="https://github.com/jambonrose">Andrew Pinkham</a></li>
+<li>11 May 2018<br><br></li>
+</ul>
+</li>
+<li><a href="https://snarky.ca/a-tutorial-on-python-package-building/">A tutorial on packaging up your Python code for PyPI</a><ul>
+<li><a href="https://github.com/brettcannon">Brett Cannon</a></li>
+<li>28 October 2017<br><br></li>
+</ul>
+</li>
+<li><a href="https://hynek.me/articles/sharing-your-labor-of-love-pypi-quick-and-dirty/">Sharing your labor of love: PyPI quick and dirty</a><ul>
+<li><a href="https://github.com/hynek">Hynek Schlawack</a></li>
+<li>29 July 2013 (updated on 23 October 2017)<br><br></li>
+</ul>
+</li>
+<li><a href="https://veekaybee.github.io/2017/09/26/python-packaging/">Alice in Python projectland</a><ul>
+<li><a href="https://github.com/veekaybee">Vicki Boykis</a></li>
+<li>26 September 2017<br><br></li>
+</ul>
+</li>
+<li><a href="http://brunorocha.org/python/publish-your-python-packages-easily-using-flit.html">Publish your Python packages easily using flit</a><ul>
+<li><a href="https://github.com/rochacbruno">Bruno Rocha</a></li>
+<li>22 August 2017<br><br></li>
+</ul>
+</li>
+<li><a href="https://jakevdp.github.io/blog/2016/08/25/conda-myths-and-misconceptions/">Conda: Myths and misconceptions</a><ul>
+<li><a href="https://github.com/jakevdp">Jake VanderPlas</a></li>
+<li>25 Aug 2016<br><br></li>
+</ul>
+</li>
+<li><a href="https://glyph.twistedmatrix.com/2016/08/python-packaging.html">Python packaging is good now</a><ul>
+<li><a href="https://github.com/glyph">Glyph Lefkowitz</a></li>
+<li>14 August 2016<br><br></li>
+</ul>
+</li>
+<li><a href="https://hynek.me/articles/testing-packaging/">Testing &amp; Packaging</a><ul>
+<li><a href="https://github.com/hynek">Hynek Schlawack</a></li>
+<li>19 October 2015<br><br></li>
+</ul>
+</li>
+<li><a href="https://blog.ionelmc.ro/2014/06/25/python-packaging-pitfalls/">Python packaging pitfalls</a><ul>
+<li><a href="https://github.com/ionelmc">Ionel Cristian Mărieș</a></li>
+<li>25 June 2014<br><br></li>
+</ul>
+</li>
+<li><a href="https://blog.miguelgrinberg.com/post/the-package-dependency-blues">The package dependency blues</a><ul>
+<li><a href="https://github.com/miguelgrinberg">Miguel Grinberg</a></li>
+<li>2 Sep 2013<br><br></li>
+</ul>
+</li>
+<li><a href="https://caremad.io/posts/2013/07/setup-vs-requirement/">setup.py vs requirements.txt</a><ul>
+<li><a href="https://github.com/dstufft">Donald Stuff</a></li>
+<li>22 Jul 2013<br><br></li>
+</ul>
+</li>
+<li><a href="http://python-notes.curiousefficiency.org/en/latest/pep_ideas/core_packaging_api.html">Incremental plans to improve Python packaging</a><ul>
+<li><a href="https://github.com/ncoghlan">Nick Coghlan</a><br><br></li>
+</ul>
+</li>
+<li><a href="https://justin.abrah.ms/python/setuptools_lessons.html">6 things I learned about setuptools</a><ul>
+<li><a href="https://github.com/justinabrahms">Justin Abrahms</a><br><br></li>
+</ul>
+</li>
+<li><a href="https://packaging.python.org/tutorials/">PyPA tutorials</a></li>
+<li><a href="https://packaging.python.org/guides/">PyPA guides</a></li>
+<li><a href="https://setuptools.readthedocs.io/en/latest/">setuptools official docs</a></li>
+</ul>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://alone-djangonaut.com/tag/python.html">python</a>
+      <a href="https://alone-djangonaut.com/tag/package.html">package</a>
+      <a href="https://alone-djangonaut.com/tag/pypi.html">PyPI</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'manikos';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy; 2023 Nick Mavrakis</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://alone-djangonaut.com/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Alone Djangonaut ",
+  "url" : "https://alone-djangonaut.com",
+  "image": "https://alone-djangonaut.com/images/logo/logo_3.png",
+  "description": "Tutorials, blog posts and thoughts of a Django developer. He/him. Music lover."
+}
+</script>
+
+
+</body>
+</html>

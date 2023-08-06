@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://alone-djangonaut.com/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/solid.css">
+
+    <link href="https://alone-djangonaut.com/extra/manikos_style.css" rel="stylesheet">
+
+    <link href="https://alone-djangonaut.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alone Djangonaut Atom">
+
+
+    <link rel="shortcut icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+
+  
+
+
+<meta name="author" content="Nick Mavrakis" />
+<meta name="description" content="How to properly set Django and axios library to work together with CSRF protection." />
+<meta name="keywords" content="python, django, csrf">
+
+
+<meta property="og:site_name" content="Alone Djangonaut"/>
+<meta property="og:title" content="Django, Axios and CSRF token"/>
+<meta property="og:description" content="How to properly set Django and axios library to work together with CSRF protection."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://alone-djangonaut.com/django-axios-and-csrf-token"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-04-18 00:00:00+03:00"/>
+<meta property="article:modified_time" content="2020-04-18 00:00:00+03:00"/>
+<meta property="article:author" content="https://alone-djangonaut.com/author/nick-mavrakis.html">
+<meta property="article:section" content="django"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="django"/>
+<meta property="article:tag" content="csrf"/>
+<meta property="og:image" content="https://alone-djangonaut.com/images/logo/logo_3.png">
+
+  <title>Alone Djangonaut &ndash; Django, Axios and CSRF token</title>
+
+</head>
+<body >
+  <aside>
+    <div>
+      <a href="https://alone-djangonaut.com">
+        <img src="https://alone-djangonaut.com/images/logo/logo_3.png" alt="Alone Djangonaut" title="Alone Djangonaut">
+      </a>
+
+      <h1>
+        <a href="https://alone-djangonaut.com">Alone Djangonaut</a>
+      </h1>
+
+<p>living in the pale blue dot</p>
+
+      <nav>
+        <ul class="list">
+
+
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/portfolio/">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/about/">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/contact/">
+                  Contact
+                </a>
+              </li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/manikosN" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-github" href="https://github.com/manikos" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-stack-overflow" href="https://stackoverflow.com/users/2231182/nik-m" target="_blank">
+              <i class="fab fa-stack-overflow"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-rss" href="feeds/all.atom.xml" target="_blank">
+              <i class="fas fa-rss"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://alone-djangonaut.com">Home</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+      <a href="https://alone-djangonaut.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="django-axios-and-csrf-token">Django, Axios and CSRF token</h1>
+    <p>
+      Posted on Sat 18 April 2020 in <a href="https://alone-djangonaut.com/category/django.html">django</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <h1 id="introduction">Introduction</h1>
+<p>I am building a "hybrid web app" (I'll post on it in the near future) using <a href="https://vuejs.org/">Vue</a> to the front and <a href="https://www.djangoproject.com/">Django</a> to the back.  A "hybrid web app" is something between a SPA and a classic website. The server sends the HTML template, the HTML template has a Vue component and then Vue takes place, mounts on it and do its things.</p>
+<p>The app consists of some forms. When the user presses the <code>submit</code> button, the Vue component will make a <code>POST</code> <code>XMLHttpRequest</code> (aka AJAX request) using the <a href="https://github.com/axios/axios">axios</a> library and the server will respond with some JSON data. The reason I want to make an AJAX call and not a usual form submit is that I do not want the page to refresh and the state of my Vue app re-initialize. So far so good.</p>
+<p>Since, my Django view is <code>CSRF</code> protected, I want axios to properly handle the CSRF token for me and everything work transparent. Fortunately, <code>axios</code> has two config settings (<code>xsrfHeaderName</code> and <code>xsrfCookieName</code>) which set the proper header of the request in order to pass the csrf token to the server.</p>
+<p>However, <code>axios</code> gives you the possibility to add (extra) headers using the <code>headers</code> config object. This is the point where I got confused. What is the meaning of having two separate settings for <code>xsrf</code> handling while you can manually config this in the <code>headers</code> objects?</p>
+<p>First things first:</p>
+<ol>
+<li>The form does not include a hidden input field named <code>csrftoken</code> because we want to pass it to the server using only the HTTP headers. More on this on the <a href="https://docs.djangoproject.com/en/dev/ref/csrf/#ajax"><code>AJAX</code> section in Django docs</a>.</li>
+<li>The csrf token is passed to the Vue component as a prop. So, the component knows the token.</li>
+</ol>
+<h2 id="axios-django-communication-using-the-default-settings">Axios-Django communication using the default settings</h2>
+<p>Let's begin with the very first response from the server to the client when the latter requests a page. Note, that we will use the defaults that Django <strong>and</strong> axios provide, regarding the CSRF (also, I have deleted some irrelevant request/response headers).</p>
+<ol>
+<li>Server's very first response. Tells the client to set the cookie named <code>csrftoken</code> to this very long value!</li>
+</ol>
+<div class="highlight"><pre><span></span>HTTP/1.1 200 OK
+Date: Fri, 17 Apr 2020 19:05:07 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: text/html; charset=utf-8
+Set-Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+</pre></div>
+
+
+<ol>
+<li>The page renders and the form appears. We fill the form and hit submit. These are the request headers:</li>
+</ol>
+<div class="highlight"><pre><span></span>POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+</pre></div>
+
+
+<p>​   And these are the response headers 😢:</p>
+<div class="highlight"><pre><span></span>HTTP/1.1 403 Forbidden
+Date: Fri, 17 Apr 2020 19:13:04 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: text/html
+</pre></div>
+
+
+<p>It seems that Django is not able to verify the CSRF token. But how Django looks for it? Remember, we do not include it inside the <code>form</code> as a hidden input.</p>
+<h2 id="how-django-search-for-the-csrf-token">How Django search for the CSRF token</h2>
+<p>Django looks two times for the csrf token.</p>
+<p>On the first search, Django tries get the token that has set at the beginning of the communication with the client (look the <code>Set-Cookie</code> header above). There are two places for that. As a cookie (like above, the default) or embedded inside the session dict.  If stored as a <a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L170">cookie</a>, Django will look for it. Also if inside the <a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L161"><code>session dict</code></a>.</p>
+<p>The second phase is when the form is submitted (a <code>POST</code> request) and the Django view is CSRF protected. Now, Django will have to match the token from the phase one with the one from this request. Django <a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L297">first look for a request parameter</a> named <code>csrfmiddlewaretoken</code> inside the <code>request.POST</code> dictionary. Since we do not provide this, Django skips it and <a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L309">looks inside the <code>request.META</code> dictionary</a> for a header named <code>settings.CSRF_HEADER_NAME</code> (<a href="https://docs.djangoproject.com/en/dev/ref/settings/#csrf-header-name">defaults</a> to <code>HTTP_X_CSRFTOKEN</code>).</p>
+<p>Back to our app, there is no <code>HTTP_X_CSRFTOKEN</code> header in the request headers above. So, Django is unable to verify the token that comes when the form is submitted with the initial one. Thus, you get a beautiful <code>403 Forbidden</code> status code!</p>
+<h2 id="solutions">Solution(s)</h2>
+<p>Each solution has benefits and drawbacks. I will mention both in each case.</p>
+<h3 id="using-only-the-headers-object-in-axios-config">Using only the <code>headers</code> object in axios config</h3>
+<p>Inside the axios <code>POST</code> call we do this:</p>
+<div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;X-CSRFTOKEN&quot;</span><span class="o">:</span> <span class="s2">&quot;&lt;csrf_token_very_long_string_goes_here&gt;&quot;</span><span class="p">}</span>
+<span class="nx">axios</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s2">&quot;/url/here/&quot;</span><span class="p">,</span> <span class="p">{</span><span class="o">&lt;</span><span class="nx">form_data_to_post</span><span class="o">&gt;</span><span class="p">},</span> <span class="p">{</span><span class="nx">headers</span><span class="o">:</span> <span class="nx">headers</span><span class="p">})</span>
+</pre></div>
+
+
+<p>Refresh everything and lets try again. Here are the request headers:</p>
+<div class="highlight"><pre><span></span>POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+X-CSRFTOKEN: KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF
+Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+</pre></div>
+
+
+<p>And the response ones:</p>
+<div class="highlight"><pre><span></span>HTTP/1.1 200 OK
+Date: Fri, 17 Apr 2020 20:03:19 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: application/json
+</pre></div>
+
+
+<p>Now that the request includes the header <code>X-CSRFTOKEN</code> (which is the default Django is looking) with the token as its value, the CSRF mechanism verifies the initial and the new token and responds with the <code>200 OK</code> status code!</p>
+<ul>
+<li>Benefits: dead simple to use plus it works with the <a href="https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-httponly"><code>CSRF_COOKIE_HTTPONLY = True</code></a> setting.</li>
+<li>Drawbacks: if your app has many forms, you have to remember to pass it in each <code>axios.post()</code> call. Explicit is better than implicit, but many developers are lazy. Which brings us to the second solution.</li>
+</ul>
+<h3 id="using-the-xsrfheadername-and-xsrfcookiename-axios-config-settings">Using the <code>xsrfHeaderName</code> and <code>xsrfCookieName</code> axios config settings</h3>
+<p>Inside your <code>main.js</code> file (or another that you keep your configurations) enter this:</p>
+<div class="highlight"><pre><span></span><span class="kr">import</span> <span class="nx">axios</span> <span class="nx">from</span> <span class="s1">&#39;axios&#39;</span>
+<span class="nx">axios</span><span class="p">.</span><span class="nx">defaults</span><span class="p">.</span><span class="nx">xsrfHeaderName</span> <span class="o">=</span> <span class="s2">&quot;X-CSRFTOKEN&quot;</span>
+<span class="nx">axios</span><span class="p">.</span><span class="nx">defaults</span><span class="p">.</span><span class="nx">xsrfCookieName</span> <span class="o">=</span> <span class="s2">&quot;csrftoken&quot;</span>
+</pre></div>
+
+
+<p>Now in each axios <code>POST</code> call you make, axios will embed the appropriate header for you.</p>
+<div class="highlight"><pre><span></span><span class="c1">// No need to set the {headers} object as the 3rd argument</span>
+<span class="nx">axios</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s2">&quot;/url/here/&quot;</span><span class="p">,</span> <span class="p">{</span><span class="o">&lt;</span><span class="nx">form_data_to_post</span><span class="o">&gt;</span><span class="p">})</span>
+</pre></div>
+
+
+<p>Here are the request headers:</p>
+<div class="highlight"><pre><span></span>POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+X-CSRFToken: KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF
+Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+</pre></div>
+
+
+<p>Spoiler alert! The response contains a <code>200 OK</code> status code.</p>
+<ul>
+<li>Benefits: as previously said, you declare it once in your js config file and forget about it.</li>
+<li>Drawbacks: unfortunately, turning <a href="https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-httponly"><code>CSRF_COOKIE_HTTPONLY = True</code></a>, Django will give you a <code>403 Forbidden</code> error since, now, JavaScript (in other words axios) cannot read the cookie and will not set the appropriate header on the request.</li>
+</ul>
+<h3 id="tweaksplayground">Tweaks/Playground</h3>
+<p>Bonus: You can change the header names on both Django and axios and things will still work. Example:</p>
+<div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+
+<span class="c1"># The default is HTTP_X_CSRFTOKEN.</span>
+<span class="c1"># Now Django will look for this header name on the request.</span>
+<span class="c1"># Something like: HTTP_BLABLABLA: &lt;very_long_token_here&gt;</span>
+<span class="n">CSRF_HEADER_NAME</span> <span class="o">=</span> <span class="s2">&quot;HTTP_HELLOWORLD&quot;</span>
+
+<span class="c1"># The default is csrftoken.</span>
+<span class="c1"># Now Django will set csrf cookie token under this name</span>
+<span class="c1"># Something like this: Set-Cookie: welcometothejungle=&lt;very_long_token_here&gt;;</span>
+<span class="n">CSRF_COOKIE_NAME</span> <span class="o">=</span> <span class="s2">&quot;welcometothejungle&quot;</span>
+</pre></div>
+
+
+<p>Of course, the same must appear in axios settings:</p>
+<div class="highlight"><pre><span></span><span class="c1">// main.js</span>
+
+<span class="nx">axios</span><span class="p">.</span><span class="nx">defaults</span><span class="p">.</span><span class="nx">xsrfHeaderName</span> <span class="o">=</span> <span class="s2">&quot;HELLOWORLD&quot;</span>
+<span class="nx">axios</span><span class="p">.</span><span class="nx">defaults</span><span class="p">.</span><span class="nx">xsrfCookieName</span> <span class="o">=</span> <span class="s2">&quot;welcometothejungle&quot;</span>
+</pre></div>
+
+
+<p>Delete previous stored cookies and refresh. The very first response by the server is this:</p>
+<div class="highlight"><pre><span></span>HTTP/1.1 200 OK
+Date: Fri, 17 Apr 2020 20:57:52 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: text/html; charset=utf-8
+Set-Cookie: welcometothejungle=bracDaFzr4eXwkiNbZdTEOQ37NRJg1jJIdznw2ypft3ulBSyCc8mKEKBQTm;
+</pre></div>
+
+
+<p>And then comes the form submit <code>POST</code> request:</p>
+<div class="highlight"><pre><span></span>POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+HELLOWORLD: SFXi8xjp5U6NKiG4RpAsrPmKi3Jm3jwxJcXlZ41GeY4VccenUS8PL7NTHaKKnSuQ
+Cookie: welcometothejungle=SFXi8xjp5U6NKiG4RpAsrPmKi3Jm3jwxJcXlZ41GeY4VccenUS8PL7NTHaKKnSuQ;
+</pre></div>
+
+
+<p>The response is a <code>200 OK</code> status!</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Reading the source code of a library (such a Django) makes you understand some things in depth and know how certain pieces fit together. Try it and you'll not lose!</p>
+<p>Personally, I prefer the first approach (the explicit one) because for <a href="https://youtu.be/QuhgjXKzfI8?t=4194">security reasons</a> I always have <code>CSRF_COOKIE_HTTPONLY</code> turned on. It is a very good practice and after all....</p>
+<blockquote>
+<p>Explicit is better than implicit.</p>
+<p>https://www.python.org/dev/peps/pep-0020/</p>
+</blockquote>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://alone-djangonaut.com/tag/python.html">python</a>
+      <a href="https://alone-djangonaut.com/tag/django.html">django</a>
+      <a href="https://alone-djangonaut.com/tag/csrf.html">csrf</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'manikos';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy; 2023 Nick Mavrakis</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://alone-djangonaut.com/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Alone Djangonaut ",
+  "url" : "https://alone-djangonaut.com",
+  "image": "https://alone-djangonaut.com/images/logo/logo_3.png",
+  "description": "Tutorials, blog posts and thoughts of a Django developer. He/him. Music lover."
+}
+</script>
+
+
+</body>
+</html>

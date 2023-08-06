@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://alone-djangonaut.com/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/solid.css">
+
+    <link href="https://alone-djangonaut.com/extra/manikos_style.css" rel="stylesheet">
+
+    <link href="https://alone-djangonaut.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alone Djangonaut Atom">
+
+
+    <link rel="shortcut icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+
+  
+
+
+<meta name="author" content="Nick Mavrakis" />
+<meta name="description" content="Hosting you Django project on Webfaction is easy. Did you know that converting your website from HTTP to HTTPS, using LetsEncrypt is, also, easy too? Extra bonus: it&#39;s free of charge!" />
+<meta name="keywords" content="python, django, webfaction, letsencrypt">
+
+
+<meta property="og:site_name" content="Alone Djangonaut"/>
+<meta property="og:title" content="Webfaction LetsEncrypt Django"/>
+<meta property="og:description" content="Hosting you Django project on Webfaction is easy. Did you know that converting your website from HTTP to HTTPS, using LetsEncrypt is, also, easy too? Extra bonus: it&#39;s free of charge!"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://alone-djangonaut.com/webfaction-letsencrypt-django"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-12-31 00:00:00+02:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="https://alone-djangonaut.com/author/nick-mavrakis.html">
+<meta property="article:section" content="Https"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="django"/>
+<meta property="article:tag" content="webfaction"/>
+<meta property="article:tag" content="letsencrypt"/>
+<meta property="og:image" content="https://alone-djangonaut.com/images/logo/logo_3.png">
+
+  <title>Alone Djangonaut &ndash; Webfaction LetsEncrypt Django</title>
+
+</head>
+<body >
+  <aside>
+    <div>
+      <a href="https://alone-djangonaut.com">
+        <img src="https://alone-djangonaut.com/images/logo/logo_3.png" alt="Alone Djangonaut" title="Alone Djangonaut">
+      </a>
+
+      <h1>
+        <a href="https://alone-djangonaut.com">Alone Djangonaut</a>
+      </h1>
+
+<p>living in the pale blue dot</p>
+
+      <nav>
+        <ul class="list">
+
+
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/portfolio/">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/about/">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/contact/">
+                  Contact
+                </a>
+              </li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/manikosN" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-github" href="https://github.com/manikos" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-stack-overflow" href="https://stackoverflow.com/users/2231182/nik-m" target="_blank">
+              <i class="fab fa-stack-overflow"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-rss" href="feeds/all.atom.xml" target="_blank">
+              <i class="fas fa-rss"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://alone-djangonaut.com">Home</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+      <a href="https://alone-djangonaut.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="webfaction-letsencrypt-django">Webfaction LetsEncrypt Django</h1>
+    <p>
+      Posted on Sat 31 December 2016 in <a href="https://alone-djangonaut.com/category/https.html">Https</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <h2 id="why-https">Why HTTPS</h2>
+<p>First things first. I do not work for <a href="https://www.google.com">Google</a> nor I have any (social, financial, ethical etc) benefits from this gigantic company. But let be honest. If you are not ranked hign enough in Google's search results, your optimism about your website success is slowly betake to collapse. I think everybody that owns a website, wants his "e-property" to be shown amongst the first results in Google. Of course, you might say, that the search keywords added in the search bar are very important too, but that is not to be discussed here.</p>
+<p>So, you have a website (maybe you have build it too) and your domain is i.e <code>http://www.ilovewhatido.com/</code>. Then you read this <a href="https://security.googleblog.com/2016/09/moving-towards-more-secure-web.html">blog post</a> by Google and got terrified about your ranking position. Thinking <em>"Oh man, I have to change the http protocol to https. How painful will this be?"</em> or <em>"how much do I have to pay (monthly or yearly) in order to do that?"</em> or <em>"if I switch to https, will my web app behave the same as it was with http?"</em>.</p>
+<p>Lets give answers to these questions:</p>
+<ul>
+<li><em>"Oh man, I have to change the http protocol to https. How painful will this be?"</em></li>
+</ul>
+<blockquote>
+<p>Super easy. Assuming your application is hosted on <a href="https://www.webfaction.com/">Webfaction</a>, just follow <a href="#django-webfaction-and-letsencrypt-3-great-friends">the guide that follows</a>!</p>
+</blockquote>
+<ul>
+<li><em>"How much do I have to pay (monthly or yearly) in order to do that?"</em></li>
+</ul>
+<blockquote>
+<p>None! Zero! Nothing! It's free! Using <a href="https://www.letsencrypt.org/">LetsEncrypt</a> you get a certificate free of charge that lasts 3 months (60 days). You have the ability to renew the certificate 1 month (30 days) before expiration. Of course, you must be aware that there are various types of certificates. The most used ones are: <a href="https://en.wikipedia.org/wiki/Domain-validated_certificate">Domain Validation - DV</a>, <a href="https://en.wikipedia.org/wiki/Public_key_certificate#Organization_validation">Organization Validation - OV</a> and <a href="https://en.wikipedia.org/wiki/Extended_Validation_Certificate">Extended Validation - EV</a>. Each type of certificate depends on its lifetime (months or years until expiration), procedure in order to be obtained (is it just one click away or you have to wait days or weeks in order to get it), cost (from free of charge up to thousands of dollars/euros). <a href="https://letsencrypt.org/docs/faq/#will-lets-encrypt-issue-organization-validation-ov-or-extended-validation-ev-certificates">LetsEncrypt issues only DN certificates</a>. You can learn more about the different types of certificates <a href="https://kb.wisc.edu/security/page.php?id=18922">here</a>.<br />
+So, why there are so many kind of certificates, you ask? Apart from the fact that certifiacte authorities (CA) have to earn money somehow, each certificate type varies by occasion (are you a small, medium or large-sized company, is it just a personal blog, is it a local news website, are you a medium-sized e-commerce website etc). So, for example, a small-sized business is not obliged to pay thousands of euros/dollars in order to obtain a certificate just to prove to the end user that it is what it claims to be. This kind of business can obtain a free one. Anyway, it is up to the website owner to choose the certificate of his preference. One sidenote though, have you ever noticed in your Web browser, that in some HTTPS sites the whole address bar turns green and the business' info are visible to the left of the URL, whereas in other HTTPS sites the browser's address bar is not green and it just shows a green lockpad? This is because in the first case the website owner choosed an EV certificate (which offers this green address bar) while in the latter case the website owner choosed either a DV or an OV certificate.</p>
+</blockquote>
+<ul>
+<li><em>"If I switch to https, will my web app behave the same as it was with http?"</em></li>
+</ul>
+<blockquote>
+<p>This depends extremely on the framework your application was build. Using <a href="https://www.djangoproject.com/">Django</a> there is nothing to worry about when switching to HTTPS. Just make sure you are including the <a href="https://docs.djangoproject.com/en/dev/ref/middleware/#module-django.middleware.security">SecurityMiddleware</a> in your <a href="https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-MIDDLEWARE">MIDDLEWARE</a> setting. After you switch to HTTPS, run the following Django command in your server (to which you will be connected via <code>ssh</code>): <a href="https://docs.djangoproject.com/en/dev/ref/django-admin/#cmdoption-check-deploy"><code>python manage.py check --deploy</code></a>. This will check your deployment settings and underline any potential warnings you should take a closer look.</p>
+</blockquote>
+<p><br /></p>
+<h2 id="django-webfaction-and-letsencrypt-3-great-friends">Django, Webfaction and Letsencrypt (3 great friends!)</h2>
+<p>So, you have build your HTTP website using Django, uploaded to Webfaction and everything works smoothly. Now you want to switch to HTTPS. Here is what to do (do not be terrified of the too many steps, I am just too descriptive!):
+<strong>(Many thanks to <a href="https://cpbotha.net/2016/07/18/installing-free-lets-encrypt-ssl-certificates-on-webfaction-in-3-easy-steps/">cpbotha</a>, <a href="https://github.com/Neilpang/acme.sh">Neilpang acme.sh</a> and <a href="https://community.webfaction.com/questions/19988/using-letsencrypt#answer-container-19989">ryans answer</a>. Forgive me if there is someone I forget.)</strong></p>
+<p>[UPDATE, thanks to Ned Batchelder (see comments below)]: In order for the follow to work you should have <a href="https://www.openssl.org/">openssl</a> installed (just run <code>which openssl</code> and check if it's installed), otherwise install it following <a href="http://stackoverflow.com/questions/9655613/installing-openssl-from-source#answer-9658354">this guide</a>.</p>
+<ol>
+<li>Login to your
+    <a href="https://my.webfaction.com/applications">Applications</a>
+    and click <code>Add new application</code></li>
+<li>Select a name for it, say <code>my_ssl_app</code> and under the <code>App category</code> menu select <code>PHP</code>. Under the <code>App type</code> select <code>Static/CGI/PHP-7.0</code>. Click the <code>Save</code> button.</li>
+<li>Now navigate to your <a href="https://my.webfaction.com/websites">Websites</a>, make an exact copy of your existent HTTP website and enable HTTPS on it. How? Simple create a new website, choose the same domains (with and without <code>www</code>), choose the same Application (not the one we have just created) but <strong>do not forget to select the button <code>Encrypted website (https)</code></strong>. Click <code>Save</code>.</li>
+<li>You will notice that your HTTPS website says <em>Security HTTPS, using shared certificate</em>. That's OK for now. We'll fix that later.</li>
+<li>Select your HTTP version of your website and under the <code>Contents</code> section remove your existing application. Then, add the new one we just created (<code>my_ssl_app</code>). Click <code>Save</code>.</li>
+<li><strong>Now, if you visit your site you will NOT get your usual homepage</strong>. We have not done any redirection to HTTPS yet. Stay with me!</li>
+<li>From your local machine open terminal and <code>ssh yourUserName@webXXX.webfaction.com</code></li>
+<li><code>vim ~/webapps/my_ssl_app/.htaccess</code></li>
+<li>
+<p>Hit key <code>i</code> (to enter Insert mode and start writing), copy (<code>Ctrl + c</code>) the following text and paste it (<code>Ctrl + Shift + v</code>) to the opened file (<code>.htaccess</code>). After pasting, hit the <code>Esc</code> key and then write <code>:wq</code> (this will save the file and quit the vim editor):</p>
+<div class="highlight"><pre><span></span><span class="nb">RewriteEngine</span> <span class="k">on</span>
+<span class="nb">RewriteRule</span> !^.well-known($|/) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+</pre></div>
+
+
+</li>
+<li>
+<p>Done with redirection. Now if you visit your site (<code>mysite.com</code>) you will be redirected to <code>https://mysite.com</code>, BUT a security warning will arise saying that the site you are trying to visit may be dangerous or so. That's because we are using a shared certificate. Getting closer!</p>
+</li>
+<li>
+<p>In terminal you must install the terrific <a href="(https://github.com/Neilpang/acme.sh)">acme.sh</a> script. Simply:</p>
+<div class="highlight"><pre><span></span>curl https://get.acme.sh <span class="p">|</span> sh
+</pre></div>
+
+
+</li>
+<li>
+<p>Everything is done automatically for you. Log out from the terminal and <code>ssh</code> to log back in.</p>
+</li>
+<li>
+<p>Now you have the command <code>acme.sh</code> available globally. Time to use it. </p>
+</li>
+<li>
+<p>Before, of course, to request a brand new official certificate from LetsEncrypt, we must request a staging (test) certifiacte, in order to be sure that everything is working properly. So...</p>
+</li>
+<li>
+<div class="highlight"><pre><span></span><span class="err">acme.sh --issue --test -d mysite.com -d www.mysite.com -w ~/webapps/my_ssl_app</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>If everything worked, you should have 7 files to the path <code>~/.acme.sh/mysite.com/</code> which are (<code>ca.cer</code>, <code>fullchain.cer</code>, <code>mysite.com.cer</code>, <code>mysite.com.conf</code>, <code>mysite.com.csr</code>, <code>mysite.com.csr.conf</code> and <code>mysite.com.key</code>). If something is missing, then maybe this is because these are just test certificates and keys. <strong>Not usable in production</strong>. </p>
+</li>
+<li>
+<p>Now that everything worked, it's time to issue for the real ones. </p>
+</li>
+<li>
+<p>(notice the missing <code>--test</code> parameter)</p>
+<div class="highlight"><pre><span></span><span class="err">acme.sh --issue -d mysite.com -d www.mysite.com -w ~/webapps/my_ssl_app</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>The above command will fetch the same kind of files (with the same name) but this time this folks are official. Their lifetime is 90 days and LetsEncrypt lets you renew your certificates no earlier than 60 days after your last issue. For example, if you issued your certificates today (2016-12-31) then the earlier you can issue them again (renew them) is at 2017-02-31. Of course there is always the option to renew them earlier by using the <code>--force</code> argument.</p>
+</li>
+<li>
+<p>Now go to the <a href="https://my.webfaction.com/ssl-certificates">SSL certificates</a>, select <code>Add SSL Certificate</code> and choose <code>Upload Certificate</code>. <em>This step, you only have to do it once</em>. Give it a name, say <code>mysite_cert</code> (<strong>remember this name, it will be used in the last step</strong>) and then copy the contents of <code>~/.acme.sh/mysite.com/mysite.com.cer</code> to a file and the upload it to the <code>Certificate</code> section. Do the same with the <code>~/.acme.sh/mysite.com.key</code> and the <code>Private Key</code> section and finally with the <code>~/.acme.sh/ca.cer</code> and the <code>Intermediates/bundle</code> section. All these could be done via the <a href="https://docs.webfaction.com/xmlrpc-api/apiref.html#method-create_certificate">create_certificate funtion</a> of the Webfaction's API, of course.</p>
+</li>
+<li>
+<p>[SCRIPT UPDATED ON 2017-02-21] Now for my favourite part, <em>automation</em>. I have written a Python (2.7) script in order to talk to <a href="https://docs.webfaction.com/xmlrpc-api/apiref.html">Webfaction's API</a> and update my certificates automatically without bringing my site offline AND without having me (a human) to interact with the Control Panel every 2 months in order to install manually the renewed certificates. This Python script is executed every day (as a cron job). </p>
+<div class="highlight"><pre><span></span><span class="ch">#!/usr/local/bin python</span>
+
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">chdir</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">getcwd</span><span class="p">,</span> <span class="n">listdir</span><span class="p">,</span> <span class="n">stat</span>
+
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">exit</span>
+
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
+
+<span class="kn">from</span> <span class="nn">xmlrpclib</span> <span class="kn">import</span> <span class="n">ServerProxy</span><span class="p">,</span> <span class="n">Fault</span>
+
+<span class="n">HIDDEN_ACME_DIR_NAME</span> <span class="o">=</span> <span class="s1">&#39;.acme.sh&#39;</span>
+
+<span class="k">def</span> <span class="nf">data_to_var</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">filename</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">stat</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;The file </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s1"> does not exist inside </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s1"> or is empty. Exception: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">getcwd</span><span class="p">(),</span> <span class="n">exc</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">var_cert</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">var_cert</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Run the command advised by acme.sh script in order to renew the certificates.</span>
+    <span class="c1"># Each certificate lasts 90 days and the max permitted day to renew a certificate is 60 days from the issue date -</span>
+    <span class="c1"># in other words the earlier we can renew a certificate is 30 days before expiration. This can be changed through</span>
+    <span class="c1"># the --days argument during the --issue step. Type &quot;.acme.sh/acme.sh --help&quot; for more information.</span>
+    <span class="c1"># This script will run as a cron job every day in order for the certs to be renewed when appropriate.</span>
+
+    <span class="n">acme_process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/acme.sh&#39;</span> <span class="o">%</span> <span class="n">HIDDEN_ACME_DIR_NAME</span><span class="p">,</span> <span class="s1">&#39;cron&#39;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">acme_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">exit</span><span class="p">(</span><span class="s2">&quot;An error occurred during the renewal process. Error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Cert success.&#39;</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+        <span class="n">hostname</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;hostname&#39;</span><span class="p">,</span> <span class="s1">&#39;-s&#39;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="s2">&quot;An error occurred while trying to determine the hostname. Error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://api.webfaction.com/&#39;</span><span class="p">,</span>  <span class="c1"># Fixed. Not to be changed.</span>
+            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>  <span class="c1"># Fixed. Not to be changed.</span>
+            <span class="s1">&#39;s_name&#39;</span><span class="p">:</span> <span class="n">hostname</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span>
+            <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;USER&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;pwd&#39;</span><span class="p">:</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span>  <span class="c1"># Your Webfaction password.</span>
+            <span class="s1">&#39;domain&#39;</span><span class="p">:</span> <span class="s1">&#39;mysite.com&#39;</span><span class="p">,</span>  <span class="c1"># Your domain name where you issued the certificate.</span>
+            <span class="s1">&#39;cert_name&#39;</span><span class="p">:</span> <span class="s1">&#39;mysite_cert&#39;</span><span class="p">,</span>  <span class="c1"># Your certification name (see step #20).</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Initially empty values (to be filled later with data from files)</span>
+        <span class="n">domain_cert</span><span class="p">,</span> <span class="n">pv_key</span><span class="p">,</span> <span class="n">intermediate_cert</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># Directory declarations in order to know where to work</span>
+        <span class="n">valid_cert_dir</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{home}</span><span class="s1">/</span><span class="si">{acme}</span><span class="s1">/</span><span class="si">{domain}</span><span class="s1">&#39;</span><span class="o">.</span>\
+            <span class="nb">format</span><span class="p">(</span><span class="n">home</span><span class="o">=</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;HOME&#39;</span><span class="p">),</span> <span class="n">acme</span><span class="o">=</span><span class="n">HIDDEN_ACME_DIR_NAME</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;domain&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Change directory to the one that matches our domain</span>
+        <span class="n">chdir</span><span class="p">(</span><span class="n">valid_cert_dir</span><span class="p">)</span>
+        <span class="c1"># Test if current working directory is the valid one</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">getcwd</span><span class="p">()</span> <span class="o">==</span> <span class="n">valid_cert_dir</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="s1">&#39;Current working directory is not </span><span class="si">{}</span><span class="s1">! Instead is </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_cert_dir</span><span class="p">,</span> <span class="n">getcwd</span><span class="p">()))</span>
+
+        <span class="c1"># try to connect to Webfaction API</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">server</span> <span class="o">=</span> <span class="n">ServerProxy</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">))</span>
+            <span class="n">session_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">),</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pwd&#39;</span><span class="p">),</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;s_name&#39;</span><span class="p">),</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">Fault</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Exception occurred at connection with Webfaction&#39;s API. </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Connection is successful. Proceed...</span>
+
+            <span class="c1"># read domain certificate and store it as a variable</span>
+            <span class="n">domain_cert</span> <span class="o">=</span> <span class="n">data_to_var</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.cer&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;domain&#39;</span><span class="p">)))</span>
+
+            <span class="c1"># read private key certificate and store it as a variable</span>
+            <span class="n">pv_key</span> <span class="o">=</span> <span class="n">data_to_var</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.key&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;domain&#39;</span><span class="p">)))</span>
+
+            <span class="c1"># read intermediate certificate and store it as a variable</span>
+            <span class="n">intermediate_cert</span> <span class="o">=</span> <span class="n">data_to_var</span><span class="p">(</span><span class="s1">&#39;ca.cer&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Install the renewed certificate to your Web server through the Webfaction&#39;s API</span>
+            <span class="k">if</span> <span class="n">domain_cert</span> <span class="ow">and</span> <span class="n">pv_key</span> <span class="ow">and</span> <span class="n">intermediate_cert</span><span class="p">:</span>
+                <span class="c1"># https://docs.webfaction.com/xmlrpc-api/apiref.html#method-update_certificate</span>
+                <span class="c1"># update_certificate(session_id, name, certificate, private_key, intermediates)</span>
+                <span class="n">server</span><span class="o">.</span><span class="n">update_certificate</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cert_name&#39;</span><span class="p">),</span> <span class="n">domain_cert</span><span class="p">,</span> <span class="n">pv_key</span><span class="p">,</span> <span class="n">intermediate_cert</span><span class="p">)</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>Save the above to your server, say as <code>.certificate_renewal.py</code> and <strong>place it under your $HOME directory</strong>, <code>~/.certificate_renewal.py</code>.</p>
+</li>
+<li>
+<p>Now, <code>crontab -e</code> and delete the line at the very bottom that was inserted during the installation of the <code>acme.sh</code> script before (step #10).</p>
+</li>
+<li>
+<p>Instead, write:</p>
+<div class="highlight"><pre><span></span><span class="err">0 2 * * * /usr/local/bin/python $HOME/.certificate_renewal.py 2&amp;gt;&amp;gt; /path/to/your/log</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>The above cron job will run every day at 02.00 (am) and check if your certificates need any renewal. If so, then they will be automatically updated for you (via the function <a href="https://docs.webfaction.com/xmlrpc-api/apiref.html#method-update_certificate">update_certificate</a>) from the API.</p>
+</li>
+<li>
+<p>Last step. Go to your <a href="https://my.webfaction.com/websites/663047/edit-website">websites</a> and choose the HTTPS version of your domain. Under the "Security" section, "Choose a certificate" dropdown menu, choose the certificate you created (not the "Shared certificate", of course). You will find it with the name you gave it on step 20 (in this example we gave it the name <code>mysite_cert</code>).</p>
+</li>
+<li>
+<p>[BONUS]: If you're using Python 3 (which you should) the following modification should be made in order for the script to work. </p>
+<ol>
+<li>First: change <code>from xmlrpclib import ServerProxy, Fault</code> to <code>from xmlrpc</code><strong><code>.client</code></strong> import ServerProxy, Fault`.</li>
+<li>Second: change <code>if 'Cert success.' in out:</code> to <code>if 'Cert success.' in out</code><strong><code>.decode('utf8')</code></strong>:`.</li>
+<li>Third: change <code>'s_name': hostname.strip('\n').title(),</code> to <code>'s_name': hostname</code><strong><code>.decode('utf8')</code></strong><code>.strip('\n').title(),</code>.</li>
+<li>Fourth: in your cron job change <code>/usr/local/bin/python</code> (which defaults to python 2.7 but maybe not if you have already an alias to it with python 3. Better check it by simply typing <code>python</code> and check the version you got back. If its 3.x.x then do not alter the cron on step #24, otherwise continue to the change) to <code>/usr/local/bin/python3.x</code> where <code>x</code> is the version you want to use. That's it!</li>
+</ol>
+</li>
+</ol>
+<p>Wasn't that easy enough? Now you have a HTTPS secured website where the certification is automatically renewed every 2 months!</p>
+<p>Happy New Year to all Earth(ians)!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://alone-djangonaut.com/tag/python.html">python</a>
+      <a href="https://alone-djangonaut.com/tag/django.html">django</a>
+      <a href="https://alone-djangonaut.com/tag/webfaction.html">webfaction</a>
+      <a href="https://alone-djangonaut.com/tag/letsencrypt.html">letsencrypt</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'manikos';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy; 2023 Nick Mavrakis</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://alone-djangonaut.com/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Alone Djangonaut ",
+  "url" : "https://alone-djangonaut.com",
+  "image": "https://alone-djangonaut.com/images/logo/logo_3.png",
+  "description": "Tutorials, blog posts and thoughts of a Django developer. He/him. Music lover."
+}
+</script>
+
+
+</body>
+</html>

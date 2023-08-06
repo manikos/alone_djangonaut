@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Alone Djangonaut - django</title><link href="https://alone-djangonaut.com/" rel="alternate"></link><link href="https://alone-djangonaut.com/feeds/django.atom.xml" rel="self"></link><id>https://alone-djangonaut.com/</id><updated>2020-04-18T00:00:00+03:00</updated><subtitle>living in the pale blue dot</subtitle><entry><title>Django, Axios and CSRF token</title><link href="https://alone-djangonaut.com/django-axios-and-csrf-token" rel="alternate"></link><published>2020-04-18T00:00:00+03:00</published><updated>2020-04-18T00:00:00+03:00</updated><author><name>Nick Mavrakis</name></author><id>tag:alone-djangonaut.com,2020-04-18:/django-axios-and-csrf-token</id><summary type="html">&lt;p&gt;How to properly set Django and axios library to work together with CSRF protection.&lt;/p&gt;</summary><content type="html">&lt;h1 id="introduction"&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;I am building a "hybrid web app" (I'll post on it in the near future) using &lt;a href="https://vuejs.org/"&gt;Vue&lt;/a&gt; to the front and &lt;a href="https://www.djangoproject.com/"&gt;Django&lt;/a&gt; to the back.  A "hybrid web app" is something between a SPA and a classic website. The server sends the HTML template, the HTML template has a Vue component and then Vue takes place, mounts on it and do its things.&lt;/p&gt;
+&lt;p&gt;The app consists of some forms. When the user presses the &lt;code&gt;submit&lt;/code&gt; button, the Vue component will make a &lt;code&gt;POST&lt;/code&gt; &lt;code&gt;XMLHttpRequest&lt;/code&gt; (aka AJAX request) using the &lt;a href="https://github.com/axios/axios"&gt;axios&lt;/a&gt; library and the server will respond with some JSON data. The reason I want to make an AJAX call and not a usual form submit is that I do not want the page to refresh and the state of my Vue app re-initialize. So far so good.&lt;/p&gt;
+&lt;p&gt;Since, my Django view is &lt;code&gt;CSRF&lt;/code&gt; protected, I want axios to properly handle the CSRF token for me and everything work transparent. Fortunately, &lt;code&gt;axios&lt;/code&gt; has two config settings (&lt;code&gt;xsrfHeaderName&lt;/code&gt; and &lt;code&gt;xsrfCookieName&lt;/code&gt;) which set the proper header of the request in order to pass the csrf token to the server.&lt;/p&gt;
+&lt;p&gt;However, &lt;code&gt;axios&lt;/code&gt; gives you the possibility to add (extra) headers using the &lt;code&gt;headers&lt;/code&gt; config object. This is the point where I got confused. What is the meaning of having two separate settings for &lt;code&gt;xsrf&lt;/code&gt; handling while you can manually config this in the &lt;code&gt;headers&lt;/code&gt; objects?&lt;/p&gt;
+&lt;p&gt;First things first:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;The form does not include a hidden input field named &lt;code&gt;csrftoken&lt;/code&gt; because we want to pass it to the server using only the HTTP headers. More on this on the &lt;a href="https://docs.djangoproject.com/en/dev/ref/csrf/#ajax"&gt;&lt;code&gt;AJAX&lt;/code&gt; section in Django docs&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;The csrf token is passed to the Vue component as a prop. So, the component knows the token.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="axios-django-communication-using-the-default-settings"&gt;Axios-Django communication using the default settings&lt;/h2&gt;
+&lt;p&gt;Let's begin with the very first response from the server to the client when the latter requests a page. Note, that we will use the defaults that Django &lt;strong&gt;and&lt;/strong&gt; axios provide, regarding the CSRF (also, I have deleted some irrelevant request/response headers).&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Server's very first response. Tells the client to set the cookie named &lt;code&gt;csrftoken&lt;/code&gt; to this very long value!&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;HTTP/1.1 200 OK
+Date: Fri, 17 Apr 2020 19:05:07 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: text/html; charset=utf-8
+Set-Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;The page renders and the form appears. We fill the form and hit submit. These are the request headers:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;​   And these are the response headers 😢:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;HTTP/1.1 403 Forbidden
+Date: Fri, 17 Apr 2020 19:13:04 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: text/html
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It seems that Django is not able to verify the CSRF token. But how Django looks for it? Remember, we do not include it inside the &lt;code&gt;form&lt;/code&gt; as a hidden input.&lt;/p&gt;
+&lt;h2 id="how-django-search-for-the-csrf-token"&gt;How Django search for the CSRF token&lt;/h2&gt;
+&lt;p&gt;Django looks two times for the csrf token.&lt;/p&gt;
+&lt;p&gt;On the first search, Django tries get the token that has set at the beginning of the communication with the client (look the &lt;code&gt;Set-Cookie&lt;/code&gt; header above). There are two places for that. As a cookie (like above, the default) or embedded inside the session dict.  If stored as a &lt;a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L170"&gt;cookie&lt;/a&gt;, Django will look for it. Also if inside the &lt;a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L161"&gt;&lt;code&gt;session dict&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The second phase is when the form is submitted (a &lt;code&gt;POST&lt;/code&gt; request) and the Django view is CSRF protected. Now, Django will have to match the token from the phase one with the one from this request. Django &lt;a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L297"&gt;first look for a request parameter&lt;/a&gt; named &lt;code&gt;csrfmiddlewaretoken&lt;/code&gt; inside the &lt;code&gt;request.POST&lt;/code&gt; dictionary. Since we do not provide this, Django skips it and &lt;a href="https://github.com/django/django/blob/master/django/middleware/csrf.py#L309"&gt;looks inside the &lt;code&gt;request.META&lt;/code&gt; dictionary&lt;/a&gt; for a header named &lt;code&gt;settings.CSRF_HEADER_NAME&lt;/code&gt; (&lt;a href="https://docs.djangoproject.com/en/dev/ref/settings/#csrf-header-name"&gt;defaults&lt;/a&gt; to &lt;code&gt;HTTP_X_CSRFTOKEN&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;Back to our app, there is no &lt;code&gt;HTTP_X_CSRFTOKEN&lt;/code&gt; header in the request headers above. So, Django is unable to verify the token that comes when the form is submitted with the initial one. Thus, you get a beautiful &lt;code&gt;403 Forbidden&lt;/code&gt; status code!&lt;/p&gt;
+&lt;h2 id="solutions"&gt;Solution(s)&lt;/h2&gt;
+&lt;p&gt;Each solution has benefits and drawbacks. I will mention both in each case.&lt;/p&gt;
+&lt;h3 id="using-only-the-headers-object-in-axios-config"&gt;Using only the &lt;code&gt;headers&lt;/code&gt; object in axios config&lt;/h3&gt;
+&lt;p&gt;Inside the axios &lt;code&gt;POST&lt;/code&gt; call we do this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kr"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;headers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;X-CSRFTOKEN&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;lt;csrf_token_very_long_string_goes_here&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="nx"&gt;axios&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;post&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/url/here/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;form_data_to_post&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nx"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;headers&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Refresh everything and lets try again. Here are the request headers:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+X-CSRFTOKEN: KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF
+Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And the response ones:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;HTTP/1.1 200 OK
+Date: Fri, 17 Apr 2020 20:03:19 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: application/json
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now that the request includes the header &lt;code&gt;X-CSRFTOKEN&lt;/code&gt; (which is the default Django is looking) with the token as its value, the CSRF mechanism verifies the initial and the new token and responds with the &lt;code&gt;200 OK&lt;/code&gt; status code!&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Benefits: dead simple to use plus it works with the &lt;a href="https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-httponly"&gt;&lt;code&gt;CSRF_COOKIE_HTTPONLY = True&lt;/code&gt;&lt;/a&gt; setting.&lt;/li&gt;
+&lt;li&gt;Drawbacks: if your app has many forms, you have to remember to pass it in each &lt;code&gt;axios.post()&lt;/code&gt; call. Explicit is better than implicit, but many developers are lazy. Which brings us to the second solution.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="using-the-xsrfheadername-and-xsrfcookiename-axios-config-settings"&gt;Using the &lt;code&gt;xsrfHeaderName&lt;/code&gt; and &lt;code&gt;xsrfCookieName&lt;/code&gt; axios config settings&lt;/h3&gt;
+&lt;p&gt;Inside your &lt;code&gt;main.js&lt;/code&gt; file (or another that you keep your configurations) enter this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nx"&gt;axios&lt;/span&gt; &lt;span class="nx"&gt;from&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;axios&amp;#39;&lt;/span&gt;
+&lt;span class="nx"&gt;axios&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;defaults&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;xsrfHeaderName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;X-CSRFTOKEN&amp;quot;&lt;/span&gt;
+&lt;span class="nx"&gt;axios&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;defaults&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;xsrfCookieName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;csrftoken&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now in each axios &lt;code&gt;POST&lt;/code&gt; call you make, axios will embed the appropriate header for you.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// No need to set the {headers} object as the 3rd argument&lt;/span&gt;
+&lt;span class="nx"&gt;axios&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;post&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/url/here/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;form_data_to_post&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here are the request headers:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+X-CSRFToken: KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF
+Cookie: csrftoken=KNsdOUx8u7MSMNPcQdwn5FlrznsGJuhmoCByYyVqW2UHEXV66FC0fBBP2OYlhuJF;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Spoiler alert! The response contains a &lt;code&gt;200 OK&lt;/code&gt; status code.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Benefits: as previously said, you declare it once in your js config file and forget about it.&lt;/li&gt;
+&lt;li&gt;Drawbacks: unfortunately, turning &lt;a href="https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-httponly"&gt;&lt;code&gt;CSRF_COOKIE_HTTPONLY = True&lt;/code&gt;&lt;/a&gt;, Django will give you a &lt;code&gt;403 Forbidden&lt;/code&gt; error since, now, JavaScript (in other words axios) cannot read the cookie and will not set the appropriate header on the request.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="tweaksplayground"&gt;Tweaks/Playground&lt;/h3&gt;
+&lt;p&gt;Bonus: You can change the header names on both Django and axios and things will still work. Example:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# settings.py&lt;/span&gt;
+
+&lt;span class="c1"&gt;# The default is HTTP_X_CSRFTOKEN.&lt;/span&gt;
+&lt;span class="c1"&gt;# Now Django will look for this header name on the request.&lt;/span&gt;
+&lt;span class="c1"&gt;# Something like: HTTP_BLABLABLA: &amp;lt;very_long_token_here&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;CSRF_HEADER_NAME&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;HTTP_HELLOWORLD&amp;quot;&lt;/span&gt;
+
+&lt;span class="c1"&gt;# The default is csrftoken.&lt;/span&gt;
+&lt;span class="c1"&gt;# Now Django will set csrf cookie token under this name&lt;/span&gt;
+&lt;span class="c1"&gt;# Something like this: Set-Cookie: welcometothejungle=&amp;lt;very_long_token_here&amp;gt;;&lt;/span&gt;
+&lt;span class="n"&gt;CSRF_COOKIE_NAME&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;welcometothejungle&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Of course, the same must appear in axios settings:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// main.js&lt;/span&gt;
+
+&lt;span class="nx"&gt;axios&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;defaults&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;xsrfHeaderName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;HELLOWORLD&amp;quot;&lt;/span&gt;
+&lt;span class="nx"&gt;axios&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;defaults&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;xsrfCookieName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;welcometothejungle&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Delete previous stored cookies and refresh. The very first response by the server is this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;HTTP/1.1 200 OK
+Date: Fri, 17 Apr 2020 20:57:52 GMT
+Server: WSGIServer/0.2 CPython/3.7.1
+Content-Type: text/html; charset=utf-8
+Set-Cookie: welcometothejungle=bracDaFzr4eXwkiNbZdTEOQ37NRJg1jJIdznw2ypft3ulBSyCc8mKEKBQTm;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And then comes the form submit &lt;code&gt;POST&lt;/code&gt; request:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;POST /home/ HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
+Accept: application/json, text/plain, */*
+Content-Type: application/x-www-form-urlencoded
+HELLOWORLD: SFXi8xjp5U6NKiG4RpAsrPmKi3Jm3jwxJcXlZ41GeY4VccenUS8PL7NTHaKKnSuQ
+Cookie: welcometothejungle=SFXi8xjp5U6NKiG4RpAsrPmKi3Jm3jwxJcXlZ41GeY4VccenUS8PL7NTHaKKnSuQ;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The response is a &lt;code&gt;200 OK&lt;/code&gt; status!&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Reading the source code of a library (such a Django) makes you understand some things in depth and know how certain pieces fit together. Try it and you'll not lose!&lt;/p&gt;
+&lt;p&gt;Personally, I prefer the first approach (the explicit one) because for &lt;a href="https://youtu.be/QuhgjXKzfI8?t=4194"&gt;security reasons&lt;/a&gt; I always have &lt;code&gt;CSRF_COOKIE_HTTPONLY&lt;/code&gt; turned on. It is a very good practice and after all....&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Explicit is better than implicit.&lt;/p&gt;
+&lt;p&gt;https://www.python.org/dev/peps/pep-0020/&lt;/p&gt;
+&lt;/blockquote&gt;</content><category term="django"></category><category term="python"></category><category term="django"></category><category term="csrf"></category></entry><entry><title>Django custom sitemap (updated 2018)</title><link href="https://alone-djangonaut.com/django-custom-sitemap-updated-2018" rel="alternate"></link><published>2016-12-27T00:00:00+02:00</published><updated>2018-09-29T00:00:00+03:00</updated><author><name>Nick Mavrakis</name></author><id>tag:alone-djangonaut.com,2016-12-27:/django-custom-sitemap-updated-2018</id><summary type="html">&lt;p&gt;Build a sitemap (xml file) for multi-regional and multilingual websites using Django's builtin Sitemap framework.&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;strong&gt;UPDATE Sep 2018&lt;/strong&gt;: The old post regarding the template tag had some bugs. As of 2018, I fixed it and now this post
+is updated and works only for Python 3.6+.&lt;/p&gt;
+&lt;p&gt;So you have done the following:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Used your favorite Web Framework (&lt;a href="https://www.djangoproject.com/"&gt;Django&lt;/a&gt;) to build your website.&lt;/li&gt;
+&lt;li&gt;Made enough &lt;a href="https://docs.djangoproject.com/en/dev/topics/testing/"&gt;tests&lt;/a&gt; to verify that everything is working flawlessly.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.djangoproject.com/en/dev/topics/i18n/translation/"&gt;Translated&lt;/a&gt; your whole website in each 
+   &lt;a href="https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-LANGUAGES"&gt;language&lt;/a&gt; and (of course) each page has its translated version.&lt;/li&gt;
+&lt;li&gt;Used &lt;a href="https://docs.djangoproject.com/en/dev/topics/i18n/translation/#django.conf.urls.i18n.i18n_patterns"&gt;&lt;code&gt;i18n_patterns&lt;/code&gt;&lt;/a&gt; function to prefix your urls with the language code.&lt;/li&gt;
+&lt;li&gt;Hosted your website somewhere and...&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;asked yourself why Google does not index your translated pages of your website.&lt;/p&gt;
+&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;This &lt;a href="https://support.google.com/webmasters/answer/182192?hl=en&amp;amp;ref_topic=2370587"&gt;excellent article from Google&lt;/a&gt; states that there are 2 kinds
+of "translated" websites: &lt;code&gt;multilingual&lt;/code&gt; and &lt;code&gt;multi-regional&lt;/code&gt;. You can have none, one of them or both, depending on your needs.
+Let's assume that you have build a &lt;code&gt;multiregional&lt;/code&gt; website:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;A multilingual website is any website that offers content in more than one language. Examples of multilingual websites might include a 
+  Canadian business with an English and a French version of its site, or a blog on Latin American soccer available in both Spanish and Portuguese.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;It also states that:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Keep the content for each language on separate URLs. Don’t use cookies to show translated versions of the page.
+  Consider cross-linking each language version of a page. That way, a French user who lands on the German version of your page
+  can get to the right language version with a single click. Avoid automatic redirection based on the user’s perceived language.
+  These redirections could prevent users (and search engines) from viewing all the versions of your site.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Not to be confused with too many quotes, lets clarify some things:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Lets say that your domain is &lt;code&gt;www.example.com&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Suppose you have set the &lt;a href="https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-LANGUAGE"&gt;&lt;code&gt;LANGUAGE&lt;/code&gt;&lt;/a&gt; setting as &lt;code&gt;en-US&lt;/code&gt;.
+  This means that the default (and fallback, if translations of other languages are not found) language of your entire website will be &lt;code&gt;en-US&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Next, you have support for 2 other languages, declared in the &lt;a href="https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-LANGUAGES"&gt;LANGUAGES&lt;/a&gt; setting. Say, &lt;code&gt;it&lt;/code&gt; and &lt;code&gt;el&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;As we said, you use &lt;a href="https://docs.djangoproject.com/en/dev/topics/i18n/translation/#django.conf.urls.i18n.i18n_patterns"&gt;&lt;code&gt;i18n_patterns&lt;/code&gt;&lt;/a&gt; function to prefix your urls with the language code.
+  So, the &lt;code&gt;about&lt;/code&gt; page in English would be: &lt;code&gt;www.example.com/en/about/&lt;/code&gt;, the Italian version: &lt;code&gt;www.example.com/it/about/&lt;/code&gt;
+  and the Greek version: &lt;code&gt;www.example.com/el/about/&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;When someone (who lives in an English spoken language region) searches Google (keywords such as "example about") for your about page, 
+  the result is &lt;code&gt;www.example.com/en/about/&lt;/code&gt; (the english version of the about page).&lt;/li&gt;
+&lt;li&gt;When I search Google with keywords such as "example about" (I live in Greece) I expect to get &lt;code&gt;www.example.com/el/about/&lt;/code&gt;
+  but instead I get the same result as the English spoken user. Same happens with the Italian user.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So, how do you tell Google (at least Googlebot) to index the other versions of the same page?&lt;/p&gt;
+&lt;h2 id="enter-the-hreflang-attribute"&gt;Enter the &lt;strong&gt;hreflang&lt;/strong&gt; attribute&lt;/h2&gt;
+&lt;p&gt;There are 3 ways to notify web crawlers to index your translated pages.
+&lt;a href="https://support.google.com/webmasters/answer/189077?hl=en&amp;amp;ref_topic=2370587"&gt;Another excellent article&lt;/a&gt; from Google which exposes the 3 potential 
+ways (HTML tags, HTTP headers and Sitemap).&lt;/p&gt;
+&lt;p&gt;In this post, we will cover the 3rd option. That is, build a Sitemap for our entrire website with respect to &lt;strong&gt;all&lt;/strong&gt; the supported languages.
+How do we do it? Using the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/"&gt;Django's built-in Sitemap framework&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;But before we jump into code, take a look at the &lt;a href="https://support.google.com/webmasters/answer/2620865?hl=en&amp;amp;ref_topic=2370587"&gt;template of the sitemap file&lt;/a&gt;
+which we need to construct. The key point is to &lt;strong&gt;include in each &lt;code&gt;&amp;lt;url&amp;gt;&amp;lt;/url&amp;gt;&lt;/code&gt; element the page itself and the other versions of this page&lt;/strong&gt;
+using the &lt;code&gt;&amp;lt;xhtml:link rel="alternate" hreflang="xx" href="xxx"/&amp;gt;&lt;/code&gt; element. Maybe this sounds confusing but bear with me.&lt;/p&gt;
+&lt;p&gt;Assuming that you have done the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/#installation"&gt;basics&lt;/a&gt; (in order for the &lt;code&gt;Sitemap&lt;/code&gt;
+framework to work properly) and you are in position to generate a &lt;code&gt;sitemap.xml&lt;/code&gt; file when someone hits &lt;code&gt;www.example.com/sitemap.xml&lt;/code&gt;,
+then lets begin with building owr own sitemap file.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Create an empty file &lt;code&gt;sitemap.xml&lt;/code&gt; and place it under the &lt;code&gt;templates/&lt;/code&gt; directory.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Make sure that the &lt;code&gt;templates/&lt;/code&gt; dir is &lt;a href="https://docs.djangoproject.com/en/dev/ref/settings/#dirs"&gt;discoverable&lt;/a&gt;
+   by Django (but you have already done this, right?).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Edit your root &lt;code&gt;URLconf&lt;/code&gt; file and under the url that serves the sitemap file, change the template to be used.
+   In my case, I have this (note the &lt;code&gt;template_name&lt;/code&gt; dictionary key):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;urlpatterns&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;r&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;^sitemap\.xml/$&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;django&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;contrib&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sitemaps&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;views&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sitemap&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+        &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;sitemaps&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;SITEMAPS&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+        &lt;span class="s1"&gt;&amp;#39;template_name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;sitemap.xml&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt; 
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;django.contrib.sitemaps.views.sitemap&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Edit the &lt;code&gt;sitemap.py&lt;/code&gt; file that is responsible of generating the sitemap and add in each &lt;code&gt;Class&lt;/code&gt; that inherits from &lt;code&gt;django.contrib.sitemaps.Sitemap&lt;/code&gt;
+   the attribute &lt;code&gt;i18n = True&lt;/code&gt;, in order for the sitemap to include &lt;strong&gt;all&lt;/strong&gt; the urls (including the ones with the prefixed language code).
+   If we didn't include it (the default value is &lt;code&gt;False&lt;/code&gt;) then the sitemap would include i.e only the &lt;code&gt;www.example.com/about/&lt;/code&gt; page and not
+   the other two ones (&lt;code&gt;it&lt;/code&gt; and &lt;code&gt;el&lt;/code&gt;).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Create an app (&lt;code&gt;python manage.py startapp&lt;/code&gt;), if you haven't already, that will hold the project's wide template tags (or/and filters).
+   My usual way to do this, is that with every project I always create an app (called &lt;code&gt;dtl_utils&lt;/code&gt;) which hosts code that is project-wide applied
+   (not bound to a specific app). Follow the guide on &lt;a href="https://docs.djangoproject.com/en/dev/howto/custom-template-tags/#writing-custom-template-tags"&gt;how to write custom template tags&lt;/a&gt;.
+   I'll assume that the &lt;code&gt;.py&lt;/code&gt; file which contains the template tag is named &lt;code&gt;dtl_tags.py&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Open the &lt;code&gt;dtl_tags.py&lt;/code&gt; file and add the following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;re&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;urllib.parse&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;urlparse&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;django&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;template&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;django.utils.html&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;mark_safe&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;django.conf&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;
+
+&lt;span class="n"&gt;register&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;template&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Library&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;LANG_CODES&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;lang&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;lang&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;LANGUAGES&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;PATTERN&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;^/(&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;|&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LANG_CODES&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s1"&gt;)/&amp;#39;&lt;/span&gt;
+&lt;span class="n"&gt;REGEX&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;re&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;compile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PATTERN&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;HREF_LANG&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;amp;lt;xhtml:link rel=&amp;quot;alternate&amp;quot; hreflang=&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;{hreflang}&lt;/span&gt;&lt;span class="s1"&gt;&amp;quot; href=&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;{href}&lt;/span&gt;&lt;span class="s1"&gt;&amp;quot; /&amp;amp;gt;&amp;#39;&lt;/span&gt;
+
+&lt;span class="nd"&gt;@register&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;simple_tag&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;sitemap_hreflang_url&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;uri&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class="sd"&gt;    parse.urlparse extracts to 6 components (https://tools.ietf.org/html/rfc1808.html):&lt;/span&gt;
+
+&lt;span class="sd"&gt;    scheme://   netloc/           path    ;parameters  ?query   #fragment&lt;/span&gt;
+&lt;span class="sd"&gt;      |            |               |          |          |          |&lt;/span&gt;
+&lt;span class="sd"&gt;    |---|   |--------------|  |----------| |------|  |-------|  |------|&lt;/span&gt;
+&lt;span class="sd"&gt;    https://www.example.com   /en/moments/ ;type=a   ?active=1   #go-to&lt;/span&gt;
+
+&lt;span class="sd"&gt;    We want each url (generated by the sitemap) to include itself along with&lt;/span&gt;
+&lt;span class="sd"&gt;    other translated versions.&lt;/span&gt;
+&lt;span class="sd"&gt;    For example: the url &amp;quot;www.example.com&amp;quot; (el) should include itself along&lt;/span&gt;
+&lt;span class="sd"&gt;    with &amp;quot;www.example.com/en/&amp;quot; (en) and the url &amp;quot;www.example.com/en/&amp;quot; (en)&lt;/span&gt;
+&lt;span class="sd"&gt;    should include itself along with &amp;quot;www.example.com&amp;quot; (el). This procedure&lt;/span&gt;
+&lt;span class="sd"&gt;    should apply to all urls.&lt;/span&gt;
+&lt;span class="sd"&gt;    Google&amp;#39;s answer:&lt;/span&gt;
+&lt;span class="sd"&gt;    support.google.com/webmasters/answer/2620865?hl=en&amp;amp;amp;ref_topic=2370587&lt;/span&gt;
+&lt;span class="sd"&gt;    :param str uri: A fully qualified URL incl schema (https://ex.com/statues/)&lt;/span&gt;
+&lt;span class="sd"&gt;    :return: string&lt;/span&gt;
+&lt;span class="sd"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="n"&gt;parsed_uri&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;urlparse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;uri&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;to_return&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;lang_code&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;LANG_CODES&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;new_path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;REGEX&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sub&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;lang_code&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;parsed_uri&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;new_uri&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parsed_uri&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_replace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;new_path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;to_return&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HREF_LANG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;hreflang&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;lang_code&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;href&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;new_uri&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geturl&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;mark_safe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n\t\t&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;to_return&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The comments inside the template tag &lt;code&gt;sitemap_hreflang_url&lt;/code&gt; are quite self-explanatory.
+   We take advantage of all the urls generated by the &lt;code&gt;sitemap.py&lt;/code&gt; file (not shown here, but a simple look of this is shown in the
+   &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/#a-simple-example"&gt;Django docs&lt;/a&gt;) with the option &lt;code&gt;i18n = True&lt;/code&gt; in each &lt;code&gt;Class&lt;/code&gt;
+   and we try to figure out all the other versions of this url.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Open the empty &lt;code&gt;templates/sitemap.xml&lt;/code&gt; file and add the following:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{% load dtl_tags %}&lt;span class="cp"&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;urlset&lt;/span&gt; &lt;span class="na"&gt;xmlns=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;http://www.sitemaps.org/schemas/sitemap/0.9&amp;quot;&lt;/span&gt; &lt;span class="na"&gt;xmlns:xhtml=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;http://www.w3.org/1999/xhtml&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+{% for url in urlset %}
+  &lt;span class="nt"&gt;&amp;lt;url&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;loc&amp;gt;&lt;/span&gt;{{ url.location }}&lt;span class="nt"&gt;&amp;lt;/loc&amp;gt;&lt;/span&gt;
+    {% if url.lastmod %}&lt;span class="nt"&gt;&amp;lt;lastmod&amp;gt;&lt;/span&gt;{{ url.lastmod|date:&amp;quot;Y-m-d&amp;quot; }}&lt;span class="nt"&gt;&amp;lt;/lastmod&amp;gt;&lt;/span&gt;{% endif %}
+    {% if url.changefreq %}&lt;span class="nt"&gt;&amp;lt;changefreq&amp;gt;&lt;/span&gt;{{ url.changefreq }}&lt;span class="nt"&gt;&amp;lt;/changefreq&amp;gt;&lt;/span&gt;{% endif %}
+    {% if url.priority %}&lt;span class="nt"&gt;&amp;lt;priority&amp;gt;&lt;/span&gt;{{ url.priority }}&lt;span class="nt"&gt;&amp;lt;/priority&amp;gt;&lt;/span&gt;{% endif %}
+    {% sitemap_hreflang_url url.location %}
+  &lt;span class="nt"&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;
+{% endfor %}
+&lt;span class="nt"&gt;&amp;lt;/urlset&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;A few notes here:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;&amp;lt;?xm version=...&lt;/code&gt; line should be on the first line (along with the &lt;code&gt;load&lt;/code&gt; statement), otherwise the &lt;code&gt;.xml&lt;/code&gt; file will not be valid.&lt;/li&gt;
+&lt;li&gt;The core of this template lives inside &lt;code&gt;django.contrib.sitemaps.templates&lt;/code&gt; directory. The only parts that we have added are
+      &lt;code&gt;{% load dtl_tags %}&lt;/code&gt;, &lt;code&gt;xmlns:xhtml="http://www.w3.org/1999/xhtml"&lt;/code&gt; and &lt;code&gt;{% sitemap_hreflang_url url.location %}&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;So, that's it! &lt;/p&gt;
+&lt;p&gt;With the above implementation you can have a Google verified sitemap.xml which will inform the Googlebot about the other (translated)
+versions of your urls-pages.&lt;/p&gt;</content><category term="Django"></category><category term="python"></category><category term="sitemap"></category><category term="google"></category></entry><entry><title>Django admin template structure</title><link href="https://alone-djangonaut.com/django-admin-template-structure" rel="alternate"></link><published>2016-10-16T00:00:00+03:00</published><updated>2016-10-16T00:00:00+03:00</updated><author><name>Nick Mavrakis</name></author><id>tag:alone-djangonaut.com,2016-10-16:/django-admin-template-structure</id><summary type="html">&lt;p&gt;Today we will see how template inheritance works inside the Django admin contribution package&lt;/p&gt;</summary><content type="html">&lt;p&gt;As you all (probably) know, &lt;a href="https://www.djangoproject.com/"&gt;Django&lt;/a&gt; is a magnificent Web framework to build the website of your dreams. There is a plethora of tutorials, how-to's, getting-started, django-for-dummies out there in the internet-wild. I am not going to show you the &lt;code&gt;Django&lt;/code&gt; basics (&lt;a href="https://docs.djangoproject.com/en/dev/topics/db/models/"&gt;&lt;code&gt;models&lt;/code&gt;&lt;/a&gt;, &lt;a href="https://docs.djangoproject.com/en/dev/topics/http/views/"&gt;&lt;code&gt;views&lt;/code&gt;&lt;/a&gt;, &lt;a href="https://docs.djangoproject.com/en/dev/ref/templates/"&gt;&lt;code&gt;templates&lt;/code&gt;&lt;/a&gt; or &lt;a href="https://docs.djangoproject.com/en/dev/ref/forms/"&gt;&lt;code&gt;forms&lt;/code&gt;&lt;/a&gt; to name a few). I just want to share with you the template inheritance of the incredible &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/"&gt;Django admin contribution package&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;At this time of writing, I am dreaming of a much more appealing admin interface which is based on the super-fancy &lt;a href="https://almsaeedstudio.com/"&gt;AdminLTE&lt;/a&gt; template (there is a free version you can download, under the MIT License -- more about licences &lt;a href="http://choosealicense.com/"&gt;here&lt;/a&gt;). But in order to adopt the new-dreamed template in my own project I must understand the template inheritance workflow of the built-in &lt;code&gt;Django&lt;/code&gt; admin app.&lt;/p&gt;
+&lt;p&gt;I know there is a package, already out there (&lt;a href="https://github.com/StephenPCG/django-adminlte-templates"&gt;django-adminlte-templates&lt;/a&gt;), that offer you the capability of using this admin template but I wanted to deeply understand how the &lt;code&gt;Django&lt;/code&gt; admin template system is assembled and working so flawlessly. Lets get to work:&lt;/p&gt;
+&lt;h1 id="the-core-ones"&gt;The core ones&lt;/h1&gt;
+&lt;p&gt;In this section we will describe briefly, the core HTML templates where the rest inherit from. If you do not have &lt;code&gt;Django&lt;/code&gt; installed (!) or you're bored enough right now to navigate to the actual path where these templates are stored in your machine, here is &lt;code&gt;Django&lt;/code&gt;'s admin &lt;a href="https://github.com/django/django/tree/master/django/contrib/admin/templates"&gt;github source for the templates&lt;/a&gt; (you're one click away!).&lt;/p&gt;
+&lt;p&gt;As you can see there are two folders &lt;code&gt;admin&lt;/code&gt; and &lt;code&gt;registration&lt;/code&gt;. In the rest of this article we will assume that we are working under the &lt;code&gt;admin&lt;/code&gt; directory, unless stated otherwise where we will be under the &lt;code&gt;registration&lt;/code&gt; directory.&lt;/p&gt;
+&lt;h2 id="basehtml"&gt;base.html&lt;/h2&gt;
+&lt;p&gt;As &lt;a href="http://anebrun.com/"&gt;Ane Brun&lt;/a&gt; says in her song &lt;a href="https://www.youtube.com/watch?v=qMCQgb1YxI8"&gt;One&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;It all starts somewhere, it all starts with one&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The root of the &lt;code&gt;Django&lt;/code&gt; admin templates is &lt;strong&gt;this file&lt;/strong&gt; and is located inside the &lt;code&gt;Django&lt;/code&gt; folder that you installed via your &lt;a href="https://docs.djangoproject.com/en/dev/intro/install/#install-django"&gt;preferred method&lt;/a&gt;.
+Assuming that:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;you &lt;strong&gt;are using&lt;/strong&gt; &lt;code&gt;virtualenv&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;you &lt;strong&gt;are using&lt;/strong&gt; Linux and&lt;/li&gt;
+&lt;li&gt;your &lt;code&gt;.virtualenvs&lt;/code&gt; folder is inside your &lt;code&gt;$HOME&lt;/code&gt; directory (note the &lt;code&gt;.&lt;/code&gt; dot in front - indicates a hidden file. Press &lt;code&gt;Ctrl+H&lt;/code&gt; to view hidden files)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;then you will find this file following this path: &lt;code&gt;$HOME/.virtualenvs/&amp;lt;your_virtual_env_name&amp;gt;/lib/python&amp;lt;your_version_of_python&amp;gt;/site-packages/django/contrib/admin/templates/admin&lt;/code&gt;
+Easy eh?&lt;/p&gt;
+&lt;p&gt;Inside the &lt;code&gt;admin&lt;/code&gt; folder you will find all the templates &lt;code&gt;Django&lt;/code&gt; admin uses, to present itself. Nothing inherits directly from this file (in other words, there is no template which has this line at the top: &lt;code&gt;{% extends "admin/base.html" %}&lt;/code&gt;) except from the &lt;code&gt;base_site.html&lt;/code&gt; file.&lt;/p&gt;
+&lt;h2 id="base_sitehtml"&gt;base_site.html&lt;/h2&gt;
+&lt;p&gt;This is the only file that &lt;a href="https://docs.djangoproject.com/en/dev/ref/templates/builtins/#extends"&gt;extends&lt;/a&gt; the &lt;em&gt;one&lt;/em&gt; file (the root, the &lt;code&gt;base.html&lt;/code&gt; file). I believe, until now you are following along.
+Every other template file extends this one (see the graph &lt;a href="#dj-admin-diagram"&gt;below&lt;/a&gt; for a better understanding). What? An exception? Oh, yes! Let me rephrase it:
+Every other template file extends this one except from the &lt;code&gt;app_index.html&lt;/code&gt; file which extends &lt;code&gt;index.html&lt;/code&gt; which in turn extends &lt;code&gt;base_site.html&lt;/code&gt; which (finally) extends &lt;code&gt;base.html&lt;/code&gt;. This would be the longest &lt;em&gt;chain of extends&lt;/em&gt; you will find in the &lt;code&gt;Django&lt;/code&gt; admin templates.&lt;/p&gt;
+&lt;h2 id="indexhtml"&gt;index.html&lt;/h2&gt;
+&lt;p&gt;This file is just used as a base template for the &lt;code&gt;app_index.html&lt;/code&gt; file. No other file extends &lt;code&gt;index.html&lt;/code&gt;. Only the &lt;code&gt;app_index.html&lt;/code&gt; extends &lt;code&gt;index.html&lt;/code&gt;.&lt;/p&gt;
+&lt;h1 id="rest-of-the-templates"&gt;Rest of the templates&lt;/h1&gt;
+&lt;p&gt;Every other single template (apart from the ones mentioned above) either extends the &lt;code&gt;base_site.html&lt;/code&gt; or act as standalone ready to be &lt;a href="https://docs.djangoproject.com/en/dev/ref/templates/builtins/#std:templatetag-include"&gt;&lt;em&gt;included&lt;/em&gt;&lt;/a&gt; somewhere (for example &lt;code&gt;actions.html&lt;/code&gt;).&lt;/p&gt;
+&lt;h1 id="url-template-file-relationship"&gt;URL-Template file relationship&lt;/h1&gt;
+&lt;p&gt;In this section we will see which template file is actually called under a particular admin URL. We are assuming that inside your &lt;a href="https://docs.djangoproject.com/en/dev/topics/http/urls/"&gt;URLconf&lt;/a&gt; file (also known as &lt;code&gt;urls.py&lt;/code&gt;) the string &lt;code&gt;admin&lt;/code&gt; is the one that you have chosen to visit the admin website. For example, if your site is &lt;code&gt;mywebsite.com&lt;/code&gt; and this line is in your &lt;code&gt;urlpatterns&lt;/code&gt; variable under &lt;code&gt;urls.py&lt;/code&gt;: &lt;code&gt;url(r'^admin/', include(admin.site.urls)),&lt;/code&gt; then you should visit the magnificent admin website at &lt;code&gt;mywebsite.com/admin/&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;URL: &lt;strong&gt;&lt;code&gt;yourwebsite.com/&amp;lt;app_label&amp;gt;/&amp;lt;model_name&amp;gt;/&lt;/code&gt;&lt;/strong&gt;, Template: &lt;strong&gt;&lt;code&gt;change_list.html&lt;/code&gt;&lt;/strong&gt;&lt;ul&gt;
+&lt;li&gt;Inside the template &lt;code&gt;change_list.html&lt;/code&gt; the following templates are &lt;em&gt;included&lt;/em&gt;: &lt;code&gt;change_list_results.html&lt;/code&gt;, &lt;code&gt;actions.html&lt;/code&gt; and &lt;code&gt;pagination.html&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;URL (yourwebsite.com/admin/...)&lt;/th&gt;
+&lt;th&gt;Template&lt;/th&gt;
+&lt;th&gt;Comments&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;''&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;index.html&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;The admin home page&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;&amp;lt;app_label&amp;gt;/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;app_index.html&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;You have clicked on the name of the app (not model)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;&amp;lt;app_label&amp;gt;/&amp;lt;model_name&amp;gt;/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;change_list.html&lt;/code&gt;&amp;#185;&lt;/td&gt;
+&lt;td&gt;You have clicked on the name of a model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;&amp;lt;app_label&amp;gt;/&amp;lt;model_name&amp;gt;/&amp;lt;pk&amp;gt;/change/&lt;/code&gt; &lt;code&gt;&amp;lt;app_label&amp;gt;/&amp;lt;model_name&amp;gt;/add/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;change_form.html&lt;/code&gt;&amp;#178;&lt;/td&gt;
+&lt;td&gt;You have clicked on an object to change it&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;&amp;lt;app_label&amp;gt;/&amp;lt;model_name&amp;gt;/&amp;lt;pk&amp;gt;/history/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;object_history.html&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;You have clicked on the HISTORY button to see the object's history&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;&amp;lt;app_label&amp;gt;/&amp;lt;model_name&amp;gt;/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;delete_confirmation.html&lt;/code&gt;&amp;#179;&lt;/td&gt;
+&lt;td&gt;You have checked &lt;strong&gt;one&lt;/strong&gt; object, selected &lt;em&gt;Delete selected &lt;models_name&gt;&lt;/em&gt; and pressed &lt;em&gt;Go&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;&amp;lt;app_label&amp;gt;/&amp;lt;model_name&amp;gt;/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;delete_selected_confirmation.html&lt;/code&gt;&amp;#179;&lt;/td&gt;
+&lt;td&gt;You have checked &lt;strong&gt;multiple&lt;/strong&gt; objects, selected &lt;em&gt;Delete selected &lt;models_name&gt;&lt;/em&gt; and pressed &lt;em&gt;Go&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;login/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;login.html&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;You requested to login&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;password_change/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;registration/password_change_form.html&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;You requested to change your password&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;logout/&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;registration/logged_out.html&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;You requested to logged out&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&amp;#185; Inside the template &lt;code&gt;change_list.html&lt;/code&gt; these templates are used:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;change_list_results.html&lt;/code&gt; (to show the objects of this model - entries in the database, if you like)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;actions.html&lt;/code&gt; (to show the &lt;em&gt;actions&lt;/em&gt; &lt;code&gt;div&lt;/code&gt; which contains the default action &lt;code&gt;Delete&lt;/code&gt; and any other of your own)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;pagination.html&lt;/code&gt; (for the pagination across your objects)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;date_hierarchy.html&lt;/code&gt; (only if the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.date_hierarchy"&gt;&lt;code&gt;date_hierarchy&lt;/code&gt;&lt;/a&gt; is used)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;filter.html&lt;/code&gt; (only if the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter"&gt;&lt;code&gt;list_filter&lt;/code&gt;&lt;/a&gt; is used)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;search_form.html&lt;/code&gt; (only if the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.search_fields"&gt;&lt;code&gt;search_fields&lt;/code&gt;&lt;/a&gt; is used)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;#178; Inside the template &lt;code&gt;change_form.html&lt;/code&gt; these templates are used:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;edit_inline/stacked.html&lt;/code&gt; and &lt;code&gt;edit_inline/tabular.html&lt;/code&gt; (if the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#inlinemodeladmin-objects"&gt;&lt;code&gt;StackedInline&lt;/code&gt; or &lt;code&gt;TabularInline&lt;/code&gt;&lt;/a&gt; is used)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;related_widget_wrapper.html&lt;/code&gt; (again, if an inline is used)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;includes/fieldset.html&lt;/code&gt; (if the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.fieldsets"&gt;&lt;code&gt;fieldsets&lt;/code&gt;&lt;/a&gt; or/and an inline is used)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;submit_line.html&lt;/code&gt; (in order to show the bottom - or &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.save_on_top"&gt;top&lt;/a&gt; - &lt;code&gt;div&lt;/code&gt; of the &lt;em&gt;Delete&lt;/em&gt;, &lt;em&gt;Save and add another`&lt;/em&gt;, &lt;em&gt;Save and continue editing&lt;/em&gt; and &lt;em&gt;Save&lt;/em&gt; buttons)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;prepopulated_fields_js.html&lt;/code&gt; (if the &lt;a href="https://docs.djangoproject.com/en/dev/ref/contrib/admin/#django.contrib.admin.ModelAdmin.prepopulated_fields"&gt;&lt;code&gt;prepopulated_fields&lt;/code&gt;&lt;/a&gt; is used)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;#179; Inside the templates &lt;code&gt;delete_confirmation.html&lt;/code&gt; and &lt;code&gt;delete_selected_confirmation.html&lt;/code&gt; the &lt;code&gt;includes/object_delete_summary.html&lt;/code&gt;template is used.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;figure&gt;
+&lt;img id="dj-admin-diagram" alt="Django admin template inheritance diagram" src="/images/django_admin_template_structure/admin_template_inheritance.jpg"&gt;
+&lt;figcaption&gt;Django admin template inheritance diagram&lt;/figcaption&gt;
+&lt;/figure&gt;</content><category term="Django"></category><category term="python"></category><category term="django-admin"></category><category term="django-admin templates"></category></entry></feed>

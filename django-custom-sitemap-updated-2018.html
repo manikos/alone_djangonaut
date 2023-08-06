@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://alone-djangonaut.com/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/solid.css">
+
+    <link href="https://alone-djangonaut.com/extra/manikos_style.css" rel="stylesheet">
+
+    <link href="https://alone-djangonaut.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alone Djangonaut Atom">
+
+
+    <link rel="shortcut icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+
+  
+
+
+<meta name="author" content="Nick Mavrakis" />
+<meta name="description" content="Build a sitemap (xml file) for multi-regional and multilingual websites using Django&#39;s builtin Sitemap framework." />
+<meta name="keywords" content="python, sitemap, google">
+
+
+<meta property="og:site_name" content="Alone Djangonaut"/>
+<meta property="og:title" content="Django custom sitemap (updated 2018)"/>
+<meta property="og:description" content="Build a sitemap (xml file) for multi-regional and multilingual websites using Django&#39;s builtin Sitemap framework."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://alone-djangonaut.com/django-custom-sitemap-updated-2018"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-12-27 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2018-09-29 00:00:00+03:00"/>
+<meta property="article:author" content="https://alone-djangonaut.com/author/nick-mavrakis.html">
+<meta property="article:section" content="Django"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="sitemap"/>
+<meta property="article:tag" content="google"/>
+<meta property="og:image" content="https://alone-djangonaut.com/images/logo/logo_3.png">
+
+  <title>Alone Djangonaut &ndash; Django custom sitemap (updated 2018)</title>
+
+</head>
+<body >
+  <aside>
+    <div>
+      <a href="https://alone-djangonaut.com">
+        <img src="https://alone-djangonaut.com/images/logo/logo_3.png" alt="Alone Djangonaut" title="Alone Djangonaut">
+      </a>
+
+      <h1>
+        <a href="https://alone-djangonaut.com">Alone Djangonaut</a>
+      </h1>
+
+<p>living in the pale blue dot</p>
+
+      <nav>
+        <ul class="list">
+
+
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/portfolio/">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/about/">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/contact/">
+                  Contact
+                </a>
+              </li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/manikosN" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-github" href="https://github.com/manikos" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-stack-overflow" href="https://stackoverflow.com/users/2231182/nik-m" target="_blank">
+              <i class="fab fa-stack-overflow"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-rss" href="feeds/all.atom.xml" target="_blank">
+              <i class="fas fa-rss"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://alone-djangonaut.com">Home</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+      <a href="https://alone-djangonaut.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="django-custom-sitemap-updated-2018">Django custom sitemap (updated 2018)</h1>
+    <p>
+      Posted on Tue 27 December 2016 in <a href="https://alone-djangonaut.com/category/django.html">Django</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <p><strong>UPDATE Sep 2018</strong>: The old post regarding the template tag had some bugs. As of 2018, I fixed it and now this post
+is updated and works only for Python 3.6+.</p>
+<p>So you have done the following:</p>
+<ol>
+<li>Used your favorite Web Framework (<a href="https://www.djangoproject.com/">Django</a>) to build your website.</li>
+<li>Made enough <a href="https://docs.djangoproject.com/en/dev/topics/testing/">tests</a> to verify that everything is working flawlessly.</li>
+<li><a href="https://docs.djangoproject.com/en/dev/topics/i18n/translation/">Translated</a> your whole website in each 
+   <a href="https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-LANGUAGES">language</a> and (of course) each page has its translated version.</li>
+<li>Used <a href="https://docs.djangoproject.com/en/dev/topics/i18n/translation/#django.conf.urls.i18n.i18n_patterns"><code>i18n_patterns</code></a> function to prefix your urls with the language code.</li>
+<li>Hosted your website somewhere and...</li>
+</ol>
+<p>asked yourself why Google does not index your translated pages of your website.</p>
+<h2 id="introduction">Introduction</h2>
+<p>This <a href="https://support.google.com/webmasters/answer/182192?hl=en&amp;ref_topic=2370587">excellent article from Google</a> states that there are 2 kinds
+of "translated" websites: <code>multilingual</code> and <code>multi-regional</code>. You can have none, one of them or both, depending on your needs.
+Let's assume that you have build a <code>multiregional</code> website:</p>
+<blockquote>
+<p><em>A multilingual website is any website that offers content in more than one language. Examples of multilingual websites might include a 
+  Canadian business with an English and a French version of its site, or a blog on Latin American soccer available in both Spanish and Portuguese.</em></p>
+</blockquote>
+<p>It also states that:</p>
+<blockquote>
+<p>Keep the content for each language on separate URLs. Don’t use cookies to show translated versions of the page.
+  Consider cross-linking each language version of a page. That way, a French user who lands on the German version of your page
+  can get to the right language version with a single click. Avoid automatic redirection based on the user’s perceived language.
+  These redirections could prevent users (and search engines) from viewing all the versions of your site.</p>
+</blockquote>
+<p>Not to be confused with too many quotes, lets clarify some things:</p>
+<ul>
+<li>Lets say that your domain is <code>www.example.com</code>.</li>
+<li>Suppose you have set the <a href="https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-LANGUAGE"><code>LANGUAGE</code></a> setting as <code>en-US</code>.
+  This means that the default (and fallback, if translations of other languages are not found) language of your entire website will be <code>en-US</code>.</li>
+<li>Next, you have support for 2 other languages, declared in the <a href="https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-LANGUAGES">LANGUAGES</a> setting. Say, <code>it</code> and <code>el</code>.</li>
+<li>As we said, you use <a href="https://docs.djangoproject.com/en/dev/topics/i18n/translation/#django.conf.urls.i18n.i18n_patterns"><code>i18n_patterns</code></a> function to prefix your urls with the language code.
+  So, the <code>about</code> page in English would be: <code>www.example.com/en/about/</code>, the Italian version: <code>www.example.com/it/about/</code>
+  and the Greek version: <code>www.example.com/el/about/</code>.</li>
+<li>When someone (who lives in an English spoken language region) searches Google (keywords such as "example about") for your about page, 
+  the result is <code>www.example.com/en/about/</code> (the english version of the about page).</li>
+<li>When I search Google with keywords such as "example about" (I live in Greece) I expect to get <code>www.example.com/el/about/</code>
+  but instead I get the same result as the English spoken user. Same happens with the Italian user.</li>
+</ul>
+<p>So, how do you tell Google (at least Googlebot) to index the other versions of the same page?</p>
+<h2 id="enter-the-hreflang-attribute">Enter the <strong>hreflang</strong> attribute</h2>
+<p>There are 3 ways to notify web crawlers to index your translated pages.
+<a href="https://support.google.com/webmasters/answer/189077?hl=en&amp;ref_topic=2370587">Another excellent article</a> from Google which exposes the 3 potential 
+ways (HTML tags, HTTP headers and Sitemap).</p>
+<p>In this post, we will cover the 3rd option. That is, build a Sitemap for our entrire website with respect to <strong>all</strong> the supported languages.
+How do we do it? Using the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/">Django's built-in Sitemap framework</a>.</p>
+<p>But before we jump into code, take a look at the <a href="https://support.google.com/webmasters/answer/2620865?hl=en&amp;ref_topic=2370587">template of the sitemap file</a>
+which we need to construct. The key point is to <strong>include in each <code>&lt;url&gt;&lt;/url&gt;</code> element the page itself and the other versions of this page</strong>
+using the <code>&lt;xhtml:link rel="alternate" hreflang="xx" href="xxx"/&gt;</code> element. Maybe this sounds confusing but bear with me.</p>
+<p>Assuming that you have done the <a href="https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/#installation">basics</a> (in order for the <code>Sitemap</code>
+framework to work properly) and you are in position to generate a <code>sitemap.xml</code> file when someone hits <code>www.example.com/sitemap.xml</code>,
+then lets begin with building owr own sitemap file.</p>
+<ol>
+<li>
+<p>Create an empty file <code>sitemap.xml</code> and place it under the <code>templates/</code> directory.</p>
+</li>
+<li>
+<p>Make sure that the <code>templates/</code> dir is <a href="https://docs.djangoproject.com/en/dev/ref/settings/#dirs">discoverable</a>
+   by Django (but you have already done this, right?).</p>
+</li>
+<li>
+<p>Edit your root <code>URLconf</code> file and under the url that serves the sitemap file, change the template to be used.
+   In my case, I have this (note the <code>template_name</code> dictionary key):</p>
+<div class="highlight"><pre><span></span><span class="n">urlpatterns</span> <span class="o">+=</span> <span class="p">[</span>
+    <span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^sitemap\.xml/$&#39;</span><span class="p">,</span> <span class="n">django</span><span class="o">.</span><span class="n">contrib</span><span class="o">.</span><span class="n">sitemaps</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">sitemap</span><span class="p">,</span> 
+        <span class="p">{</span><span class="s1">&#39;sitemaps&#39;</span><span class="p">:</span> <span class="n">SITEMAPS</span><span class="p">,</span> 
+        <span class="s1">&#39;template_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sitemap.xml&#39;</span><span class="p">},</span> 
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;django.contrib.sitemaps.views.sitemap&#39;</span><span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>Edit the <code>sitemap.py</code> file that is responsible of generating the sitemap and add in each <code>Class</code> that inherits from <code>django.contrib.sitemaps.Sitemap</code>
+   the attribute <code>i18n = True</code>, in order for the sitemap to include <strong>all</strong> the urls (including the ones with the prefixed language code).
+   If we didn't include it (the default value is <code>False</code>) then the sitemap would include i.e only the <code>www.example.com/about/</code> page and not
+   the other two ones (<code>it</code> and <code>el</code>).</p>
+</li>
+<li>
+<p>Create an app (<code>python manage.py startapp</code>), if you haven't already, that will hold the project's wide template tags (or/and filters).
+   My usual way to do this, is that with every project I always create an app (called <code>dtl_utils</code>) which hosts code that is project-wide applied
+   (not bound to a specific app). Follow the guide on <a href="https://docs.djangoproject.com/en/dev/howto/custom-template-tags/#writing-custom-template-tags">how to write custom template tags</a>.
+   I'll assume that the <code>.py</code> file which contains the template tag is named <code>dtl_tags.py</code>.</p>
+</li>
+<li>
+<p>Open the <code>dtl_tags.py</code> file and add the following:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
+<span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="kn">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+
+<span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+
+<span class="n">LANG_CODES</span> <span class="o">=</span> <span class="p">[</span><span class="n">lang</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">lang</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">LANGUAGES</span><span class="p">]</span>
+<span class="n">PATTERN</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;^/(</span><span class="si">{</span><span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LANG_CODES</span><span class="p">)</span><span class="si">}</span><span class="s1">)/&#39;</span>
+<span class="n">REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PATTERN</span><span class="p">)</span>
+<span class="n">HREF_LANG</span> <span class="o">=</span> <span class="s1">&#39;&amp;lt;xhtml:link rel=&quot;alternate&quot; hreflang=&quot;</span><span class="si">{hreflang}</span><span class="s1">&quot; href=&quot;</span><span class="si">{href}</span><span class="s1">&quot; /&amp;gt;&#39;</span>
+
+<span class="nd">@register</span><span class="o">.</span><span class="n">simple_tag</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">sitemap_hreflang_url</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    parse.urlparse extracts to 6 components (https://tools.ietf.org/html/rfc1808.html):</span>
+
+<span class="sd">    scheme://   netloc/           path    ;parameters  ?query   #fragment</span>
+<span class="sd">      |            |               |          |          |          |</span>
+<span class="sd">    |---|   |--------------|  |----------| |------|  |-------|  |------|</span>
+<span class="sd">    https://www.example.com   /en/moments/ ;type=a   ?active=1   #go-to</span>
+
+<span class="sd">    We want each url (generated by the sitemap) to include itself along with</span>
+<span class="sd">    other translated versions.</span>
+<span class="sd">    For example: the url &quot;www.example.com&quot; (el) should include itself along</span>
+<span class="sd">    with &quot;www.example.com/en/&quot; (en) and the url &quot;www.example.com/en/&quot; (en)</span>
+<span class="sd">    should include itself along with &quot;www.example.com&quot; (el). This procedure</span>
+<span class="sd">    should apply to all urls.</span>
+<span class="sd">    Google&#39;s answer:</span>
+<span class="sd">    support.google.com/webmasters/answer/2620865?hl=en&amp;amp;ref_topic=2370587</span>
+<span class="sd">    :param str uri: A fully qualified URL incl schema (https://ex.com/statues/)</span>
+<span class="sd">    :return: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parsed_uri</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+    <span class="n">to_return</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">lang_code</span> <span class="ow">in</span> <span class="n">LANG_CODES</span><span class="p">:</span>
+        <span class="n">new_path</span> <span class="o">=</span> <span class="n">REGEX</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">lang_code</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span> <span class="n">parsed_uri</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">new_uri</span> <span class="o">=</span> <span class="n">parsed_uri</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">new_path</span><span class="p">)</span>
+        <span class="n">to_return</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HREF_LANG</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hreflang</span><span class="o">=</span><span class="n">lang_code</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="n">new_uri</span><span class="o">.</span><span class="n">geturl</span><span class="p">()))</span>
+
+    <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">to_return</span><span class="p">))</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>The comments inside the template tag <code>sitemap_hreflang_url</code> are quite self-explanatory.
+   We take advantage of all the urls generated by the <code>sitemap.py</code> file (not shown here, but a simple look of this is shown in the
+   <a href="https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/#a-simple-example">Django docs</a>) with the option <code>i18n = True</code> in each <code>Class</code>
+   and we try to figure out all the other versions of this url.</p>
+</li>
+<li>
+<p>Open the empty <code>templates/sitemap.xml</code> file and add the following:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span>{% load dtl_tags %}<span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;urlset</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;</span> <span class="na">xmlns:xhtml=</span><span class="s">&quot;http://www.w3.org/1999/xhtml&quot;</span><span class="nt">&gt;</span>
+{% for url in urlset %}
+  <span class="nt">&lt;url&gt;</span>
+    <span class="nt">&lt;loc&gt;</span>{{ url.location }}<span class="nt">&lt;/loc&gt;</span>
+    {% if url.lastmod %}<span class="nt">&lt;lastmod&gt;</span>{{ url.lastmod|date:&quot;Y-m-d&quot; }}<span class="nt">&lt;/lastmod&gt;</span>{% endif %}
+    {% if url.changefreq %}<span class="nt">&lt;changefreq&gt;</span>{{ url.changefreq }}<span class="nt">&lt;/changefreq&gt;</span>{% endif %}
+    {% if url.priority %}<span class="nt">&lt;priority&gt;</span>{{ url.priority }}<span class="nt">&lt;/priority&gt;</span>{% endif %}
+    {% sitemap_hreflang_url url.location %}
+  <span class="nt">&lt;/url&gt;</span>
+{% endfor %}
+<span class="nt">&lt;/urlset&gt;</span>
+</pre></div>
+
+
+<p>A few notes here:</p>
+<ul>
+<li>The <code>&lt;?xm version=...</code> line should be on the first line (along with the <code>load</code> statement), otherwise the <code>.xml</code> file will not be valid.</li>
+<li>The core of this template lives inside <code>django.contrib.sitemaps.templates</code> directory. The only parts that we have added are
+      <code>{% load dtl_tags %}</code>, <code>xmlns:xhtml="http://www.w3.org/1999/xhtml"</code> and <code>{% sitemap_hreflang_url url.location %}</code>.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>So, that's it! </p>
+<p>With the above implementation you can have a Google verified sitemap.xml which will inform the Googlebot about the other (translated)
+versions of your urls-pages.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://alone-djangonaut.com/tag/python.html">python</a>
+      <a href="https://alone-djangonaut.com/tag/sitemap.html">sitemap</a>
+      <a href="https://alone-djangonaut.com/tag/google.html">google</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'manikos';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy; 2023 Nick Mavrakis</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://alone-djangonaut.com/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Alone Djangonaut ",
+  "url" : "https://alone-djangonaut.com",
+  "image": "https://alone-djangonaut.com/images/logo/logo_3.png",
+  "description": "Tutorials, blog posts and thoughts of a Django developer. He/him. Music lover."
+}
+</script>
+
+
+</body>
+</html>

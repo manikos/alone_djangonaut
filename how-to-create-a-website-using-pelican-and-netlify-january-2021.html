@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/stylesheet/style.min.css">
+
+    <link id="dark-theme-style" rel="stylesheet" type="text/css"
+          media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+    href="https://alone-djangonaut.com/theme/stylesheet/dark-theme.min.css">
+
+    <link id="pygments-dark-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: dark), (prefers-color-scheme: no-preference)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+              media="(prefers-color-scheme: light)"
+          href="https://alone-djangonaut.com/theme/pygments/monokai.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://alone-djangonaut.com/theme/font-awesome/css/solid.css">
+
+    <link href="https://alone-djangonaut.com/extra/manikos_style.css" rel="stylesheet">
+
+    <link href="https://alone-djangonaut.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alone Djangonaut Atom">
+
+
+    <link rel="shortcut icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="https://alone-djangonaut.com/extra/favicon.ico" type="image/x-icon">
+
+  
+
+
+<meta name="author" content="Nick Mavrakis" />
+<meta name="description" content="How to properly set Pelican, Github and Netlify for a static generated website in minutes." />
+<meta name="keywords" content="python, pelican, netlify">
+
+
+<meta property="og:site_name" content="Alone Djangonaut"/>
+<meta property="og:title" content="How to create a website using Pelican and Netlify (January 2021)"/>
+<meta property="og:description" content="How to properly set Pelican, Github and Netlify for a static generated website in minutes."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="https://alone-djangonaut.com/how-to-create-a-website-using-pelican-and-netlify-january-2021"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2021-01-01 00:00:00+02:00"/>
+<meta property="article:modified_time" content="2021-01-01 00:00:00+02:00"/>
+<meta property="article:author" content="https://alone-djangonaut.com/author/nick-mavrakis.html">
+<meta property="article:section" content="python, website"/>
+<meta property="article:tag" content="python"/>
+<meta property="article:tag" content="pelican"/>
+<meta property="article:tag" content="netlify"/>
+<meta property="og:image" content="https://alone-djangonaut.com/images/logo/logo_3.png">
+
+  <title>Alone Djangonaut &ndash; How to create a website using Pelican and Netlify (January 2021)</title>
+
+</head>
+<body >
+  <aside>
+    <div>
+      <a href="https://alone-djangonaut.com">
+        <img src="https://alone-djangonaut.com/images/logo/logo_3.png" alt="Alone Djangonaut" title="Alone Djangonaut">
+      </a>
+
+      <h1>
+        <a href="https://alone-djangonaut.com">Alone Djangonaut</a>
+      </h1>
+
+<p>living in the pale blue dot</p>
+
+      <nav>
+        <ul class="list">
+
+
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/portfolio/">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/about/">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://alone-djangonaut.com/page/contact/">
+                  Contact
+                </a>
+              </li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-twitter" href="https://twitter.com/manikosN" target="_blank">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-github" href="https://github.com/manikos" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-stack-overflow" href="https://stackoverflow.com/users/2231182/nik-m" target="_blank">
+              <i class="fab fa-stack-overflow"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-rss" href="feeds/all.atom.xml" target="_blank">
+              <i class="fas fa-rss"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="https://alone-djangonaut.com">Home</a>
+
+      <a href="/archives.html">Archives</a>
+      <a href="/categories.html">Categories</a>
+      <a href="/tags.html">Tags</a>
+
+      <a href="https://alone-djangonaut.com/feeds/all.atom.xml">Atom</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="how-to-create-a-website-using-pelican-and-netlify-january-2021">How to create a website using Pelican and Netlify (January 2021)</h1>
+    <p>
+      Posted on Fri 01 January 2021 in <a href="https://alone-djangonaut.com/category/python-website.html">python, website</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <h1 id="introduction">Introduction</h1>
+<p>This introduction is going to be short since you already know what <a href="https://blog.getpelican.com/">Pelican</a>, Github and <a href="https://www.netlify.com/">Netlify</a> is used for. If not, here's an overview of those services:</p>
+<ul>
+<li>Pelican: A <a href="https://en.wikipedia.org/wiki/Web_template_system#Static_site_generators">static site generator</a> (SSG). In other words, a Python program where you write files in Markdown (or reStructuredText) format and Pelican generates a bunch of <code>.html</code> files ready to be seen in your browser or deployed in a web server. Got it? No databases (<em>static</em>), bunch of <code>html</code>files (<em>site</em>), pelican python program (<em>generator</em>).</li>
+<li>Github: A website which provides hosting for software development and version control using Git. If you're reading this you already know that!</li>
+<li>Netlify: A website that offers hosting for web applications and static websites. The <a href="https://www.netlify.com/pricing/">free plan</a> for a simple blog is more than enough. It also has DNS management service where we'll configure a custom domain later on.</li>
+</ul>
+<p>The choice Pelican was made because I like Python, I'm very familiar with it and if something breaks I can dig into it and fix it. No need to tell about Github! The choice of Netlify was mainly for experiment. I just wanted to try it out and it worked really well. At first, I tried <a href="https://pages.github.com/">Github Pages</a>, but setting up a custom domain there (with SSL and support for <code>www</code>subdomain) was a headache. So, I <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">separated the concerns</a> and used Github for repo hosting and Netlify for website hosting (plus DNS management).</p>
+<p>Feel free to try a different combination for your static site. Check out <a href="https://jamstack.org/generators/">Jamstack</a>!</p>
+<h1 id="pelican">Pelican</h1>
+<p>As of 1<sup>st</sup> Jan 2021, Netlify <a href="https://community.netlify.com/t/python-version-for-custom-build/6267/3">supports these Python versions</a> in the Ubuntu Xenial 16.04 image (current default build image for all new sites): 2.7, 3.5, and 3.7. Thus, you should install Python 3.7 in your system. The recommended way is one: <a href="https://github.com/pyenv/pyenv">pyenv</a>. Clean and simple.</p>
+<p>Before you start, you should <a href="https://docs.python.org/3/tutorial/venv.html">create a vitrualenv</a> (using python 3.7) and install every pelican-related package under this virtualenv. That's <strong>very important</strong> in order not to "pollute" your system with unnecessary python packages. </p>
+<p>Since a lot of articles have been written about how to set up Pelican (the <a href="https://docs.getpelican.com/en/latest/">official docs</a> are quite explanatory too), I'll assume that you have completed <a href="https://frankcorso.dev/setting-up-pelican-static-site-generator.html">this tutorial</a> by <a href="https://github.com/fpcorso">Frank Corso</a>. After all, it's just a <code>pip install pelican</code>.</p>
+<p>After that, you should initialize your project with git. <code>cd my_project &amp;&amp; git init</code>.</p>
+<h2 id="themes">Themes</h2>
+<p>Most of the times, you'll want to change the default theme. Once <a href="http://pelicanthemes.com/">you found</a> the one you like, visit the github repository and copy the HTTPS url of it (not the SSH one). Then:</p>
+<div class="highlight"><pre><span></span><span class="nb">cd</span> your_project
+mkdir themes
+git submodule add HTTPS_URL_HERE themes/THEME_NAME_HERE
+<span class="c1"># example</span>
+git submodule add https://github.com/alexandrevicenzi/Flex.git themes/Flex
+</pre></div>
+
+
+<p>We follow this procedure (instead of <code>git clone</code>) because I have been bitten by Netlify error regarding submodules, during the build procedure. The first error was submodules-related and the other was <a href="https://community.netlify.com/t/hugo-site-deployment-failed-due-to-host-key-verification/783/4">this</a> regarding host key verification.</p>
+<p>After you have installed your new theme, read it's documentation, play with the variables it provides (you set these variables inside <code>pelicanconf.py</code>) and make sure that your site works as expected and looks good.</p>
+<h2 id="commands">Commands</h2>
+<p>Now that you have your project ready and you can successfully interact with it in your browser, have a look at the <code>Makefile</code> and the <code>tasks.py</code> file. These files were produced, automatically, by the <code>pelican-quickstart</code> command you typed to get started. When you <code>pip freeze</code> you'll see the package <code>invoke</code> listed. This <a href="http://www.pyinvoke.org/">package</a> allows you to run local commands/tasks just like it's complementary <code>fabric</code> <a href="https://www.pyinvoke.org/faq.html#invoke-split-from-fabric">which focus</a> on remote tasks (usually over SSH).</p>
+<p>Type <code>inv --list</code> (alias for <code>invoke --list</code>) and you'll see the available commands. For example, typing <code>inv build</code> it will actually run under the hood <code>pelican pelicanconf.py</code>. Of course you could write the pelican command yourself but wrap it in a task it's more flexible once the commands are getting more complex and reusability is needed.</p>
+<p>The most used out-of-the-box command would probably be <code>inv serve</code>. This command runs a localhost server at port 8000. Visit <code>127.0.0.1:8000</code> or <code>localhost:8000</code> and you should see your site. The annoying part is that you have to hit F5 in your browser each time a change is made in one of your <code>.md</code> or <code>.rst</code> files. </p>
+<p>Enter, hot-reloading by running <code>inv livereload</code> (needs <code>pip install livereload</code>). Now, each time you save an article, the browser tab reloads automatically. There is a <a href="https://github.com/getpelican/pelican/issues/2595">known closed issue here</a>, where you have to remove the setting <code>ARTICLE_URL</code> from the <code>pelicanconf.py</code> or move it to <code>publishconf.py</code>. I have done both and works. Among other values, my <code>publishconf.py</code> includes <code>ARTICLE_URL = "{slug}"</code>.</p>
+<h2 id="github">Github</h2>
+<p>My <code>.gitignore</code> file looks like this: </p>
+<div class="highlight"><pre><span></span><span class="o">*.</span><span class="n">pid</span>
+<span class="o">*.</span><span class="n">swp</span>
+<span class="o">.</span><span class="n">gitignore</span>
+<span class="c1"># do not track output directory since it will be rebuild by Netlify</span>
+<span class="n">output</span><span class="o">/</span>
+<span class="n">__pycache__</span><span class="o">/</span>
+<span class="c1"># This is a PyCharm-specific directory. Delete it if you&#39;re not using PyCharm</span>
+<span class="o">.</span><span class="n">idea</span><span class="o">/</span>
+</pre></div>
+
+
+<p>Upload your project to Github.</p>
+<div class="highlight"><pre><span></span><span class="nb">cd</span> my_project
+git status  <span class="c1"># optional, check which files are ready to be staged</span>
+git add .
+git commit -m <span class="s2">&quot;initial commit&quot;</span>
+git push -u origin main
+</pre></div>
+
+
+<p>Done. Now we have to find a home for our project.</p>
+<h2 id="netlify">Netlify</h2>
+<p>In order for others to see your website, you have to host it somewhere. Again, Frank Corso, has a <a href="https://frankcorso.dev/deploying-your-pelican-static-site-to-netlify.html">second part tutorial with pictures</a> which guides you through setting up Netlify.</p>
+<p>Two notes here regarding this tutorial. First, in the "Publish directory" setting, enter <code>output</code> instead of <code>output/</code>. Secondly, you don't have to set the <code>PYTHON_VERSION</code> environment variable to <code>3.7</code> since this is the default. On the other hand, none will hurt if you do :)</p>
+<p>Procedure in a nutshell:</p>
+<ol>
+<li>You make changes locally</li>
+<li>You <code>git push -u origin main</code></li>
+<li>Netlify is notified by the push and starts the build process</li>
+<li>One task of the build process is the <code>Build Command</code> you wrote</li>
+<li>Once all build tasks are completed, the <code>output</code> folder will hold the final <code>.html</code> files (along with any js, css, images, fonts etc) which you see in your browser.</li>
+</ol>
+<h2 id="custom-domain">Custom Domain</h2>
+<p>Netlify, gives each app a unique url (for example <code>https://admiring-sammet-45tt89.netlify.app/</code>). If you're fine with that then... congratulations! You have your site deployed and hosted on Netlify.</p>
+<p>If not, you have to buy a domain from a registrar. Usually, you buy the bare domain (<code>example.com</code> instead of <code>www.example.com</code>) and then you can have as many subdomains as you want (depending on you registrar). </p>
+<p>Once you buy it, you can connect it with your netlify app. Steps to follow:</p>
+<p>Open the dashboard of your registrar page, where you have admin privileges of your domain. For this specific domain (say, <code>alone-djangonaut.com</code>) change the nameservers to:</p>
+<div class="highlight"><pre><span></span><span class="n">dns1</span><span class="o">.</span><span class="n">p05</span><span class="o">.</span><span class="n">nsone</span><span class="o">.</span><span class="n">net</span>
+<span class="n">dns2</span><span class="o">.</span><span class="n">p05</span><span class="o">.</span><span class="n">nsone</span><span class="o">.</span><span class="n">net</span>
+<span class="n">dns3</span><span class="o">.</span><span class="n">p05</span><span class="o">.</span><span class="n">nsone</span><span class="o">.</span><span class="n">net</span>
+<span class="n">dns4</span><span class="o">.</span><span class="n">p05</span><span class="o">.</span><span class="n">nsone</span><span class="o">.</span><span class="n">net</span>
+</pre></div>
+
+
+<p>Wait 10-15 minutes (maybe less) until the new information is propagated among the nameservers. </p>
+<p>Now, visit the dashboard of your app on Netlify (<code>https://app.netlify.com/teams/YOUR_USERNAME/sites</code>). Click on your project you want to bind the domain with. Click <code>Domain Settings</code>. You should see this:</p>
+<p><img src="/home/nick/Documents/hobby/Python/alone_djangonaut/content/images/pelican_netlify/netlify_domain_list.png" alt="Domain list in Netlify" style="zoom:80%;" /></p>
+<p>If  <code>Netlify DNS</code> button is not showing, either the nameservers you entered in your registrar page are not propagated yet or there is a typo there. Check again and refresh the page on Netlify until this button is shown. Once it's there, click on it. You should see this:</p>
+<p><img src="/home/nick/Documents/hobby/Python/alone_djangonaut/content/images/pelican_netlify/netlify_dns.png" alt="Netlify DNS records" style="zoom:80%;" /></p>
+<p>Each line is a DNS record. The two records that have <code>IN NETLIFY</code> will be already there. Disregard the other records. There is a Bonus section at the end of this article (setting up an email using your domain) that explains these records.</p>
+<p>For now, you're all done. Visit your domain and share your work with others!</p>
+<h2 id="expenses">Expenses</h2>
+<p>For a personal blog in order to keep your articles/photos/thoughts/you-name-it you don't want to have an extra headache in your monthly expenses. If you do not buy a domain and use the one provided by Netlify, your monthly charge will be zero (0). </p>
+<p>If you decide to buy one, then you set the monthly charge because not all domains cost the same (it depends on various factors such as the Top Level Domain - <code>.com</code>, <code>.io</code>, <code>.dev</code>, <code>.info</code> etc). Thus it's your choice how much you're able to spend.</p>
+<h2 id="workflow">Workflow</h2>
+<p>As we said earlier, each time you make a change in your project in contrast to the one that's on Github, you have to push the changes. That's it! You can also wrap this procedure in a function inside <code>tasks.py</code> and simply do <code>inv push</code>.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="c1"># tasks.py</span>
+
+<span class="c1"># ... other tasks here</span>
+
+<span class="nd">@task</span>
+<span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Push project to Github&quot;&quot;&quot;</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;git add . &amp;&amp; git commit -m &quot;Update project&quot; &amp;&amp; git push origin main&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<h2 id="bonus-section-setup-an-email-with-your-custom-domain">Bonus section (setup an email with your custom domain)</h2>
+<p>It's a little bit unprofessional to own a domain and not an email with this domain, isn't it? How about to fix that? Bonus #2: this service is also free!</p>
+<ol>
+<li>Visit https://forwardemail.net/ and create an account. </li>
+<li>Go to https://forwardemail.net/en/my-account/domains and click on <code>ADD NEW DOMAIN</code> button. </li>
+<li>Enter your custom domain you bought (i.e <code>alone-djangonaut.com</code>)</li>
+<li>Click on <code>Configure your domain</code> button and follow the very-well-explained instructions</li>
+<li>Once you have completed these steps, go back and click on <code>Verify Records</code> button (see image below)</li>
+<li>You'll probably get an error since it's too early. You have to wait from 1-10 hours in order for propagation to complete</li>
+<li>That's it. Now you can receive email using your domain.</li>
+</ol>
+<p><img src="/home/nick/Documents/hobby/Python/alone_djangonaut/content/images/pelican_netlify/forwardemail.png" alt="Forwardemail domain status page" style="zoom:80%;" /></p>
+<p>You can also send emails using your domain (<code>info@alone-djangonaut.com</code>). For this, you have to follow the instructions after you click the button <code>Setup your Gmail</code>.</p>
+<p>You can use the image above (with the DNS records), in the <code>Custom Domain</code> section, for reference. All records, are going to be written in the Netlify's DNS records. Not your registrar's page. That's because we have changed the nameservers and we are using Netlify's nameservers.</p>
+<h2 id="fin">Fin</h2>
+<p>You're now a professional with your own website, domain and email!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://alone-djangonaut.com/tag/python.html">python</a>
+      <a href="https://alone-djangonaut.com/tag/pelican.html">pelican</a>
+      <a href="https://alone-djangonaut.com/tag/netlify.html">netlify</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'manikos';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy; 2023 Nick Mavrakis</p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+  <span class="footer-separator">|</span>
+  Switch to the <a href="javascript:void(0)" onclick="theme.switch(`dark`)">dark</a> | <a href="javascript:void(0)" onclick="theme.switch(`light`)">light</a> | <a href="javascript:void(0)" onclick="theme.switch(`browser`)">browser</a> theme
+  <script id="dark-theme-script"
+          src="https://alone-djangonaut.com/theme/dark-theme/dark-theme.min.js"
+          data-enable-auto-detect-theme="True"
+          data-default-theme="dark"
+          type="text/javascript">
+  </script>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Alone Djangonaut ",
+  "url" : "https://alone-djangonaut.com",
+  "image": "https://alone-djangonaut.com/images/logo/logo_3.png",
+  "description": "Tutorials, blog posts and thoughts of a Django developer. He/him. Music lover."
+}
+</script>
+
+
+</body>
+</html>
